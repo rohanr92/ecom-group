@@ -1,0 +1,87 @@
+// Save as: src/app/influencers/page.tsx
+'use client'
+import { useState } from 'react'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import { Star, Users, TrendingUp } from 'lucide-react'
+
+export default function InfluencersPage() {
+  const [form, setForm] = useState({ name: '', handle: '', platform: 'Instagram', followers: '', email: '', message: '' })
+  const [sent, setSent] = useState(false)
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Navbar />
+      <main className="flex-1">
+        <div style={{ position: 'relative', minHeight: '360px', overflow: 'hidden' }}>
+          <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=1400&auto=format&fit=crop&q=80"
+            alt="Influencers" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0, filter: 'brightness(0.55)' }} />
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '360px', textAlign: 'center', padding: '60px 20px' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', marginBottom: '16px' }}>Partner With Us</p>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,6vw,68px)', fontWeight: 300, fontStyle: 'italic', color: '#fff' }}>Creator Program</h1>
+          </div>
+        </div>
+
+        <div className="max-container" style={{ padding: 'clamp(48px,7vw,96px) clamp(16px,4vw,60px)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '60px', maxWidth: '680px', margin: '0 auto 60px' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--color-mid)', lineHeight: 1.9 }}>
+              Join the Solomon Lawrence creator community and get paid to share styles you love. We partner with influencers of all sizes — from micro-creators to established style icons.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px,1fr))', gap: '24px', marginBottom: '72px' }}>
+            {[
+              { icon: <Star size={24} strokeWidth={1.5} />, title: 'Free Product', desc: 'Receive complimentary pieces from our latest collections to style and share.' },
+              { icon: <TrendingUp size={24} strokeWidth={1.5} />, title: 'Commission', desc: 'Earn 10–20% commission on every sale made through your unique link.' },
+              { icon: <Users size={24} strokeWidth={1.5} />, title: 'Community', desc: 'Join an exclusive community of creators with early access to new drops.' },
+              { icon: <Instagram size={24} strokeWidth={1.5} />, title: 'Exposure', desc: 'Get featured on our official channels with a combined following of 500k+.' },
+            ].map((item, i) => (
+              <div key={i} style={{ background: 'var(--color-cream)', padding: '32px 24px', textAlign: 'center' }}>
+                <div style={{ color: 'var(--color-accent)', display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>{item.icon}</div>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontStyle: 'italic', fontWeight: 400, marginBottom: '10px' }}>{item.title}</h3>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--color-mid)', lineHeight: 1.7 }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '32px', fontStyle: 'italic', fontWeight: 400, textAlign: 'center', marginBottom: '32px' }}>Apply to Partner</h2>
+            {sent ? (
+              <div style={{ textAlign: 'center', padding: '48px', background: 'var(--color-cream)' }}>
+                <p style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontStyle: 'italic', fontWeight: 400, marginBottom: '8px' }}>Application Received!</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-mid)' }}>We'll review your profile and get back to you within 5 business days.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {[
+                  { label: 'Full Name', key: 'name', type: 'text' },
+                  { label: 'Email Address', key: 'email', type: 'email' },
+                  { label: 'Instagram / TikTok Handle', key: 'handle', type: 'text', placeholder: '@yourhandle' },
+                  { label: 'Follower Count', key: 'followers', type: 'text', placeholder: 'e.g. 25,000' },
+                ].map(field => (
+                  <div key={field.key}>
+                    <label style={{ fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-charcoal)', display: 'block', marginBottom: '6px' }}>{field.label}</label>
+                    <input type={field.type} value={(form as any)[field.key]} placeholder={(field as any).placeholder ?? ''}
+                      onChange={e => setForm(p => ({ ...p, [field.key]: e.target.value }))}
+                      style={{ width: '100%', padding: '11px 14px', border: '1px solid #ddd', fontFamily: 'var(--font-body)', fontSize: '13px', outline: 'none' }} />
+                  </div>
+                ))}
+                <div>
+                  <label style={{ fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-charcoal)', display: 'block', marginBottom: '6px' }}>Tell Us About Yourself</label>
+                  <textarea value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
+                    placeholder="Your niche, audience, and why you love Solomon Lawrence..."
+                    rows={4} style={{ width: '100%', padding: '11px 14px', border: '1px solid #ddd', fontFamily: 'var(--font-body)', fontSize: '13px', outline: 'none', resize: 'vertical' }} />
+                </div>
+                <button onClick={() => setSent(true)}
+                  style={{ padding: '14px', background: 'var(--color-charcoal)', color: '#fff', border: 'none', fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  Submit Application
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  )
+}

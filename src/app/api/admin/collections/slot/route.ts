@@ -1,4 +1,4 @@
-// Save as: src/app/api/admin/collections/slots/route.ts (NEW FILE)
+// Save as: src/app/api/admin/collections/slot/route.ts (NEW FILE)
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAdminFromRequest } from '@/lib/admin-auth'

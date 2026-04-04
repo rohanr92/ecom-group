@@ -38,12 +38,15 @@ export async function PATCH(req: NextRequest) {
   if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
-    const { id, status, trackingNumber } = await req.json()
+    const { id, status, trackingNumber, courier } = await req.json()
 
-    const order = await prisma.order.update({
-      where: { id },
-      data:  { ...(status && { status }), ...(trackingNumber && { trackingNumber }) },
-      include: { items: true, addresses: true },
+const order = await prisma.order.update({
+  where: { id },
+  data:  {
+    ...(status         && { status }),
+    ...(trackingNumber && { trackingNumber }),
+    ...(courier        && { courier }),
+  },
     })
 
     // ── Trigger emails based on new status ───────────────────────

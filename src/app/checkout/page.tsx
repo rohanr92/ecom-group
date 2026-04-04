@@ -724,40 +724,7 @@ export default function CheckoutPage() {
                       </div>
                     )}
 
-                    {/* Promo code */}
-                    <div className="border-t border-gray-100 pt-4 mt-5">
-                      <button onClick={() => setPromoOpen(o => !o)}
-                        className="flex items-center gap-2 text-[12px] text-[#1a1a1a] tracking-wide bg-transparent border-none cursor-pointer hover:underline">
-                        <Tag size={12} strokeWidth={1.5} />
-                        {promoResult ? `Promo applied: ${promoResult.code}` : 'Add Promo Code'}
-                        <ChevronDown size={12} className={`transition-transform ${promoOpen ? 'rotate-180' : ''}`} />
-                      </button>
-                      {promoOpen && !promoResult && (
-                        <div className="mt-3">
-                          <div className="flex">
-                            <input value={promoCode}
-                              onChange={e => { setPromoCode(e.target.value); setPromoError('') }}
-                              placeholder="Enter promo code"
-                              className="flex-1 px-3 py-2 text-[12px] border border-gray-300 border-r-0 outline-none focus:border-[#1a1a1a] tracking-wide placeholder:text-gray-300" />
-                            <button onClick={applyPromo} disabled={promoLoading}
-                              className="px-5 py-2 bg-[#1a1a1a] text-white text-[11px] tracking-widest uppercase border-none cursor-pointer hover:bg-gray-800 shrink-0 disabled:opacity-50">
-                              {promoLoading ? '...' : 'Apply'}
-                            </button>
-                          </div>
-                          {promoError && <p className="text-red-500 text-[11px] mt-1">{promoError}</p>}
-                          <p className="text-[10px] text-gray-400 mt-1">Try: SOLOMON10 or WELCOME20</p>
-                        </div>
-                      )}
-                      {promoResult && (
-                        <div className="mt-2 flex items-center justify-between text-[12px]">
-                          <span className="text-[#4a6741]">✓ ${promoResult.discount.toFixed(2)} discount applied!</span>
-                          <button onClick={() => { setPromoResult(null); setPromoCode('') }}
-                            className="text-gray-400 underline bg-transparent border-none cursor-pointer text-[11px]">
-                            Remove
-                          </button>
-                        </div>
-                      )}
-                    </div>
+
 
                     {/* Donation */}
                     <div className="border-t border-gray-100 pt-4 mt-4">
@@ -784,6 +751,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* ── RIGHT: Order Summary ── */}
+{/* ── RIGHT: Order Summary ── */}
             <div className="lg:col-span-2">
               <div className="bg-white border border-gray-200 sticky top-24">
                 <div className="px-5 py-4 border-b border-gray-100">
@@ -816,6 +784,38 @@ export default function CheckoutPage() {
                       </div>
                     ))
                   }
+                </div>
+
+                {/* Promo code */}
+                <div className="px-5 py-4 border-b border-gray-100">
+                  <div className="flex gap-2">
+                    <input
+                      value={promoCode}
+                      onChange={e => { setPromoCode(e.target.value); setPromoError('') }}
+                      placeholder="Promo code"
+                      disabled={!!promoResult}
+                      className="flex-1 px-3 py-2 text-[12px] border border-gray-300 outline-none focus:border-[#1a1a1a] tracking-wide placeholder:text-gray-300 disabled:bg-gray-50"
+                    />
+                    <button
+                      onClick={applyPromo}
+                      disabled={promoLoading || !!promoResult}
+                      className="px-4 py-2 bg-[#1a1a1a] text-white text-[11px] tracking-widest uppercase border-none cursor-pointer hover:bg-gray-800 shrink-0 disabled:opacity-50"
+                    >
+                      {promoLoading ? '...' : 'Apply'}
+                    </button>
+                  </div>
+                  {promoError && <p className="text-red-500 text-[11px] mt-1">{promoError}</p>}
+                  {promoResult && (
+                    <div className="mt-2 flex items-center justify-between text-[12px]">
+                      <span className="text-[#4a6741]">✓ {promoResult.code} applied!</span>
+                      <button
+                        onClick={() => { setPromoResult(null); setPromoCode('') }}
+                        className="text-gray-400 underline bg-transparent border-none cursor-pointer text-[11px]"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Totals */}

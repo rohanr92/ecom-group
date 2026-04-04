@@ -99,7 +99,7 @@ model Product {
   description  String?
   details      String[]
   price        Decimal  @db.Decimal(10, 2)
-  comparePrice Decimal? @db.Decimal(10, 2) @map("compare_price")
+  comparePrice Decimal? @map("compare_price") @db.Decimal(10, 2)
   category     String
   badge        String?
   images       String[]
@@ -107,7 +107,7 @@ model Product {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-variants      ProductVariant[]
+  variants      ProductVariant[]
   orderItems    OrderItem[]
   reviews       Review[]
   wishlistItems WishlistItem[]
@@ -139,7 +139,7 @@ model Order {
   email           String
   status          OrderStatus   @default(PENDING)
   subtotal        Decimal       @db.Decimal(10, 2)
-  shippingCost    Decimal       @db.Decimal(10, 2) @map("shipping_cost")
+  shippingCost    Decimal       @map("shipping_cost") @db.Decimal(10, 2)
   tax             Decimal       @db.Decimal(10, 2)
   discount        Decimal       @default(0) @db.Decimal(10, 2)
   total           Decimal       @db.Decimal(10, 2)
@@ -149,6 +149,7 @@ model Order {
   shippoOrderId   String?       @map("shippo_order_id")
   trackingNumber  String?       @map("tracking_number")
   trackingUrl     String?       @map("tracking_url")
+  courier         String?       @map("courier")
   promoCode       String?       @map("promo_code")
   notes           String?
   createdAt       DateTime      @default(now()) @map("created_at")
@@ -214,8 +215,8 @@ model ReturnRequest {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user  User?  @relation(fields: [userId], references: [id])
-  order Order  @relation(fields: [orderId], references: [id])
+  user  User? @relation(fields: [userId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
 
   @@map("return_requests")
 }
@@ -231,6 +232,8 @@ model Review {
   size      String?
   bodyType  String?  @map("body_type")
   verified  Boolean  @default(false)
+  approved  Boolean  @default(false)
+  helpful   Int      @default(0)
   createdAt DateTime @default(now()) @map("created_at")
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -244,7 +247,7 @@ model PromoCode {
   code      String    @unique
   type      PromoType @default(PERCENT)
   value     Decimal   @db.Decimal(10, 2)
-  minOrder  Decimal?  @db.Decimal(10, 2) @map("min_order")
+  minOrder  Decimal?  @map("min_order") @db.Decimal(10, 2)
   usesLeft  Int?      @map("uses_left")
   expiresAt DateTime? @map("expires_at")
   isActive  Boolean   @default(true) @map("is_active")
@@ -268,7 +271,6 @@ model WishlistItem {
   @@map("wishlist_items")
 }
 
-
 model AdminUser {
   id           String    @id @default(uuid())
   name         String
@@ -285,19 +287,19 @@ model AdminUser {
   @@map("admin_users")
 }
 
-
 model Collection {
-  id          String   @id @default(uuid())
+  id          String              @id @default(uuid())
   name        String
-  slug        String   @unique
+  slug        String              @unique
   description String?
   image       String?
-  isActive    Boolean  @default(true) @map("is_active")
-  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean             @default(true) @map("is_active")
+  sortOrder   Int                 @default(0) @map("sort_order")
   products    CollectionProduct[]
   slots       CollectionSlot[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
   @@map("collections")
 }
 
@@ -309,6 +311,7 @@ model CollectionProduct {
   collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now()) @map("created_at")
+
   @@unique([collectionId, productId])
   @@map("collection_products")
 }
@@ -320,6 +323,7 @@ model CollectionSlot {
   collectionId String?     @map("collection_id")
   collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
   updatedAt    DateTime    @updatedAt @map("updated_at")
+
   @@map("collection_slots")
 }
 
@@ -331,6 +335,7 @@ model CmsPage {
   isActive  Boolean  @default(true) @map("is_active")
   updatedAt DateTime @updatedAt @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
+
   @@map("cms_pages")
 }
 
@@ -339,5 +344,6 @@ model CmsSetting {
   key       String   @unique
   value     Json
   updatedAt DateTime @updatedAt @map("updated_at")
+
   @@map("cms_settings")
 }

@@ -82,7 +82,7 @@ export default function CollectionsPage() {
   const loadSlots = async () => {
     setSlotsLoading(true)
     try {
-      const res  = await fetch('/api/admin/collections/slots')
+      const res  = await fetch('/api/admin/collections/slot')
       const data = await res.json()
       setSlots(data.slots ?? [])
     } catch {
@@ -162,7 +162,7 @@ export default function CollectionsPage() {
   const handleSlotChange = async (slot: string, collectionId: string) => {
     setSavingSlot(slot)
     try {
-      const res = await fetch('/api/admin/collections/slots', {
+      const res = await fetch('/api/admin/collections/slot', {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ slot, collectionId: collectionId || null }),
@@ -448,6 +448,26 @@ export default function CollectionsPage() {
                   {slots.filter(s => s.slot.startsWith('cart')).length === 0 ? (
                     <p className="px-5 py-4 text-[13px] text-gray-400">No slots found — try refreshing</p>
                   ) : slots.filter(s => s.slot.startsWith('cart')).map(slot => (
+                    <SlotRow key={slot.slot} slot={slot} collections={collections}
+                      saving={savingSlot === slot.slot}
+                      onChange={collectionId => handleSlotChange(slot.slot, collectionId)} />
+                  ))}
+                </div>
+              </div>
+
+
+
+              {/* Product Page slots */}
+              <div className="bg-white border border-gray-200">
+                <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
+                  <Package size={15} strokeWidth={1.5} className="text-[#c8a882]" />
+                  <h2 className="text-[13px] font-semibold text-[#1a1a1a]">Product Page Slots</h2>
+                  <span className="text-[11px] text-gray-400 ml-1">— grids shown on every product detail page</span>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {slots.filter(s => s.slot.startsWith('product_page')).length === 0 ? (
+                    <p className="px-5 py-4 text-[13px] text-gray-400">No slots found — try refreshing</p>
+                  ) : slots.filter(s => s.slot.startsWith('product_page')).map(slot => (
                     <SlotRow key={slot.slot} slot={slot} collections={collections}
                       saving={savingSlot === slot.slot}
                       onChange={collectionId => handleSlotChange(slot.slot, collectionId)} />

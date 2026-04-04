@@ -1,4 +1,5 @@
-// Save as: src/app/api/collections/slot/route.ts (REPLACE existing)
+// Save as: src/app/api/collections/slot/route.ts (REPLACE entire file)
+// PUBLIC route — no auth required — used by frontend to fetch products for a display slot
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -10,25 +11,29 @@ export async function GET(req: NextRequest) {
 
   try {
     const slotRow = await prisma.collectionSlot.findUnique({
-      where:   { slot },
-      include: { collection: { include: {
-        products: {
-          include: { product: { include: { variants: true } } },
-          orderBy: { sortOrder: 'asc' },
-          take:    limit,
+      where: { slot },
+      include: {
+        collection: {
+          include: {
+            products: {
+              include: { product: true },
+              orderBy: { sortOrder: 'asc' },
+              take: limit,
+            },
+          },
         },
-      }}},
+      },
     })
 
-    // No collection assigned — return empty, do NOT fallback
     if (!slotRow?.collection) {
-      return NextResponse.json({ products: [], collection: null })
+      return NextResponse.json({ products: [], source: 'empty' })
     }
 
     const products = slotRow.collection.products.map(cp => cp.product)
     return NextResponse.json({
       products,
       collection: { id: slotRow.collection.id, name: slotRow.collection.name },
+      source: 'collection',
     })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })

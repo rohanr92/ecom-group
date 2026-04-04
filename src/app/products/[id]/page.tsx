@@ -1,71 +1,21 @@
+// Save as: src/app/products/[id]/page.tsx (REPLACE entire file)
+// DESIGN IS IDENTICAL — only data source changed from hardcoded to DB
+// Share button now opens native share sheet or copies link
 'use client'
 
-import React, { useState } from 'react'
-import { useEffect } from 'react' 
+import React, { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import ProductPageSkeleton from '@/components/ProductPageSkeleton'
 import Link from 'next/link'
-import { Heart, Share2, ChevronDown, ChevronUp, Star, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, ShieldCheck } from 'lucide-react'
+import { Heart, Share2, ChevronDown, ChevronUp, Star, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, ShieldCheck, Copy, X } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useCart } from '@/components/CartContext'
 import AddedToCartModal from '@/components/AddedToCartModal'
+import WishlistButton from '@/components/WishlistButton'
 import type { CartItem } from '@/components/CartContext'
-
-// ── Fake product data ─────────────────────────────────────────────
-const product = {
-  id: 1,
-  name: 'Silk Wrap Midi Dress',
-  brand: 'Solomon Lawrence',
-  price: 218,
-  originalPrice: null,
-  badge: 'Best Seller',
-  description: 'Effortlessly elegant, this silk wrap midi dress is cut from a fluid, lightweight fabric that drapes beautifully with every movement. Designed for the woman who moves between boardroom and dinner with ease.',
-  details: [
-    'Fabric: 100% Silk',
-    'Lining: 95% Polyester, 5% Elastane',
-    'Dry clean only',
-    'Adjustable wrap tie at waist',
-    'V-neckline with flutter sleeves',
-    'Midi length, approximately 42" from shoulder',
-    'Model is 5\'9" wearing size S',
-  ],
-  colors: [
-    { name: 'Caramel', hex: '#c8a882' },
-    { name: 'Onyx',    hex: '#1a1a1a' },
-    { name: 'Mocha',   hex: '#8b6f5e' },
-  ],
-  sizes: ['XS', 'S', 'M', 'L', 'XL'],
-  rating: 4.8,
-  reviewCount: 41,
-  images: [
-    'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1570464197285-9949814674a7?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=800&auto=format&fit=crop&q=80',
-  ],
-  ratingBreakdown: { 5: 28, 4: 9, 3: 3, 2: 1, 1: 0 },
-  reviews: [
-    { id: 1, name: 'Emma R.', rating: 5, date: 'March 12, 2026', title: 'Absolutely stunning', body: 'This dress exceeded every expectation. The silk feels incredible against the skin and the wrap style is so flattering. I wore it to a wedding and got compliments all night.', size: 'S', body_type: 'Petite', verified: true },
-    { id: 2, name: 'Leila M.', rating: 5, date: 'February 28, 2026', title: 'Worth every penny', body: 'I was hesitant about the price but this is quality you can feel immediately. True to size, drapes beautifully. Already planning to buy another color.', size: 'M', body_type: 'Curvy', verified: true },
-    { id: 3, name: 'Sofia K.', rating: 4, date: 'February 15, 2026', title: 'Elegant and versatile', body: 'Love this dress for both casual and formal occasions. Only reason for 4 stars is that the tie could be slightly longer for a more generous wrap.', size: 'S', body_type: 'Athletic', verified: true },
-  ],
-}
-
-const relatedProducts = [
-  { id: 3,  name: 'Structured Blazer',      price: 248, image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&auto=format&fit=crop&q=80', badge: null },
-  { id: 8,  name: 'Plissé Midi Skirt',      price: 158, image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&auto=format&fit=crop&q=80', badge: 'New' },
-  { id: 15, name: 'Smocked Maxi Dress',     price: 198, originalPrice: 248, image: 'https://images.unsplash.com/photo-1570464197285-9949814674a7?w=400&auto=format&fit=crop&q=80', badge: 'Sale' },
-  { id: 4,  name: 'Ruffle Wrap Set',        price: 148, image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&auto=format&fit=crop&q=80', badge: 'New' },
-  { id: 11, name: 'Cropped Trench Coat',    price: 328, image: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=400&auto=format&fit=crop&q=80', badge: 'New' },
-]
-
-const styleWith = [
-  { id: 7,  name: 'Strappy Heel Sandal',  price: 118, image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&auto=format&fit=crop&q=80' },
-  { id: 14, name: 'Leather Belt Bag',     price: 148, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80' },
-  { id: 20, name: 'Gold Hoop Earring Set',price: 48,  image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&auto=format&fit=crop&q=80' },
-]
+import { StyleWithGrid, YouMayAlsoLikeGrid } from '@/components/ProductPageGrids'
+import ProductReviews from '@/components/ProductReviews'
 
 // ── Star Rating ───────────────────────────────────────────────────
 function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -85,77 +35,198 @@ function Accordion({ title, children, defaultOpen = false }: { title: string; ch
   const [open, setOpen] = useState(defaultOpen)
   return (
     <div className="border-t border-gray-100">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between py-4 text-left bg-transparent border-none cursor-pointer group"
-      >
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between py-4 text-left bg-transparent border-none cursor-pointer group">
         <span className="text-[12px] font-semibold tracking-[0.15em] uppercase text-[#1a1a1a]">{title}</span>
-        {open
-          ? <ChevronUp size={15} strokeWidth={1.5} className="text-gray-400" />
-          : <ChevronDown size={15} strokeWidth={1.5} className="text-gray-400" />
-        }
+        {open ? <ChevronUp size={15} strokeWidth={1.5} className="text-gray-400" />
+               : <ChevronDown size={15} strokeWidth={1.5} className="text-gray-400" />}
       </button>
       {open && <div className="pb-4">{children}</div>}
     </div>
   )
 }
 
-// ── Main Component ────────────────────────────────────────────────
-export default function ProductPage() {
-  const [selectedColor, setSelectedColor] = useState(product.colors[0])
-  const [selectedSize, setSelectedSize] = useState<string | null>(null)
-  const [wished, setWished] = useState(false)
-  const [activeImage, setActiveImage] = useState(0)
-  const [added, setAdded] = useState(false)
-  const [sizeError, setSizeError] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const { addItem } = useCart()
-  
-const [modalItem, setModalItem] = useState<CartItem | null>(null)
+// ── Share Modal ───────────────────────────────────────────────────
+function ShareModal({ onClose, productName }: { onClose: () => void; productName: string }) {
+  const [copied, setCopied] = useState(false)
+  const url = typeof window !== 'undefined' ? window.location.href : ''
 
-useEffect(() => {
-  if (!loading) return
-  const timer = setTimeout(() => setLoading(false), 1200)
-  return () => clearTimeout(timer)
-}, [])
-
- 
-
-  const handleAddToCart = () => {
-  if (!selectedSize) { setSizeError(true); return }
-  setSizeError(false)
-  const item: CartItem = {
-    id: product.id,
-    name: product.name,
-    brand: product.brand,
-    price: product.price,
-    image: product.images[0],
-    size: selectedSize,
-    color: selectedColor.name,
-    quantity: 1,
+  const copy = async () => {
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
-  addItem(item)
-  setModalItem(item)
-  setAdded(true)           
-setTimeout(() => setAdded(false), 2000)
+
+  const shareOptions = [
+  {
+  label: 'Facebook',
+  icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>,
+  color: '#1877f2',
+  action: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank'),
+},
+{
+  label: 'X / Twitter',
+  icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>,
+  color: '#000',
+  action: () => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(`Check out ${productName} from Solomon Lawrence`)}`, '_blank'),
+},
+    {
+      label: 'Pinterest',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.22-5.17 1.22-5.17s-.31-.62-.31-1.55c0-1.45.84-2.54 1.89-2.54.89 0 1.32.67 1.32 1.47 0 .9-.57 2.24-.87 3.48-.25 1.04.52 1.88 1.54 1.88 1.85 0 3.27-1.95 3.27-4.76 0-2.49-1.79-4.23-4.34-4.23-2.96 0-4.69 2.22-4.69 4.51 0 .89.34 1.85.77 2.37.08.1.09.2.07.3-.08.32-.25 1.04-.28 1.18-.04.19-.14.23-.32.14-1.25-.58-2.03-2.42-2.03-3.89 0-3.15 2.29-6.05 6.61-6.05 3.47 0 6.16 2.47 6.16 5.77 0 3.45-2.17 6.22-5.19 6.22-1.01 0-1.97-.53-2.3-1.15l-.62 2.33c-.23.87-.84 1.96-1.25 2.62.94.29 1.94.45 2.97.45 5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
+        </svg>
+      ),
+      color: '#e60023',
+      action: () => window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent(productName)}`, '_blank'),
+    },
+    {
+      label: 'WhatsApp',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+      ),
+      color: '#25d366',
+      action: () => window.open(`https://wa.me/?text=${encodeURIComponent(`${productName} - ${url}`)}`, '_blank'),
+    },
+  ]
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+      onClick={onClose}>
+      <div style={{ background: '#fff', width: '100%', maxWidth: '480px', padding: '24px', borderRadius: '12px 12px 0 0' }}
+        onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 600, color: '#1a1a1a', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Share this product</p>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={18} /></button>
+        </div>
+
+        {/* Social buttons */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+          {shareOptions.map(opt => (
+            <button key={opt.label} onClick={opt.action}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', border: '1px solid #e8e4de', background: '#fff', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '13px', color: '#1a1a1a', textAlign: 'left' }}>
+              <span style={{ color: opt.color }}>{opt.icon}</span>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Copy link */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '12px', border: '1px solid #e8e4de', background: '#f8f6f1' }}>
+          <p style={{ flex: 1, fontFamily: 'var(--font-body)', fontSize: '12px', color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{url}</p>
+          <button onClick={copy}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: '#1a1a1a', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+            {copied ? <><Check size={12} /> Copied!</> : <><Copy size={12} /> Copy</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-  const totalReviews = Object.values(product.ratingBreakdown).reduce((a, b) => a + b, 0)
+// ── Main Component ────────────────────────────────────────────────
+export default function ProductPage() {
+  const params = useParams()
+  const productId = params?.id as string
+
+  const [product, setProduct] = useState<any>(null)
+  const [loading, setLoading]  = useState(true)
+  const [selectedColor, setSelectedColor] = useState<any>(null)
+  const [selectedSize,  setSelectedSize]  = useState<string | null>(null)
+  const [activeImage,   setActiveImage]   = useState(0)
+  const [added,         setAdded]         = useState(false)
+  const [sizeError,     setSizeError]     = useState(false)
+  const [showShare,     setShowShare]     = useState(false)
+  const [modalItem,     setModalItem]     = useState<CartItem | null>(null)
+  const { addItem } = useCart()
+
+  // ── Fetch product from DB ──────────────────────────────────────
+  useEffect(() => {
+    if (!productId) return
+    setLoading(true)
+    fetch(`/api/products/${productId}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.product) {
+          const p = d.product
+          // Normalise fields so the template always has the same shape
+          p.images    = Array.isArray(p.images) && p.images.length ? p.images
+                        : ['https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&auto=format&fit=crop&q=80']
+          p.colors    = p.variants
+                        ? [...new Map(p.variants.filter((v:any) => v.color).map((v:any) => [v.color, { name: v.color, hex: '#c8a882' }])).values()]
+                        : []
+          p.sizes     = p.variants
+                        ? [...new Set(p.variants.filter((v:any) => v.size).map((v:any) => v.size))]
+                        : []
+          p.rating      = 4.8
+          p.reviewCount = 0
+          p.reviews     = []
+          p.ratingBreakdown = { 5:0, 4:0, 3:0, 2:0, 1:0 }
+          p.details     = p.details ?? []
+          p.brand       = p.brand ?? 'Solomon Lawrence'
+          setProduct(p)
+          if (p.colors.length) setSelectedColor(p.colors[0])
+        }
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [productId])
+
+  const handleAddToCart = () => {
+    if (!selectedSize && product?.sizes?.length) { setSizeError(true); return }
+    setSizeError(false)
+    const item: CartItem = {
+      id:       product.id,
+      name:     product.name,
+      brand:    product.brand,
+      price:    Number(product.price),
+      image:    product.images[0],
+      size:     selectedSize ?? '',
+      color:    selectedColor?.name ?? '',
+      quantity: 1,
+    }
+    addItem(item)
+    setModalItem(item)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 2000)
+  }
+
+  if (loading) return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Navbar />
+      <ProductPageSkeleton />
+      <Footer />
+    </div>
+  )
+
+  if (!product) return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Navbar />
+      <main className="flex-1 flex items-center justify-center">
+        <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '32px', fontStyle: 'italic', fontWeight: 300, color: '#1a1a1a', marginBottom: '12px' }}>Product not found</p>
+          <Link href="/collections/all" className="btn-outline">Browse Collections</Link>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  )
+
+  
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
-{loading ? <ProductPageSkeleton /> : (
-      <main className="flex-1">
 
+      <main className="flex-1">
         {/* Breadcrumb */}
         <div className="max-container px-4 md:px-10 py-3 border-b border-gray-100">
           <div className="flex items-center gap-2 text-xs text-gray-400 tracking-wide">
             <Link href="/" className="hover:text-[#1a1a1a] hover:underline">Home</Link>
             <span>/</span>
             <Link href="/collections" className="hover:text-[#1a1a1a] hover:underline">Women</Link>
-            <span>/</span>
-            <Link href="/collections/dresses" className="hover:text-[#1a1a1a] hover:underline">Dresses</Link>
             <span>/</span>
             <span className="text-[#1a1a1a]">{product.name}</span>
           </div>
@@ -167,16 +238,12 @@ setTimeout(() => setAdded(false), 2000)
 
             {/* ── Image Gallery ── */}
             <div className="flex gap-3">
-
               {/* Thumbnail strip */}
               <div className="hidden md:flex flex-col gap-2 w-16 shrink-0">
-                {product.images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImage(i)}
+                {product.images.map((img: string, i: number) => (
+                  <button key={i} onClick={() => setActiveImage(i)}
                     className={`aspect-[3/4] overflow-hidden border-2 transition-all cursor-pointer p-0 bg-transparent
-                      ${activeImage === i ? 'border-[#1a1a1a]' : 'border-transparent hover:border-gray-300'}`}
-                  >
+                      ${activeImage === i ? 'border-[#1a1a1a]' : 'border-transparent hover:border-gray-300'}`}>
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
@@ -185,34 +252,25 @@ setTimeout(() => setAdded(false), 2000)
               {/* Main image */}
               <div className="flex-1 relative">
                 <div className="aspect-[3/4] overflow-hidden bg-[#f5f2ed] relative group">
-                  <img
-                    src={product.images[activeImage]}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  <img src={product.images[activeImage]} alt={product.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   {product.badge && (
                     <span className="absolute top-3 left-3 bg-[#1a1a1a] text-white text-[9px] font-semibold tracking-widest uppercase px-2.5 py-1">
                       {product.badge}
                     </span>
                   )}
-                  {/* Prev/Next arrows */}
-                  <button
-                    onClick={() => setActiveImage(i => (i - 1 + product.images.length) % product.images.length)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none shadow-sm"
-                  >
+                  <button onClick={() => setActiveImage(i => (i - 1 + product.images.length) % product.images.length)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none shadow-sm">
                     <ChevronLeft size={16} strokeWidth={1.5} />
                   </button>
-                  <button
-                    onClick={() => setActiveImage(i => (i + 1) % product.images.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none shadow-sm"
-                  >
+                  <button onClick={() => setActiveImage(i => (i + 1) % product.images.length)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none shadow-sm">
                     <ChevronRight size={16} strokeWidth={1.5} />
                   </button>
                 </div>
-
-                {/* Mobile dot indicators */}
+                {/* Mobile dots */}
                 <div className="flex justify-center gap-1.5 mt-3 md:hidden">
-                  {product.images.map((_, i) => (
+                  {product.images.map((_: any, i: number) => (
                     <button key={i} onClick={() => setActiveImage(i)}
                       className={`w-1.5 h-1.5 rounded-full border-none cursor-pointer transition-all
                         ${activeImage === i ? 'bg-[#1a1a1a] w-4' : 'bg-gray-300'}`} />
@@ -223,7 +281,6 @@ setTimeout(() => setAdded(false), 2000)
 
             {/* ── Product Info ── */}
             <div className="flex flex-col">
-
               {/* Brand + Title */}
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -233,11 +290,18 @@ setTimeout(() => setAdded(false), 2000)
                   </h1>
                 </div>
                 <div className="flex gap-2 shrink-0 mt-1">
-                  <button onClick={() => setWished(w => !w)}
+                  {/* Wishlist — connected to DB */}
+                  <WishlistButton productId={product.id} size={16}
+                    className="w-9 h-9 border border-gray-200 hover:border-[#1a1a1a] transition-colors" />
+                  {/* Share */}
+                  <button onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({ title: product.name, text: `Check out ${product.name} from Solomon Lawrence`, url: window.location.href })
+                    } else {
+                      setShowShare(true)
+                    }
+                  }}
                     className="w-9 h-9 border border-gray-200 flex items-center justify-center hover:border-[#1a1a1a] transition-colors cursor-pointer bg-transparent">
-                    <Heart size={16} strokeWidth={1.5} fill={wished ? '#c0392b' : 'none'} color={wished ? '#c0392b' : '#1a1a1a'} />
-                  </button>
-                  <button className="w-9 h-9 border border-gray-200 flex items-center justify-center hover:border-[#1a1a1a] transition-colors cursor-pointer bg-transparent">
                     <Share2 size={15} strokeWidth={1.5} color="#1a1a1a" />
                   </button>
                 </div>
@@ -254,75 +318,61 @@ setTimeout(() => setAdded(false), 2000)
               {/* Price */}
               <div className="flex items-baseline gap-2.5 mt-4">
                 <span className="font-[family-name:var(--font-display)] text-2xl font-light text-[#1a1a1a]">
-                  ${product.price}
+                  ${Number(product.price).toFixed(2)}
                 </span>
-                {product.originalPrice && (
-                  <span className="text-sm text-gray-400 line-through">${product.originalPrice}</span>
+                {product.comparePrice && Number(product.comparePrice) > Number(product.price) && (
+                  <span className="text-sm text-gray-400 line-through">${Number(product.comparePrice).toFixed(2)}</span>
                 )}
               </div>
 
               <div className="w-12 h-px bg-[#c8a882] mt-5 mb-5" />
 
               {/* Color selector */}
-              <div>
-                <p className="text-[11px] tracking-[0.15em] uppercase text-[#1a1a1a] font-semibold mb-2.5">
-                  Color — <span className="font-normal text-gray-500">{selectedColor.name}</span>
-                </p>
-                <div className="flex gap-2">
-                  {product.colors.map(c => (
-                    <button
-                      key={c.name}
-                      onClick={() => setSelectedColor(c)}
-                      title={c.name}
-                      className={`w-8 h-8 rounded-full border-2 transition-all cursor-pointer p-0
-                        ${selectedColor.name === c.name ? 'border-[#1a1a1a] scale-110' : 'border-gray-200 hover:border-gray-500'}`}
-                      style={{ background: c.hex }}
-                    />
-                  ))}
+              {product.colors?.length > 0 && (
+                <div>
+                  <p className="text-[11px] tracking-[0.15em] uppercase text-[#1a1a1a] font-semibold mb-2.5">
+                    Color — <span className="font-normal text-gray-500">{selectedColor?.name}</span>
+                  </p>
+                  <div className="flex gap-2">
+                    {product.colors.map((c: any) => (
+                      <button key={c.name} onClick={() => setSelectedColor(c)} title={c.name}
+                        className={`w-8 h-8 rounded-full border-2 transition-all cursor-pointer p-0
+                          ${selectedColor?.name === c.name ? 'border-[#1a1a1a] scale-110' : 'border-gray-200 hover:border-gray-500'}`}
+                        style={{ background: c.hex }} />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Size selector */}
-              <div className="mt-5">
-                <div className="flex items-center justify-between mb-2.5">
-                  <p className="text-[11px] tracking-[0.15em] uppercase text-[#1a1a1a] font-semibold">Size</p>
-                  <button className="text-[11px] text-gray-400 underline tracking-wide bg-transparent border-none cursor-pointer hover:text-[#1a1a1a]">
-                    Size Guide
-                  </button>
+              {product.sizes?.length > 0 && (
+                <div className="mt-5">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <p className="text-[11px] tracking-[0.15em] uppercase text-[#1a1a1a] font-semibold">Size</p>
+                    <Link href="/size-guide" className="text-[11px] text-gray-400 underline tracking-wide hover:text-[#1a1a1a]">Size Guide</Link>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {product.sizes.map((s: string) => (
+                      <button key={s} onClick={() => { setSelectedSize(s); setSizeError(false) }}
+                        className={`min-w-[44px] h-10 px-3 border text-[12px] tracking-wider transition-all cursor-pointer
+                          ${selectedSize === s ? 'border-[#1a1a1a] bg-[#1a1a1a] text-white' : 'border-gray-300 bg-white text-[#1a1a1a] hover:border-[#1a1a1a]'}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                  {sizeError && <p className="text-red-500 text-[11px] tracking-wide mt-2">Please select a size to continue</p>}
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                  {product.sizes.map(s => (
-                    <button
-                      key={s}
-                      onClick={() => { setSelectedSize(s); setSizeError(false) }}
-                      className={`min-w-[44px] h-10 px-3 border text-[12px] tracking-wider transition-all cursor-pointer
-                        ${selectedSize === s
-                          ? 'border-[#1a1a1a] bg-[#1a1a1a] text-white'
-                          : 'border-gray-300 bg-white text-[#1a1a1a] hover:border-[#1a1a1a]'}`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-                {sizeError && (
-                  <p className="text-red-500 text-[11px] tracking-wide mt-2">Please select a size to continue</p>
-                )}
-              </div>
+              )}
 
               {/* Add to Cart */}
               <div className="flex gap-2.5 mt-6">
-                <button
-                  onClick={handleAddToCart}
+                <button onClick={handleAddToCart}
                   className={`flex-1 h-12 text-[12px] font-semibold tracking-[0.2em] uppercase transition-all cursor-pointer border flex items-center justify-center gap-2
-                    ${added
-                      ? 'bg-[#4a6741] border-[#4a6741] text-white'
-                      : 'bg-[#1a1a1a] border-[#1a1a1a] text-white hover:bg-transparent hover:text-[#1a1a1a]'}`}
-                >
+                    ${added ? 'bg-[#4a6741] border-[#4a6741] text-white' : 'bg-[#1a1a1a] border-[#1a1a1a] text-white hover:bg-transparent hover:text-[#1a1a1a]'}`}>
                   {added ? <><Check size={14} strokeWidth={2} /> Added</> : 'Add to Cart'}
                 </button>
-                <button className="h-12 px-5 border border-gray-300 text-[12px] tracking-[0.15em] uppercase text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors cursor-pointer bg-white">
-                  Wishlist
-                </button>
+                <WishlistButton productId={product.id} size={16} showLabel
+                  className="h-12 px-5 border border-gray-300 hover:border-[#1a1a1a] transition-colors" />
               </div>
 
               {/* Shipping badges */}
@@ -343,18 +393,19 @@ setTimeout(() => setAdded(false), 2000)
               {/* Accordions */}
               <div className="mt-2">
                 <Accordion title="Description" defaultOpen>
-                  <p className="text-[13px] text-gray-500 leading-relaxed tracking-wide">{product.description}</p>
+                  <p className="text-[13px] text-gray-500 leading-relaxed tracking-wide">{product.description || 'No description available.'}</p>
                 </Accordion>
-                <Accordion title="Product Details">
-                  <ul className="space-y-1.5">
-                    {product.details.map((d, i) => (
-                      <li key={i} className="text-[13px] text-gray-500 tracking-wide flex gap-2">
-                        <span className="text-[#c8a882] mt-0.5 shrink-0">—</span>
-                        {d}
-                      </li>
-                    ))}
-                  </ul>
-                </Accordion>
+                {product.details?.length > 0 && (
+                  <Accordion title="Product Details">
+                    <ul className="space-y-1.5">
+                      {product.details.map((d: string, i: number) => (
+                        <li key={i} className="text-[13px] text-gray-500 tracking-wide flex gap-2">
+                          <span className="text-[#c8a882] mt-0.5 shrink-0">—</span>{d}
+                        </li>
+                      ))}
+                    </ul>
+                  </Accordion>
+                )}
                 <Accordion title="Shipping & Returns">
                   <div className="space-y-2 text-[13px] text-gray-500 tracking-wide leading-relaxed">
                     <p>Free standard shipping on orders over $150. Express shipping available at checkout.</p>
@@ -366,136 +417,28 @@ setTimeout(() => setAdded(false), 2000)
           </div>
         </div>
 
-        {/* Style With */}
-        <section className="border-t border-gray-100 py-12">
-          <div className="max-container px-4 md:px-10">
-            <h2 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-light italic text-[#1a1a1a] mb-6">
-              Style With
-            </h2>
-            <div className="grid grid-cols-3 sm:grid-cols-3 gap-4 max-w-lg">
-              {styleWith.map(item => (
-                <Link key={item.id} href={`/products/${item.id}`} className="group no-underline">
-                  <div className="aspect-square overflow-hidden bg-[#f5f2ed]">
-                    <img src={item.image} alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  </div>
-                  <p className="text-[12px] text-[#1a1a1a] mt-2 leading-snug group-hover:underline">{item.name}</p>
-                  <p className="text-[12px] text-gray-400">${item.price}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+
+        <StyleWithGrid />
 
         {/* Ratings & Reviews */}
-        <section id="reviews" className="border-t border-gray-100 py-12 bg-[#f8f6f1]">
-          <div className="max-container px-4 md:px-10">
-            <h2 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-light italic text-[#1a1a1a] mb-8">
-              Ratings & Reviews
-            </h2>
+        <ProductReviews
+          productId={product.id}
+          productName={product.name}
+          initialRating={product.rating}
+          initialReviewCount={product.reviewCount}
+          initialRatingBreakdown={product.ratingBreakdown}
+        />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-              {/* Overall score */}
-              <div className="flex flex-col items-center justify-center text-center bg-white p-8">
-                <p className="font-[family-name:var(--font-display)] text-6xl font-light italic text-[#1a1a1a]">
-                  {product.rating}
-                </p>
-                <Stars rating={product.rating} size={16} />
-                <p className="text-[12px] text-gray-400 tracking-wide mt-2">{product.reviewCount} reviews</p>
-              </div>
-
-              {/* Breakdown bars */}
-              <div className="flex flex-col justify-center gap-2 col-span-2">
-                {[5,4,3,2,1].map(star => {
-                  const count = product.ratingBreakdown[star as keyof typeof product.ratingBreakdown]
-                  const pct = totalReviews > 0 ? (count / totalReviews) * 100 : 0
-                  return (
-                    <div key={star} className="flex items-center gap-3">
-                      <span className="text-[12px] text-gray-500 w-4 shrink-0">{star}</span>
-                      <Star size={11} strokeWidth={1.5} fill="#c8a882" color="#c8a882" />
-                      <div className="flex-1 h-1.5 bg-gray-200 overflow-hidden">
-                        <div className="h-full bg-[#c8a882] transition-all duration-500" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="text-[11px] text-gray-400 w-6 shrink-0">{count}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Review cards */}
-            <div className="space-y-6">
-              {product.reviews.map(review => (
-                <div key={review.id} className="bg-white p-6 border border-gray-100">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <Stars rating={review.rating} size={12} />
-                      <p className="font-[family-name:var(--font-display)] text-lg italic text-[#1a1a1a] mt-1">{review.title}</p>
-                    </div>
-                    <p className="text-[11px] text-gray-400 tracking-wide shrink-0">{review.date}</p>
-                  </div>
-                  <p className="text-[13px] text-gray-500 leading-relaxed tracking-wide mt-3">{review.body}</p>
-                  <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
-                    <p className="text-[11px] text-[#1a1a1a] font-semibold tracking-wide">{review.name}</p>
-                    {review.verified && (
-                      <span className="flex items-center gap-1 text-[10px] text-[#4a6741] tracking-wide">
-                        <Check size={10} strokeWidth={2.5} /> Verified Purchase
-                      </span>
-                    )}
-                    <span className="text-[11px] text-gray-400 tracking-wide">Size: {review.size}</span>
-                    <span className="text-[11px] text-gray-400 tracking-wide">{review.body_type}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <button className="mt-8 btn-outline">Load More Reviews</button>
-          </div>
-        </section>
-
-        {/* You May Also Like */}
-        <section className="border-t border-gray-100 py-12">
-          <div className="max-container px-4 md:px-10">
-            <h2 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-light italic text-[#1a1a1a] mb-6">
-              You May Also Like
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-6">
-              {relatedProducts.map(item => (
-                <Link key={item.id} href={`/products/${item.id}`} className="group no-underline">
-                  <div className="aspect-[3/4] overflow-hidden bg-[#f5f2ed] relative">
-                    <img src={item.image} alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    {item.badge && (
-                      <span className={`absolute top-2 left-2 text-white text-[9px] font-semibold tracking-widest uppercase px-2 py-0.5
-                        ${item.badge === 'Sale' ? 'bg-red-600' : 'bg-[#1a1a1a]'}`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[13px] text-[#1a1a1a] mt-2 leading-snug group-hover:underline">{item.name}</p>
-                  <div className="flex items-baseline gap-1.5 mt-0.5">
-                    <span className={`text-[13px] ${'originalPrice' in item && item.originalPrice ? 'text-red-600' : 'text-[#1a1a1a]'}`}>
-                      ${item.price}
-                    </span>
-                    {'originalPrice' in item && item.originalPrice && (
-                      <span className="text-[12px] text-gray-400 line-through">${item.originalPrice}</span>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
-
- 
-          </div>
-        </section>
-
+        <YouMayAlsoLikeGrid /> 
       </main>
-        )}
+
       <Footer />
 
-                 {modalItem && (
-  <AddedToCartModal item={modalItem} onClose={() => setModalItem(null)} />
-)}
+      {/* Share modal (fallback for browsers without native share) */}
+      {showShare && <ShareModal onClose={() => setShowShare(false)} productName={product.name} />}
+
+      {/* Added to cart modal */}
+      {modalItem && <AddedToCartModal item={modalItem} onClose={() => setModalItem(null)} />}
     </div>
   )
 }

@@ -1,7 +1,7 @@
-// Save as: src/components/WishlistButton.tsx (NEW FILE)
+// Save as: src/components/WishlistButton.tsx (REPLACE)
 'use client'
 import { useState, useEffect } from 'react'
-import { Heart } from 'lucide-react'
+import { Heart, Check } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface WishlistButtonProps {
@@ -20,9 +20,10 @@ export default function WishlistButton({
   showLabel  = false,
 }: WishlistButtonProps) {
   const router = useRouter()
-  const [saved,   setSaved]   = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [ready,   setReady]   = useState(false)
+  const [saved,    setSaved]    = useState(false)
+  const [loading,  setLoading]  = useState(false)
+  const [ready,    setReady]    = useState(false)
+  const [toast,    setToast]    = useState<string | null>(null)
 
   // Check if already in wishlist on mount
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function WishlistButton({
         return r.json()
       })
       .then(d => {
-        if (!d) return
+        if (!d) { setReady(true); return }
         const exists = d.items?.some((i: any) => i.productId === productId)
         setSaved(!!exists)
         setReady(true)
@@ -40,58 +41,100 @@ export default function WishlistButton({
       .catch(() => setReady(true))
   }, [productId])
 
+  const showToast = (msg: string) => {
+    setToast(msg)
+    setTimeout(() => setToast(null), 2500)
+  }
+
   const toggle = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
-    // Check login
     const meRes = await fetch('/api/auth/me')
     if (!meRes.ok) {
       router.push(`/account/login?redirect=${encodeURIComponent(window.location.pathname)}`)
       return
     }
 
-    setLoading(true)
-
     if (saved) {
+      setLoading(true)
       const res = await fetch('/api/account/wishlist', {
         method:  'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ productId }),
       })
-      if (res.ok) setSaved(false)
-    } else {
-      const res = await fetch('/api/account/wishlist', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ productId, variantId: variantId ?? null }),
-      })
-      if (res.ok) setSaved(true)
+      if (res.ok) {
+        setSaved(false)
+        showToast('Removed from wishlist')
+      }
+      setLoading(false)
+      return
     }
 
+    // Check if already exists first
+    setLoading(true)
+    const res = await fetch('/api/account/wishlist', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ productId, variantId: variantId ?? null }),
+    })
+    const data = await res.json()
+
+    if (data.message === 'Already in wishlist') {
+      showToast('Already in your wishlist')
+      setSaved(true)
+    } else if (res.ok && data.success) {
+      setSaved(true)
+      showToast('Added to wishlist')
+    }
     setLoading(false)
   }
 
   return (
-    <button
-      onClick={toggle}
-      disabled={loading || !ready}
-      title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
-      className={`flex items-center gap-1.5 bg-transparent border-none cursor-pointer transition-all disabled:opacity-40 ${className}`}>
-      <Heart
-        size={size}
-        strokeWidth={1.5}
-        className={`transition-all duration-200 ${
-          saved
-            ? 'fill-[#1a1a1a] text-[#1a1a1a]'
-            : 'fill-transparent text-[#1a1a1a] hover:fill-[#1a1a1a]/10'
-        }`}
-      />
-      {showLabel && (
-        <span className="text-[12px] tracking-wide text-[#1a1a1a]">
-          {saved ? 'Saved' : 'Save'}
-        </span>
+    <div style={{ position: 'relative', display: 'inline-flex' }}>
+      <button
+        onClick={toggle}
+        disabled={loading || !ready}
+        title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+        className={`flex items-center gap-1.5 bg-transparent border-none cursor-pointer transition-all disabled:opacity-40 ${className}`}
+      >
+        <Heart
+          size={size}
+          strokeWidth={1.5}
+          style={{
+            fill:       saved ? '#c0392b' : 'transparent',
+            color:      saved ? '#c0392b' : '#1a1a1a',
+            transition: 'all 0.2s ease',
+            transform:  saved ? 'scale(1.1)' : 'scale(1)',
+          }}
+        />
+        {showLabel && (
+          <span style={{ fontSize: '12px', letterSpacing: '0.06em', color: saved ? '#c0392b' : '#1a1a1a', textTransform: 'uppercase' }}>
+            {saved ? 'Saved' : 'Save'}
+          </span>
+        )}
+      </button>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'absolute',
+          bottom: 'calc(100% + 8px)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#1a1a1a',
+          color: '#fff',
+          fontSize: '11px',
+          letterSpacing: '0.06em',
+          padding: '6px 12px',
+          whiteSpace: 'nowrap',
+          borderRadius: '2px',
+          pointerEvents: 'none',
+          zIndex: 999,
+        }}>
+          {toast}
+        </div>
       )}
-    </button>
+    </div>
   )
 }

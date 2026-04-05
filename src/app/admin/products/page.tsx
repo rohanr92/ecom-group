@@ -3,25 +3,36 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Plus, Search, Filter, Package, ChevronDown, X, Edit2, Trash2, Tag } from 'lucide-react'
-
+import { memo } from 'react';
 const CATEGORIES = ['All', 'Dresses', 'Tops', 'Pants', 'Jeans', 'Jackets', 'Sets', 'Accessories']
 const STATUSES   = ['All', 'Active', 'Draft']
 const BADGES     = ['All', 'New', 'Best Seller', 'Sale', 'None']
+
+
+
+
 
 export default function ProductsListPage() {
   const [products,   setProducts]   = useState<any[]>([])
   const [loading,    setLoading]    = useState(true)
   const [search,     setSearch]     = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState(search)
   const [category,   setCategory]   = useState('All')
   const [status,     setStatus]     = useState('All')
   const [selected,   setSelected]   = useState<Set<string>>(new Set())
   const [deleting,   setDeleting]   = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
 
-  const load = useCallback(async () => {
+ const load = async () => {
     setLoading(true)
     const params = new URLSearchParams()
-    if (search && search.trim())   params.set('search',   search.trim())
+
+if (debouncedSearch && debouncedSearch.trim()) {
+  params.set('search', debouncedSearch.trim())
+}
+    
+
+    
     if (category !== 'All')        params.set('category', category)
     const res = await fetch(`/api/admin/products?${params}`)
     const d   = await res.json()
@@ -30,9 +41,30 @@ export default function ProductsListPage() {
     if (status === 'Draft')  list = list.filter((p: any) => !p.isActive)
     setProducts(list)
     setLoading(false)
-  }, [search, category, status])
+}
+  
 
-  useEffect(() => { load() }, [load])
+useEffect(() => {
+    const t = setTimeout(() => {
+        setDebouncedSearch(search)
+    }, 400)
+
+    return () => clearTimeout(t)
+}, [search])
+
+
+useEffect(() => {
+    const t = setTimeout(() => {
+        setDebouncedSearch(search)
+    }, 400)
+
+    return () => clearTimeout(t)
+}, [search])
+
+
+  useEffect(() => {
+  load()
+}, [debouncedSearch, category, status])
 
   const toggleSelect = (id: string) => {
     setSelected(prev => {

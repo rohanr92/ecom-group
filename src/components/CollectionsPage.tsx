@@ -4,6 +4,8 @@ import React, { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight, Star, X, Check, Grid, LayoutList } from 'lucide-react'
 import WishlistButton from '@/components/WishlistButton'
+import { useSearchParams } from 'next/navigation'
+
 
 const allProducts = [
   { id: 1,  name: 'Linen Wide-Leg Trousers',   brand: 'Solomon Lawrence', price: 128, originalPrice: null, rating: 4.5, reviews: 23,  badge: 'New',         colors: ['#1a1a1a','#d4cfc8','#4a6741'], category: 'Pants',       image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80' },
@@ -35,6 +37,8 @@ const categories = ['All', 'Tops', 'Dresses', 'Pants', 'Skirts', 'Jackets', 'Den
 const sortOptions = ['Featured', 'New Arrivals', 'Price: Low to High', 'Price: High to Low', 'Top Rated', 'Most Reviewed']
 const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 const priceRanges = ['Under $75', '$75 – $150', '$150 – $250', '$250+']
+
+
 
 // ── Shimmer skeleton ──────────────────────────────────────────────
 function SkeletonCard() {
@@ -120,6 +124,21 @@ function BadgeColor(badge: string | null) {
   return 'bg-[#1a1a1a]'
 }
 
+function colorNameToHex(name: string): string {
+  const map: Record<string, string> = {
+    black: '#1a1a1a', white: '#ffffff', red: '#c0392b', blue: '#2980b9',
+    navy: '#1a2744', green: '#4a6741', gray: '#808080', grey: '#808080',
+    beige: '#c8a882', caramel: '#c8a882', tan: '#d4a96a', brown: '#8b6f5e',
+    cream: '#f5f0e8', ivory: '#fffff0', pink: '#e8a0a0', rose: '#c8a882',
+    purple: '#6b4c8b', lavender: '#9b8ec4', yellow: '#f0c040', orange: '#e07820',
+    coral: '#e07060', mint: '#a0c8a0', sage: '#6b8b6b', olive: '#6b7040',
+    burgundy: '#6b1a2a', rust: '#b04020', mustard: '#c8a020', teal: '#2a8080',
+    charcoal: '#404040', taupe: '#8b7d6b', sand: '#c8b080', blush: '#e8b0a0',
+  }
+  return map[name.toLowerCase()] ?? '#1a1a1a'
+}
+
+
 function ProductCard({ product }: { product: typeof allProducts[0] & { id: string | number } }) {
   const [wished, setWished] = useState(false)
   const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : null
@@ -155,13 +174,15 @@ function ProductCard({ product }: { product: typeof allProducts[0] & { id: strin
           ))}
         </div>
       </Link>
-      <div className="flex gap-1.5 mt-2">
-        {product.colors.slice(0,5).map(c => (
-          <button key={c} className="w-3.5 h-3.5 rounded-full border border-gray-200 hover:border-gray-800 transition-all cursor-pointer p-0"
-            style={{ background: c }} />
-        ))}
-        {product.colors.length > 5 && <span className="text-[10px] text-gray-400 self-center">+{product.colors.length - 5}</span>}
-      </div>
+      {product.colors?.length > 0 && (
+        <div className="flex gap-1.5 mt-2">
+          {product.colors.slice(0,5).map((c: string) => (
+            <button key={c} className="w-3.5 h-3.5 rounded-full border border-gray-200 hover:border-gray-800 transition-all cursor-pointer p-0"
+              style={{ background: c.startsWith('#') ? c : colorNameToHex(c) }} />
+          ))}
+          {product.colors.length > 5 && <span className="text-[10px] text-gray-400 self-center">+{product.colors.length - 5}</span>}
+        </div>
+      )}
       <div className="mt-1.5">
         <p className="text-[10px] text-gray-400 tracking-widest uppercase">{product.brand}</p>
         <Link href={`/products/${product.id}`} className="text-[13px] text-[#1a1a1a] no-underline leading-snug block mt-0.5 hover:underline">
@@ -181,7 +202,7 @@ function ProductCard({ product }: { product: typeof allProducts[0] & { id: strin
   )
 }
 
-export default function CollectionsPage() {
+export default function CollectionsPage({ slug }: { slug?: string }) {
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState('All')
   const [sort, setSort] = useState('Featured')
@@ -191,24 +212,83 @@ export default function CollectionsPage() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [selectedPrices, setSelectedPrices] = useState<string[]>([])
   const [onSaleOnly, setOnSaleOnly] = useState(false)
-  const [page, setPage] = useState(1)
+   const [page, setPage] = useState(1)
+  const [dbProducts, setDbProducts] = useState<any[]>([])
+
+  const [collectionName, setCollectionName] = useState('')
   const perPage = 12
 
-  // Simulate initial load — replace this with your real DB fetch later
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200)
-    return () => clearTimeout(timer)
-  }, [])
+  const searchParams = useSearchParams()
+  const categoryParam = searchParams?.get('category')
 
-  // Show skeleton again when category/page changes
   useEffect(() => {
+    if (categoryParam) setActiveCategory(categoryParam)
+  }, [categoryParam])
+
+  // Simulate initial load — replace this with your real DB fetch later
+   useEffect(() => {
     setLoading(true)
-    const timer = setTimeout(() => setLoading(false), 600)
+    if (slug) {
+      // fetch specific collection
+      fetch(`/api/collections/${slug}`)
+        .then(r => r.json())
+    .then(data => {
+          console.log('Collection API response:', data)
+          if (data.error || !data.collection) {
+            setDbProducts([])
+            setCollectionName('Collection Not Found')
+            return
+          }
+          if (data.products) {
+            setDbProducts(data.products.map((p: any) => ({
+              ...p,
+              image: p.images?.[0] ?? 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=80',
+              originalPrice: p.comparePrice ? Number(p.comparePrice) : null,
+              colors: p.variants
+                ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, v.colorHex])).values()]
+                : [],
+              reviews: p.reviewCount ?? 0,
+            })))
+          }
+          if (data.collection?.name) setCollectionName(data.collection.name)
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false))
+    } else {
+      // fetch all products for /collections page
+      fetch('/api/admin/products?limit=100')
+        .then(r => r.json())
+        .then(data => {
+          if (data.products) {
+            setDbProducts(data.products.map((p: any) => ({
+              ...p,
+              image: p.images?.[0] ?? 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=80',
+              originalPrice: p.comparePrice ? Number(p.comparePrice) : null,
+               colors: p.variants
+                ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, v.colorHex])).values()]
+                : [],
+              reviews: p.reviewCount ?? 0,
+            })))
+          }
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false))
+    }
+  }, [slug])
+
+    useEffect(() => {
+    setLoading(true)
+    const timer = setTimeout(() => setLoading(false), 400)
     return () => clearTimeout(timer)
   }, [activeCategory, page])
 
-  const filtered = useMemo(() => {
-    let p = [...allProducts]
+ const filtered = useMemo(() => {
+    const productsToShow = slug ? dbProducts : (dbProducts.length ? dbProducts : allProducts)
+    let p = [...productsToShow]
+
+    
+
+    
     if (activeCategory !== 'All') p = p.filter(x => x.category === activeCategory)
     if (onSaleOnly) p = p.filter(x => x.badge === 'Sale' || x.originalPrice)
     if (selectedPrices.length) {
@@ -226,7 +306,7 @@ export default function CollectionsPage() {
     if (sort === 'Most Reviewed') p.sort((a, b) => b.reviews - a.reviews)
     if (sort === 'New Arrivals') p = [...p.filter(x => x.badge === 'New'), ...p.filter(x => x.badge !== 'New')]
     return p
-  }, [activeCategory, sort, onSaleOnly, selectedPrices])
+   }, [activeCategory, sort, onSaleOnly, selectedPrices, dbProducts, slug])
 
   const totalPages = Math.ceil(filtered.length / perPage)
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
@@ -257,7 +337,7 @@ export default function CollectionsPage() {
       {/* Page header */}
       <div className="max-container px-4 md:px-10 pt-7 pb-5">
         <h1 className="font-[family-name:var(--font-display)] text-4xl md:text-5xl font-light italic text-[#1a1a1a] tracking-tight">
-          Women's Clothing
+          {collectionName || (categoryParam ? categoryParam : "Women's Clothing")}
         </h1>
         <p className="text-sm text-gray-400 tracking-wide mt-1">
           {loading ? (
@@ -427,11 +507,13 @@ export default function CollectionsPage() {
                       {product.originalPrice && <span className="text-xs text-gray-400 line-through">${product.originalPrice}</span>}
                       {discount && <span className="text-xs text-red-600 font-semibold">{discount}% off</span>}
                     </div>
-                    <div className="flex gap-1.5 mt-2.5">
-                      {product.colors.map(c => (
-                        <button key={c} className="w-4 h-4 rounded-full border border-gray-200 hover:border-gray-700 transition-all cursor-pointer p-0" style={{ background: c }} />
-                      ))}
-                    </div>
+                                      {product.colors?.length > 0 && (
+                      <div className="flex gap-1.5 mt-2.5">
+                        {product.colors.map((c: string) => (
+                           <button key={c} className="w-4 h-4 rounded-full border border-gray-200 hover:border-gray-700 transition-all cursor-pointer p-0" style={{ background: c.startsWith('#') ? c : colorNameToHex(c) }} />
+                        ))}
+                      </div>
+                    )}
                     <div className="flex gap-1.5 mt-3 flex-wrap">
                       {sizes.map(s => (
                         <button key={s} className="text-[11px] px-2.5 py-1 border border-gray-300 bg-white text-gray-600 hover:border-[#1a1a1a] transition-all cursor-pointer tracking-wide">

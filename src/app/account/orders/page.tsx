@@ -96,10 +96,18 @@ export default function OrdersPage() {
 
               {/* Tracking / Actions */}
               <div className="px-5 py-3 border-t border-gray-100 flex items-center gap-4 flex-wrap">
-                {o.trackingNumber && (
+               {o.trackingNumber && (
                   <div className="flex items-center gap-2 text-[12px] text-[#4a6741]">
                     <Truck size={13} strokeWidth={1.5} />
-                    Tracking: <span className="font-mono font-medium">{o.trackingNumber}</span>
+                    {o.courier && <span className="font-medium">{o.courier}:</span>}
+                    {o.trackingUrl ? (
+                      <a href={o.trackingUrl} target="_blank" rel="noopener noreferrer"
+                        className="font-mono font-medium underline hover:no-underline text-[#4a6741]">
+                        {o.trackingNumber}
+                      </a>
+                    ) : (
+                      <span className="font-mono font-medium">{o.trackingNumber}</span>
+                    )}
                   </div>
                 )}
                 {(o.status === 'DELIVERED' || o.status === 'SHIPPED') && (

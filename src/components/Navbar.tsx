@@ -1,82 +1,13 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Search, Heart, ShoppingBag, X, Menu, MapPin, Mail, CreditCard, User, ChevronDown } from 'lucide-react'
 import { useCart } from '@/components/CartContext'
 
-const megaMenus: Record<string, {
-  sections: { heading: string; links: string[] }[]
-  featured?: { image: string; label: string; href: string }
-}> = {
-  'New': {
-    sections: [
-      { heading: 'Shop By Category', links: ['New Arrivals', 'New Clothing', 'New Shoes', 'New Accessories', 'New Beauty'] },
-      { heading: 'Shop By Collection', links: ['Spring Edit', 'Resort Collection', 'Vacation Ready', 'Workwear'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&auto=format&fit=crop&q=80', label: 'Shop New Arrivals', href: '/collections/new-arrivals' },
-  },
-  'Best Sellers': {
-    sections: [
-      { heading: 'Shop By Category', links: ['Shop All Best Sellers', 'Best Sellers Lookbook', 'Most Duped', 'Top Rated'] },
-      { heading: 'Trending Now', links: ['Dresses', 'Wide Leg Pants', 'Linen Tops', 'Sandals', 'Tote Bags'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&auto=format&fit=crop&q=80', label: 'Shop Best Sellers', href: '/collections/best-sellers' },
-  },
-  'Clothing': {
-    sections: [
-      { heading: 'Shop By Category', links: ['Shop All Clothing', 'Dresses', 'Tops', 'Sweaters', 'Jackets & Coats', 'Pants', 'Skirts', 'Shorts', 'Sets & Matching'] },
-      { heading: 'Shop By Collection', links: ['Spring Collection', 'Resort Wear', 'Work Wear', 'Weekend Casual', 'Loungewear'] },
-      { heading: 'Brands We Love', links: ['Free People', 'Reformation', 'Madewell', 'Anthropologie', 'Veronica Beard'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=400&auto=format&fit=crop&q=80', label: 'Shop Spring Clothing', href: '/collections/clothing' },
-  },
-  'Dresses': {
-    sections: [
-      { heading: 'Shop By Category', links: ['Shop All Dresses', 'Mini Dresses', 'Midi Dresses', 'Maxi Dresses', 'Slip Dresses', 'Wrap Dresses', 'Shirt Dresses', 'Floral Dresses'] },
-      { heading: 'Shop By Collection', links: ['Wedding Guest', 'Vacation Dresses', 'Work Dresses', 'Going Out', 'Summer Dresses'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&auto=format&fit=crop&q=80', label: 'Shop All Dresses', href: '/collections/dresses' },
-  },
-  'Tops': {
-    sections: [
-      { heading: 'Shop By Category', links: ['Shop All Tops', 'T-Shirts', 'Blouses', 'Tank Tops', 'Crop Tops', 'Button-Downs', 'Sweaters', 'Sweatshirts'] },
-      { heading: 'Shop By Collection', links: ['Linen Tops', 'Silk Tops', 'Graphic Tees', 'Workwear Tops'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=400&auto=format&fit=crop&q=80', label: 'New Tops', href: '/collections/tops' },
-  },
-  'Jeans': {
-    sections: [
-      { heading: 'Shop By Category', links: ['Shop All Jeans', 'New Jeans', 'Top Rated', 'Barrel Jeans', 'Bootcut Jeans', 'Boyfriend Jeans', 'Flare Jeans', 'Wide-Leg Jeans'] },
-      { heading: 'Shop By Collection', links: ['Lightweight Denim', 'Statement Jeans', 'White Jeans', 'Long Jeans', 'Petite Jeans'] },
-      { heading: 'Brands We Love', links: ['Wrangler', "Levi's", 'Mother', 'RE/DONE', 'AGOLDE'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&auto=format&fit=crop&q=80', label: 'Shop Statement Jeans', href: '/collections/jeans' },
-  },
-  'Shoes': {
-    sections: [
-      { heading: 'Shop By Category', links: ['Shop All Shoes', 'Sandals', 'Heels', 'Sneakers', 'Boots', 'Loafers', 'Flats', 'Wedges'] },
-      { heading: 'Shop By Collection', links: ['Spring Shoes', 'Vacation Shoes', 'Work Shoes'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400&auto=format&fit=crop&q=80', label: 'Shop New Shoes', href: '/collections/shoes' },
-  },
-  'Accessories': {
-    sections: [
-      { heading: 'Shop By Category', links: ['Shop All Accessories', 'Bags & Handbags', 'Jewelry', 'Sunglasses', 'Hats', 'Scarves', 'Belts'] },
-      { heading: 'Shop By Collection', links: ['Summer Accessories', 'Jewelry Trends', 'Bag Edit'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80', label: 'Shop Accessories', href: '/collections/accessories' },
-  },
-  'Sale': {
-    sections: [
-      { heading: 'Shop Sale', links: ['All Sale', 'Sale Clothing', 'Sale Shoes', 'Sale Accessories', 'Under $50', 'Under $100'] },
-    ],
-    featured: { image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&auto=format&fit=crop&q=80', label: 'Shop All Sale', href: '/collections/sale' },
-  },
-}
-
-const womenNav = ['New', 'Best Sellers', 'Clothing', 'Dresses', 'Tops', 'Jeans', 'Shoes', 'Accessories', 'Sale']
-const menNav = ['New', 'Best Sellers', 'Clothing', 'Tops', 'Bottoms', 'Outerwear', 'Shoes', 'Accessories', 'Sale']
+// Fallback hardcoded data (used until DB loads)
+const FALLBACK_WOMEN = ['New', 'Best Sellers', 'Clothing', 'Dresses', 'Tops', 'Jeans', 'Shoes', 'Accessories', 'Sale']
+const FALLBACK_MEN   = ['New', 'Best Sellers', 'Clothing', 'Tops', 'Bottoms', 'Outerwear', 'Shoes', 'Accessories', 'Sale']
 
 export default function Navbar() {
   const [activeTab, setActiveTab] = useState<'women' | 'men'>('women')
@@ -87,6 +18,7 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null)
   const [currency, setCurrency] = useState('USD')
   const [currencyOpen, setCurrencyOpen] = useState(false)
+  const [navItems, setNavItems] = useState<any[]>([])
 
   const currencies = [
     { code: 'USD', symbol: '$', label: 'US Dollar' },
@@ -97,33 +29,68 @@ export default function Navbar() {
     { code: 'JPY', symbol: '¥', label: 'Japanese Yen' },
     { code: 'BDT', symbol: '৳', label: 'Bangladeshi Taka' },
   ]
+
+  // Fetch nav from DB
+  useEffect(() => {
+    fetch(`/api/admin/nav?tab=${activeTab}`)
+      .then(r => r.json())
+      .then(d => { if (d.items?.length) setNavItems(d.items) })
+      .catch(() => {})
+  }, [activeTab])
+
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [itemOffset, setItemOffset] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
-
-
-  const navLinks = activeTab === 'women' ? womenNav : menNav
-
-  const rightItems = ['Jeans', 'Shoes', 'Accessories', 'Sale']
   const dressesRef = useRef<HTMLDivElement>(null)
 
-  const openMenu = (item: string, e?: React.MouseEvent<HTMLDivElement>) => {
+  // Use DB items or fallback
+  const navLinks = navItems.length > 0
+    ? navItems.map(i => i.label)
+    : (activeTab === 'women' ? FALLBACK_WOMEN : FALLBACK_MEN)
+
+  // Get mega menu from DB items
+  const getMegaMenu = (label: string) => {
+    const item = navItems.find(i => i.label === label)
+    if (!item || !item.sections || item.sections.length === 0) return null
+    return {
+      sections: item.sections.map((s: any) => ({
+        heading: s.heading,
+        links: s.links.map((l: any) => ({ label: l.label, href: l.href })),
+      })),
+      featured: item.featured ?? null,
+    }
+  }
+
+  // Get nav item href from DB
+  const getNavHref = (label: string) => {
+    const item = navItems.find(i => i.label === label)
+    if (item?.href) return item.href
+    // fallback
+    if (label === 'New') return '/collections/new-arrivals'
+    if (label === 'Best Sellers') return '/collections/best-sellers'
+    if (label === 'Sale') return '/collections/sale'
+    return `/collections?category=${label}`
+  }
+
+  const rightItems = ['Jeans', 'Shoes', 'Accessories', 'Sale']
+
+  const openMenu = (item: string) => {
     if (timer.current) clearTimeout(timer.current)
     setActiveMenu(item)
     if (containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect()
       if (rightItems.includes(item) && dressesRef.current) {
-        // Jeans/Shoes/Accessories/Sale → start from Dresses position
         const dressesRect = dressesRef.current.getBoundingClientRect()
         setItemOffset(dressesRect.left - containerRect.left)
       } else {
-        // New/Best Sellers/Clothing/Dresses/Tops → always start from left:0
         setItemOffset(0)
       }
     }
   }
   const closeMenu = () => { timer.current = setTimeout(() => setActiveMenu(null), 120) }
   const stayOpen = () => { if (timer.current) clearTimeout(timer.current) }
+
+  const activeMega = activeMenu ? getMegaMenu(activeMenu) : null
 
   return (
     <>
@@ -136,23 +103,17 @@ export default function Navbar() {
             <span style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(11px,1.2vw,14px)', color: '#2a2a2a', letterSpacing: '0.06em', textTransform: 'uppercase' }}>TOWARD A FUTURE PURCHASE</span>
             <span style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(13px,1.8vw,22px)', fontWeight: 700, color: '#1a1a1a' }}>WHEN YOU SPEND $150</span>
           </div>
-<Link href="/collections/new-arrivals" className="promo-btn">
-            SHOP NEW ARRIVALS
-          </Link>
+          <Link href="/collections/new-arrivals" className="promo-btn">SHOP NEW ARRIVALS</Link>
         </div>
       </div>
 
       {/* BAR 2: Utility */}
       <div style={{ background: '#fff', borderBottom: '1px solid #ede9e3', padding: '7px 0' }} className="utility-bar">
         <div className="max-container" style={{ padding: '0 clamp(16px,3vw,40px)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 'clamp(12px,2vw,28px)' }}>
-
-          {/* Currency selector */}
           <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setCurrencyOpen(o => !o)}
+            <button onClick={() => setCurrencyOpen(o => !o)}
               style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '12px', color: '#3a3a3a', letterSpacing: '0.03em', padding: '2px 0' }}
-              className="utility-link"
-            >
+              className="utility-link">
               <span style={{ fontSize: '13px' }}>🌐</span>
               <span>{currency} ({currencies.find(c => c.code === currency)?.symbol})</span>
               <ChevronDown size={11} strokeWidth={1.5} style={{ transform: currencyOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
@@ -160,17 +121,9 @@ export default function Navbar() {
             {currencyOpen && (
               <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '6px', background: '#fff', border: '1px solid #e8e4de', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', zIndex: 200, minWidth: '180px', padding: '6px 0' }}>
                 {currencies.map(c => (
-                  <button
-                    key={c.code}
-                    onClick={() => { setCurrency(c.code); setCurrencyOpen(false) }}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      width: '100%', padding: '8px 16px', background: c.code === currency ? '#f8f6f1' : 'none',
-                      border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)',
-                      fontSize: '12px', color: '#1a1a1a', letterSpacing: '0.03em', textAlign: 'left',
-                    }}
-                    className="currency-option"
-                  >
+                  <button key={c.code} onClick={() => { setCurrency(c.code); setCurrencyOpen(false) }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '8px 16px', background: c.code === currency ? '#f8f6f1' : 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '12px', color: '#1a1a1a', letterSpacing: '0.03em', textAlign: 'left' }}
+                    className="currency-option">
                     <span>{c.code} — {c.label}</span>
                     <span style={{ color: '#888', marginLeft: '8px' }}>{c.symbol}</span>
                   </button>
@@ -178,8 +131,6 @@ export default function Navbar() {
               </div>
             )}
           </div>
-
-          {/* Other utility links */}
           {([
             { icon: <Mail size={13} strokeWidth={1.5} />, label: 'Sign Up For Email', href: '/email-signup' },
             { icon: <CreditCard size={13} strokeWidth={1.5} />, label: 'Gift Cards', href: '/gift-cards' },
@@ -223,82 +174,48 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* BAR 4: Nav + Mega menu
-          KEY: nav has position:relative, mega has position:absolute top:100% left:0
-          This means mega always starts from the LEFT edge of the nav, same as "New" */}
-      <nav
-        style={{ background: '#fff', borderBottom: '1px solid #ede9e3', position: 'relative', zIndex: 50 }}
-        className="desktop-nav"
-        onMouseLeave={closeMenu}
-      >
-        {/* Nav links + mega panel share the same max-container so left edges align */}
+      {/* BAR 4: Nav + Mega menu */}
+      <nav style={{ background: '#fff', borderBottom: '1px solid #ede9e3', position: 'relative', zIndex: 50 }} className="desktop-nav" onMouseLeave={closeMenu}>
         <div className="max-container" style={{ padding: '0 clamp(16px,3vw,40px)', position: 'relative' }}>
-
-          {/* Nav links row */}
           <div ref={containerRef} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px,2vw,32px)', height: '44px', overflowX: 'auto' }}>
             {navLinks.map(link => (
-              <div
-                key={link}
-                onMouseEnter={(e) => megaMenus[link] ? openMenu(link, e) : setActiveMenu(null)}
+              <div key={link}
+                onMouseEnter={() => getMegaMenu(link) ? openMenu(link) : setActiveMenu(null)}
                 ref={link === 'Dresses' ? dressesRef : undefined}
-                style={{ height: '44px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
-              >
+                style={{ height: '44px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                 <Link
-                  href={`/collections/${link.toLowerCase().replace(/\s+/g, '-')}`}
+                  href={getNavHref(link)}
                   style={{
                     fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 400,
                     letterSpacing: '0.04em', whiteSpace: 'nowrap', textDecoration: 'none',
-                    color: link === 'Sale' ? '#c0392b' : 'var(--color-charcoal)',
+                    color: (navItems.find(i => i.label === link)?.isSale || link === 'Sale') ? '#c0392b' : 'var(--color-charcoal)',
                     borderBottom: activeMenu === link ? '2px solid var(--color-charcoal)' : '2px solid transparent',
                     height: '44px', display: 'inline-flex', alignItems: 'center',
-                  }}
-                >
+                  }}>
                   {link}
                 </Link>
               </div>
             ))}
           </div>
 
-          {/* Mega panel — left:0 is relative to max-container, same left as "New" nav item */}
-          {activeMenu && megaMenus[activeMenu] && (
-            <div
-              onMouseEnter={stayOpen}
-              onMouseLeave={closeMenu}
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: itemOffset,
-                background: '#fff',
-                border: '1px solid #e8e4de',
-                borderTop: 'none',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
-                zIndex: 100,
-                padding: '28px 32px',
-                display: 'inline-flex',
-                alignItems: 'flex-start',
-                gap: 0,
-              }}
-            >
-              {/* Columns */}
+          {/* Mega panel */}
+          {activeMenu && activeMega && (
+            <div onMouseEnter={stayOpen} onMouseLeave={closeMenu}
+              style={{ position: 'absolute', top: '100%', left: itemOffset, background: '#fff', border: '1px solid #e8e4de', borderTop: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.10)', zIndex: 100, padding: '28px 32px', display: 'inline-flex', alignItems: 'flex-start', gap: 0 }}>
               <div style={{ display: 'flex', gap: 0 }}>
-                {megaMenus[activeMenu].sections.map((section, i) => (
-                  <div key={i} style={{
-                    width: '175px',
-                    paddingRight: '24px',
-                    marginRight: i < megaMenus[activeMenu].sections.length - 1 ? '24px' : 0,
-                    borderRight: i < megaMenus[activeMenu].sections.length - 1 ? '1px solid #f0ece6' : 'none',
-                  }}>
+                {activeMega.sections.map((section: any, i: number) => (
+                  <div key={i} style={{ width: '175px', paddingRight: '24px', marginRight: i < activeMega.sections.length - 1 ? '24px' : 0, borderRight: i < activeMega.sections.length - 1 ? '1px solid #f0ece6' : 'none' }}>
                     {section.heading && (
                       <div style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1a1a1a', marginBottom: '14px' }}>
                         {section.heading}
                       </div>
                     )}
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {section.links.map(sl => (
-                        <li key={sl}>
-                          <Link href={`/collections/${sl.toLowerCase().replace(/[\s+&]/g, '-')}`} className="mega-link"
+                      {section.links.map((l: any) => (
+                        <li key={l.label}>
+                          <Link href={l.href} className="mega-link"
                             style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#444', textDecoration: 'none', letterSpacing: '0.02em', lineHeight: 1.4 }}>
-                            {sl}
+                            {l.label}
                           </Link>
                         </li>
                       ))}
@@ -306,17 +223,15 @@ export default function Navbar() {
                   </div>
                 ))}
               </div>
-
-              {/* Featured image */}
-              {megaMenus[activeMenu].featured && (
+              {activeMega.featured && (
                 <div style={{ flexShrink: 0, width: '170px', marginLeft: '32px' }}>
-                  <Link href={megaMenus[activeMenu].featured!.href} style={{ display: 'block', textDecoration: 'none' }}>
+                  <Link href={activeMega.featured.href} style={{ display: 'block', textDecoration: 'none' }}>
                     <div style={{ overflow: 'hidden', marginBottom: '10px' }}>
-                      <img src={megaMenus[activeMenu].featured!.image} alt={megaMenus[activeMenu].featured!.label}
+                      <img src={activeMega.featured.image} alt={activeMega.featured.label}
                         style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease' }} className="mega-img" />
                     </div>
                     <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#1a1a1a', textDecoration: 'underline', letterSpacing: '0.03em' }}>
-                      {megaMenus[activeMenu].featured!.label}
+                      {activeMega.featured.label}
                     </div>
                   </Link>
                 </div>
@@ -335,44 +250,47 @@ export default function Navbar() {
               <button onClick={() => setMobileOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={22} strokeWidth={1.5} /></button>
             </div>
             <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '14px' }}>
-              {(['women', 'men'] as const).map(tab => (
-                <button key={tab} onClick={() => setActiveTab(tab)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: activeTab === tab ? 600 : 400, borderBottom: activeTab === tab ? '2px solid #1a1a1a' : '2px solid transparent', paddingBottom: '6px' }}>
-                  {tab === 'women' ? 'Women' : 'Men'}
+              {(['women', 'men'] as const).map(t => (
+                <button key={t} onClick={() => setActiveTab(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: activeTab === t ? 600 : 400, borderBottom: activeTab === t ? '2px solid #1a1a1a' : '2px solid transparent', paddingBottom: '6px' }}>
+                  {t === 'women' ? 'Women' : 'Men'}
                 </button>
               ))}
             </div>
             <nav>
-              {navLinks.map(link => (
-                <div key={link} style={{ borderBottom: '1px solid #f0ece6' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' }}>
-                    <Link href={`/collections/${link.toLowerCase().replace(/\s+/g, '-')}`} onClick={() => setMobileOpen(false)}
-                      style={{ fontFamily: 'var(--font-body)', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none', color: link === 'Sale' ? '#c0392b' : '#1a1a1a' }}>
-                      {link}
-                    </Link>
-                    {megaMenus[link] && (
-                      <button onClick={() => setMobileExpanded(mobileExpanded === link ? null : link)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#555', padding: '4px' }}>
-                        <ChevronDown size={16} strokeWidth={1.5} style={{ transform: mobileExpanded === link ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-                      </button>
+              {navLinks.map(link => {
+                const mega = getMegaMenu(link)
+                return (
+                  <div key={link} style={{ borderBottom: '1px solid #f0ece6' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' }}>
+                      <Link href={getNavHref(link)} onClick={() => setMobileOpen(false)}
+                        style={{ fontFamily: 'var(--font-body)', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none', color: (navItems.find(i => i.label === link)?.isSale || link === 'Sale') ? '#c0392b' : '#1a1a1a' }}>
+                        {link}
+                      </Link>
+                      {mega && (
+                        <button onClick={() => setMobileExpanded(mobileExpanded === link ? null : link)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#555', padding: '4px' }}>
+                          <ChevronDown size={16} strokeWidth={1.5} style={{ transform: mobileExpanded === link ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                        </button>
+                      )}
+                    </div>
+                    {mobileExpanded === link && mega && (
+                      <div style={{ paddingBottom: '14px', paddingLeft: '12px' }}>
+                        {mega.sections.map((section: any, i: number) => (
+                          <div key={i} style={{ marginBottom: '12px' }}>
+                            {section.heading && <div style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: '8px' }}>{section.heading}</div>}
+                            {section.links.map((l: any) => (
+                              <Link key={l.label} href={l.href} onClick={() => setMobileOpen(false)}
+                                style={{ display: 'block', fontFamily: 'var(--font-body)', fontSize: '13px', color: '#444', textDecoration: 'none', padding: '5px 0' }}>
+                                {l.label}
+                              </Link>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-                  {mobileExpanded === link && megaMenus[link] && (
-                    <div style={{ paddingBottom: '14px', paddingLeft: '12px' }}>
-                      {megaMenus[link].sections.map((section, i) => (
-                        <div key={i} style={{ marginBottom: '12px' }}>
-                          {section.heading && <div style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: '8px' }}>{section.heading}</div>}
-                          {section.links.map(sl => (
-                            <Link key={sl} href={`/collections/${sl.toLowerCase().replace(/[\s+&]/g, '-')}`} onClick={() => setMobileOpen(false)}
-                              style={{ display: 'block', fontFamily: 'var(--font-body)', fontSize: '13px', color: '#444', textDecoration: 'none', padding: '5px 0' }}>
-                              {sl}
-                            </Link>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                )
+              })}
             </nav>
           </div>
         </div>

@@ -133,10 +133,9 @@ export function YouMayAlsoLikeGrid() {
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px,3vw,30px)', fontWeight: 300, fontStyle: 'italic', color: '#1a1a1a', marginBottom: '24px' }}>
           You May Also Like
         </h2>
-        <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '8px' }}
-  className="scrollbar-hide">
-          {products.slice(0, 5).map(p => <ProductMiniCard key={p.id} product={p} />)}
-        </div>
+     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
+  {products.slice(0, 5).map(p => <ProductMiniCard key={p.id} product={p} />)}
+</div>
       </div>
     </section>
   )

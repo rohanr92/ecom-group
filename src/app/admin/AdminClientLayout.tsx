@@ -8,7 +8,8 @@ import {
   BarChart2, Tag, Layers, LayoutGrid, Settings, Menu, X,
   ChevronRight, Bell, Search, Store, LogOut,
   ShieldCheck, UserCog,
-  FileText, MessageSquare
+  FileText, MessageSquare,
+  FolderOpen
 } from 'lucide-react'
 
 const nav = [
@@ -20,6 +21,7 @@ const nav = [
   { href: '/admin/discounts',  label: 'Discounts',   icon: Tag },
  { href: '/admin/inventory',   label: 'Inventory',    icon: Layers },
   { href: '/admin/collections', label: 'Collections',  icon: LayoutGrid },
+  { href: '/admin/media', icon: FolderOpen, label: 'Media' },
   { href: '/admin/users',       label: 'Admin Users',  icon: UserCog },
   { href: '/admin/settings',   label: 'Settings',    icon: Settings },
    { href: '/admin/cms',     label: 'Content', icon: FileText },

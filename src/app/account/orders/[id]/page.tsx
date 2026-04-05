@@ -92,9 +92,18 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             })}
           </div>
           {order.trackingNumber && (
-            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-[13px] text-[#4a6741]">
+            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-[13px] text-[#4a6741] flex-wrap">
               <Truck size={14} strokeWidth={1.5} />
-              Tracking number: <span className="font-mono font-semibold">{order.trackingNumber}</span>
+              {order.courier && <span className="font-semibold">{order.courier}</span>}
+              <span>Tracking:</span>
+              {order.trackingUrl ? (
+                <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer"
+                  className="font-mono font-semibold underline hover:no-underline text-[#4a6741]">
+                  {order.trackingNumber}
+                </a>
+              ) : (
+                <span className="font-mono font-semibold">{order.trackingNumber}</span>
+              )}
             </div>
           )}
         </div>

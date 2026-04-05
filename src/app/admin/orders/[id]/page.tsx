@@ -82,8 +82,10 @@ export default function OrderDetailPage() {
       const body: any = { id: orderId, status: newStatus }
       if (newStatus === 'SHIPPED') {
         if (!tracking) { showToast('Please enter a tracking number before marking as shipped', 'error'); setUpdating(false); return }
+             const courierObj = COURIERS.find(c => c.code === courier)
         body.trackingNumber = tracking
         body.courier = courier
+        body.trackingUrl = courierObj ? courierObj.url(tracking) : ''
       }
       const res = await fetch('/api/admin/orders', {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
@@ -97,20 +99,19 @@ export default function OrderDetailPage() {
     } finally { setUpdating(false) }
   }
 
-  const saveTracking = async () => {
+   const saveTracking = async () => {
     if (!tracking) return
     setUpdating(true)
     try {
+      const courierObj = COURIERS.find(c => c.code === courier)
+      const trackingUrl = courierObj ? courierObj.url(tracking) : ''
       const res = await fetch('/api/admin/orders', {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: orderId, trackingNumber: tracking, courier }),
+        body: JSON.stringify({ id: orderId, trackingNumber: tracking, courier, trackingUrl }),
       })
-      if (res.ok) {
-        setOrder((p: any) => ({ ...p, trackingNumber: tracking, courier }))
-        showToast('Tracking saved', 'success')
-      }
     } finally { setUpdating(false) }
   }
+
 
   const getTrackingUrl = () => {
     if (!tracking) return ''

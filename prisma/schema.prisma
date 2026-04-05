@@ -117,13 +117,14 @@ model Product {
 }
 
 model ProductVariant {
-  id        String @id @default(uuid())
-  productId String @map("product_id")
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
   size      String
   color     String
-  colorHex  String @map("color_hex")
-  sku       String @unique
-  inventory Int    @default(0)
+  colorHex  String   @map("color_hex")
+  sku       String   @unique
+  inventory Int      @default(0)
+  images    String[] @default([])
 
   product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems    OrderItem[]
@@ -346,4 +347,57 @@ model CmsSetting {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("cms_settings")
+}
+
+
+model NavItem {
+  id       String  @id @default(uuid())
+  label    String
+  href     String?
+  tab      String  @default("women")
+  position Int     @default(0)
+  isActive Boolean @default(true)
+  isSale   Boolean @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  sections NavSection[]
+  featured NavFeatured?
+
+  @@map("nav_items")
+}
+
+model NavSection {
+  id        String @id @default(uuid())
+  navItemId String @map("nav_item_id")
+  heading   String
+  position  Int    @default(0)
+
+  navItem NavItem   @relation(fields: [navItemId], references: [id], onDelete: Cascade)
+  links   NavLink[]
+
+  @@map("nav_sections")
+}
+
+model NavLink {
+  id        String @id @default(uuid())
+  sectionId String @map("section_id")
+  label     String
+  href      String
+  position  Int    @default(0)
+
+  section NavSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@map("nav_links")
+}
+
+model NavFeatured {
+  id        String @id @default(uuid())
+  navItemId String @unique @map("nav_item_id")
+  image     String
+  label     String
+  href      String
+
+  navItem NavItem @relation(fields: [navItemId], references: [id], onDelete: Cascade)
+
+  @@map("nav_featured")
 }

@@ -1,12 +1,13 @@
 // Save as: src/app/admin/products/new/page.tsx (REPLACE existing)
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, Save, Plus, X, Image as ImageIcon,
   ChevronDown, ChevronUp, Check, Trash2
 } from 'lucide-react'
+import ImageUpload from '@/components/ImageUpload'
 
 const CATEGORIES = ['Dresses','Tops','Pants','Jeans','Jackets','Sets','Accessories','Shoes']
 const SIZES      = ['XS','S','M','L','XL','XXL','One Size','25','26','27','28','29','30','31','32']
@@ -32,6 +33,7 @@ export default function NewProductPage() {
 
   const [name,         setName]         = useState('')
   const [slug,         setSlug]         = useState('')
+  const [isSlugEdited, setIsSlugEdited] = useState(false)
   const [description,  setDescription]  = useState('')
   const [details,      setDetails]      = useState([''])
   const [price,        setPrice]        = useState('')
@@ -64,6 +66,18 @@ export default function NewProductPage() {
     setNewVar({ size: 'S', color: 'Onyx', colorHex: '#1a1a1a', sku: '', inventory: 0 })
     setNewVarOpen(false)
   }
+
+
+  useEffect(() => {
+  if (!isSlugEdited) {
+    setSlug(
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+    )
+  }
+}, [name])
 
   const removeVariant   = (i: number) => setVariants(p => p.filter((_, j) => j !== i))
   const updateVariant   = (i: number, key: keyof Variant, value: any) =>
@@ -128,6 +142,8 @@ export default function NewProductPage() {
     </div>
   )
 
+
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
 
@@ -154,49 +170,66 @@ export default function NewProductPage() {
         <div className="lg:col-span-2 space-y-4">
 
           {/* Title + description */}
-          <Section title="Product Information">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
-                  Title <span className="text-red-500">*</span>
-                </label>
-                <input value={name}
-                  onChange={e => { setName(e.target.value); setSlug(autoSlug(e.target.value)) }}
-                  placeholder="e.g. Silk Wrap Midi Dress"
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] transition-colors" />
-              </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">Description</label>
-                <textarea value={description} onChange={e => setDescription(e.target.value)}
-                  rows={5} placeholder="Describe the product in detail..."
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] resize-none transition-colors" />
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-[11px] font-semibold text-gray-500 tracking-wide uppercase">Product Details (bullet points)</label>
-                  <button onClick={addDetail}
-                    className="text-[12px] text-[#1a1a1a] font-medium hover:underline bg-transparent border-none cursor-pointer flex items-center gap-1">
-                    <Plus size={12} /> Add bullet
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {details.map((d, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="text-gray-300 shrink-0">—</span>
-                      <input value={d} onChange={e => setDetail(i, e.target.value)}
-                        placeholder={`e.g. Fabric: 100% Silk`}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a]" />
-                      {details.length > 1 && (
-                        <button onClick={() => removeDetail(i)} className="text-gray-300 hover:text-red-400 bg-transparent border-none cursor-pointer shrink-0">
-                          <X size={14} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Section>
+          {/* Title + description */}
+<Section title="Product Information">
+  <div className="space-y-4">
+    <div>
+      <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+        Title <span className="text-red-500">*</span>
+      </label>
+      <input
+  value={name}
+  onChange={e => setName(e.target.value)}     // generate slug after leaving input
+        placeholder="e.g. Silk Wrap Midi Dress"
+        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] transition-colors"
+      />
+    </div>
+    <div>
+      <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+        Description
+      </label>
+      <textarea
+        value={description}
+        onChange={e => setDescription(e.target.value)}  // just update description
+        rows={5}
+        placeholder="Describe the product in detail..."
+        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] resize-none transition-colors"
+      />
+    </div>
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <label className="text-[11px] font-semibold text-gray-500 tracking-wide uppercase">
+          Product Details (bullet points)
+        </label>
+        <button onClick={addDetail}
+          className="text-[12px] text-[#1a1a1a] font-medium hover:underline bg-transparent border-none cursor-pointer flex items-center gap-1">
+          <Plus size={12} /> Add bullet
+        </button>
+      </div>
+      <div className="space-y-2">
+        {details.map((d, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="text-gray-300 shrink-0">—</span>
+            <input
+              value={d}
+              onChange={e => setDetail(i, e.target.value)}
+              placeholder={`e.g. Fabric: 100% Silk`}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a]"
+            />
+            {details.length > 1 && (
+              <button
+                onClick={() => removeDetail(i)}
+                className="text-gray-300 hover:text-red-400 bg-transparent border-none cursor-pointer shrink-0"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</Section>
 
           {/* Media */}
           <Section title="Media">
@@ -210,14 +243,11 @@ export default function NewProductPage() {
                       : <ImageIcon size={18} strokeWidth={1} className="text-gray-300" />
                     }
                   </div>
-                  <input value={img} onChange={e => setImage(i, e.target.value)}
-                    placeholder="Paste image URL (https://...)"
-                    className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg text-[12px] font-mono outline-none focus:border-[#1a1a1a]" />
-                  {images.length > 1 && (
-                    <button onClick={() => removeImage(i)} className="text-gray-300 hover:text-red-400 bg-transparent border-none cursor-pointer shrink-0">
-                      <X size={14} />
-                    </button>
-                  )}
+                  <ImageUpload
+  images={images}
+  onChange={setImages}
+  maxImages={10}
+/>
                 </div>
               ))}
               <button onClick={addImage}

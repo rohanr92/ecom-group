@@ -38,7 +38,7 @@ export async function PATCH(req: NextRequest) {
   if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
-    const { id, status, trackingNumber, courier } = await req.json()
+const { id, status, trackingNumber, courier, trackingUrl } = await req.json()
 
 const order = await prisma.order.update({
   where: { id },
@@ -46,6 +46,7 @@ const order = await prisma.order.update({
     ...(status         && { status }),
     ...(trackingNumber && { trackingNumber }),
     ...(courier        && { courier }),
+    ...(trackingUrl !== undefined && { trackingUrl }),
   },
     })
 

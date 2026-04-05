@@ -153,9 +153,10 @@ export async function DELETE(req: NextRequest) {
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
+    .replace(/['']/g, '')
+    .replace(/&/g, 'and')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
-    + '-' + Math.random().toString(36).slice(2, 7)
 }
 
 async function duplicateProduct(productId: string) {

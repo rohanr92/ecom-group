@@ -154,20 +154,41 @@ export default function ProductPage() {
           // Normalise fields so the template always has the same shape
           p.images    = Array.isArray(p.images) && p.images.length ? p.images
                         : ['https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&auto=format&fit=crop&q=80']
-          p.colors    = p.variants
-                        ? [...new Map(p.variants.filter((v:any) => v.color).map((v:any) => [v.color, { name: v.color, hex: '#c8a882' }])).values()]
-                        : []
-          p.sizes     = p.variants
-                        ? [...new Set(p.variants.filter((v:any) => v.size).map((v:any) => v.size))]
-                        : []
-          p.rating      = 4.8
-          p.reviewCount = 0
-          p.reviews     = []
-          p.ratingBreakdown = { 5:0, 4:0, 3:0, 2:0, 1:0 }
-          p.details     = p.details ?? []
-          p.brand       = p.brand ?? 'Solomon Lawrence'
-          setProduct(p)
-          if (p.colors.length) setSelectedColor(p.colors[0])
+                    p.allImages = Array.isArray(p.images) && p.images.length ? p.images
+  : ['https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&auto=format&fit=crop&q=80']
+
+p.colors = p.variants
+  ? [...new Map(p.variants.filter((v:any) => v.color).map((v:any) => [v.color, { name: v.color, hex: v.colorHex || '#1a1a1a' }])).values()]
+  : []
+
+p.sizes = p.variants
+  ? [...new Set(p.variants.filter((v:any) => v.size).map((v:any) => v.size))]
+  : []
+
+// Build color->images map from filenames
+p.colorImageMap = {}
+for (const color of p.colors) {
+  const variantsForColor = p.variants.filter((v: any) => v.color === color.name)
+  const assignedImages = variantsForColor[0]?.images ?? []
+  // Fall back to filename matching if no images assigned yet
+  if (assignedImages.length > 0) {
+    p.colorImageMap[color.name] = assignedImages
+  } else {
+    const slug = color.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    const matched = p.allImages.filter((img: string) => img.includes(slug))
+    p.colorImageMap[color.name] = matched.length ? matched : p.allImages
+  }
+}
+
+p.images = p.allImages
+p.rating = 4.8
+p.reviewCount = 0
+p.reviews = []
+p.ratingBreakdown = { 5:0, 4:0, 3:0, 2:0, 1:0 }
+p.details = p.details ?? []
+p.brand = p.brand ?? 'Solomon Lawrence'
+setProduct(p)
+if (p.colors.length) setSelectedColor(p.colors[0])
         }
         setLoading(false)
       })
@@ -335,7 +356,14 @@ export default function ProductPage() {
                   </p>
                   <div className="flex gap-2">
                     {product.colors.map((c: any) => (
-                      <button key={c.name} onClick={() => setSelectedColor(c)} title={c.name}
+                      <button key={c.name} onClick={() => {
+  setSelectedColor(c)
+  setActiveImage(0)
+  setProduct((prev: any) => ({
+    ...prev,
+    images: prev.colorImageMap[c.name] || prev.allImages
+  }))
+}} title={c.name}
                         className={`w-8 h-8 rounded-full border-2 transition-all cursor-pointer p-0
                           ${selectedColor?.name === c.name ? 'border-[#1a1a1a] scale-110' : 'border-gray-200 hover:border-gray-500'}`}
                         style={{ background: c.hex }} />

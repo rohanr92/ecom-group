@@ -15,6 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       price: true,
       category: true,
       images: true,
+      slug: true,
     },
   })
 

@@ -51,7 +51,7 @@ if (paymentMethod === 'STRIPE' && stripePaymentId) {
       include: { variants: true },
     })
 
-    const orderItemsData = []
+    const orderItemsData: any[] = []
 
     for (const item of items) {
       const dbProduct = dbProducts.find(

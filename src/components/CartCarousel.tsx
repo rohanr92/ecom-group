@@ -157,7 +157,7 @@ export default function CartCarousel({ title, slot }: { title: string; slot: str
               name: p.name, price: Number(p.price),
               comparePrice: p.comparePrice ? Number(p.comparePrice) : null,
               image: p.images?.[0] ?? '', badge: p.badge ?? null,
-              colors: p.variants
+              colors: (p.variants as any[])
                 ? [...new Map(p.variants.map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color }])).values()]
                 : [],
             })

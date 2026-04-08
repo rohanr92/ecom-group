@@ -1,7 +1,4 @@
 'use client'
-import type { Metadata } from 'next'
-export const metadata: Metadata = { title: 'CA Privacy Rights', alternates: { canonical: 'https://solomonandsage.com/ca-privacy' } }
-
 import { useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'

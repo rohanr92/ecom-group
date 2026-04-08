@@ -1,7 +1,4 @@
 'use client'
-import type { Metadata } from 'next'
-export const metadata: Metadata = { title: 'Order Confirmed - Thank You' }
-
 
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect } from 'react'

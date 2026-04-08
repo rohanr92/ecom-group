@@ -79,7 +79,7 @@ function ProductCard({ product }: { product: any }) {
         </div>
       </Link>
       <div className="mt-1.5">
-        <p className="text-[10px] text-gray-400 tracking-widest uppercase">{product.brand ?? 'Solomon Lawrence'}</p>
+        <p className="text-[10px] text-gray-400 tracking-widest uppercase">{product.brand ?? 'Solomon & Sage'}</p>
         <Link href={`/products/${product.id}`} className="text-[13px] text-[#1a1a1a] no-underline leading-snug block mt-0.5 hover:underline">
           {product.name}
         </Link>
@@ -303,7 +303,7 @@ export default function CollectionSlugPage() {
                     <img src={product.images?.[0]} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                   </Link>
                   <div className="flex-1">
-                    <p className="text-[10px] text-gray-400 tracking-widests uppercase">{product.brand ?? 'Solomon Lawrence'}</p>
+                    <p className="text-[10px] text-gray-400 tracking-widests uppercase">{product.brand ?? 'Solomon & Sage'}</p>
                     <Link href={`/products/${product.id}`} className="font-[family-name:var(--font-display)] text-xl italic text-[#1a1a1a] no-underline hover:underline leading-snug block mt-1">
                       {product.name}
                     </Link>

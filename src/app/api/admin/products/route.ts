@@ -22,16 +22,31 @@ export async function GET(req: NextRequest) {
 
   try {
     const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        include: { variants: true, _count: { select: { variants: true } } },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
+     prisma.product.findMany({
+  where,
+  include: {
+    variants: true,
+    _count: { select: { variants: true, reviews: true } },
+    reviews: {
+      where: { approved: true },
+      select: { rating: true },
+    },
+  },
+  orderBy: { createdAt: 'desc' },
+  skip,
+  take: limit,
+}),
       prisma.product.count({ where }),
     ])
-    return NextResponse.json({ products, total, page, limit })
+    const productsWithStats = products.map(p => {
+  const approvedReviews = p.reviews ?? []
+  const reviewCount = approvedReviews.length
+  const avgRating = reviewCount > 0
+    ? Math.round((approvedReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount) * 10) / 10
+    : 0
+  return { ...p, reviewCount, avgRating }
+})
+return NextResponse.json({ products: productsWithStats, total, page, limit })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
@@ -109,12 +124,13 @@ export async function PATCH(req: NextRequest) {
         where: { id },
         data:  { isActive: true },
       })
+
       return NextResponse.json({ success: true, product })
     }
 
-    const data: any = {}
-    const fields = ['name','description','price','comparePrice','category','images','badge','details','isActive']
-    fields.forEach(f => { if (body[f] !== undefined) data[f] = body[f] })
+   const data: any = {}
+const fields = ['name','description','price','comparePrice','category','images','badge','details','isActive','isGrouped','tags']
+fields.forEach(f => { if (body[f] !== undefined) data[f] = body[f] })
     if (body.name) data.slug = generateSlug(body.name)
     if (body.price)        data.price        = parseFloat(body.price)
     if (body.comparePrice !== undefined) {

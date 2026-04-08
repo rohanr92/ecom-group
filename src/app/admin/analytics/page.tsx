@@ -1,5 +1,5 @@
-// Save as: src/app/admin/analytics/page.tsx
 'use client'
+// Save as: src/app/admin/analytics/page.tsx
 import { useState, useEffect } from 'react'
 import { TrendingUp, ShoppingBag, Users, DollarSign } from 'lucide-react'
 

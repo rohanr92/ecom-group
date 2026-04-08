@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import WishlistButton from '@/components/WishlistButton'
 import { Heart } from 'lucide-react'
+import { useCurrency } from '@/hooks/useCurrency'
 
 interface GridProduct {
   id:           string
@@ -21,73 +22,92 @@ function ProductMiniCard({ product }: { product: GridProduct }) {
   const href = `/products/${product.slug ?? product.id}`
   const onSale = product.comparePrice && Number(product.comparePrice) > Number(product.price)
   const img = Array.isArray(product.images) ? product.images[0] : ''
+ const [hovered, setHovered] = useState(false)
+  const { convert } = useCurrency()
 
   return (
-    <Link href={href} className="group no-underline" style={{ display: 'block' }}>
-      <div style={{ position: 'relative', overflow: 'hidden', background: '#f5f2ed', aspectRatio: '3/4' }}>
-        {img ? (
-          <img src={img} alt={product.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease', display: 'block' }}
-            className="group-hover:scale-105" />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0ece6' }}>
-            <Heart size={24} strokeWidth={1} style={{ color: '#ddd' }} />
-          </div>
-        )}
-        {product.badge && (
-          <span style={{
-            position: 'absolute', top: '8px', left: '8px',
-            background: product.badge === 'Sale' ? '#c0392b' : '#1a1a1a',
-            color: '#fff', fontSize: '9px', fontWeight: 600,
-            letterSpacing: '0.12em', textTransform: 'uppercase', padding: '3px 8px',
-          }}>{product.badge}</span>
-        )}
-        {/* Wishlist */}
-        <div style={{ position: 'absolute', top: '8px', right: '8px' }} onClick={e => e.preventDefault()}>
-          <WishlistButton productId={product.id} size={16}
-            className="w-8 h-8 bg-white/90 flex items-center justify-center" />
-        </div>
-      </div>
-      <div style={{ marginTop: '10px' }}>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#1a1a1a', lineHeight: 1.3, marginBottom: '4px' }}
-          className="group-hover:underline">{product.name}</p>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: onSale ? '#c0392b' : '#1a1a1a' }}>
-            ${Number(product.price).toFixed(2)}
-          </span>
-          {onSale && (
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#aaa', textDecoration: 'line-through' }}>
-              ${Number(product.comparePrice).toFixed(2)}
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ border: '1px solid #eeebe6', padding: '8px', background: '#fff', transition: 'box-shadow 0.3s ease', boxShadow: hovered ? '0 8px 30px rgba(0,0,0,0.10)' : 'none' }}
+    >
+      <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
+        <div style={{ position: 'relative', overflow: 'hidden', background: '#f9f9f9', aspectRatio: '3/4' }}>
+          {img
+            ? <img src={img} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease', transform: hovered ? 'scale(1.04)' : 'scale(1)' }} />
+            : <div style={{ width: '100%', height: '100%', background: '#f0ece6' }} />
+          }
+          {product.badge && (
+            <span style={{ position: 'absolute', top: '10px', left: '10px', background: product.badge === 'Sale' ? '#c0392b' : product.badge === 'Best Seller' ? '#4a6741' : '#1a1a1a', color: '#fff', fontSize: '9px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', padding: '4px 8px' }}>
+              {product.badge}
             </span>
           )}
+      <div onClick={e => e.preventDefault()}
+            style={{ position: 'absolute', top: '10px', right: '10px', opacity: hovered ? 1 : 0, transition: 'opacity 0.2s ease' }}>
+            <WishlistButton productId={product.id} size={13}
+              className="w-[30px] h-[30px] rounded-full bg-white/90 flex items-center justify-center shadow-sm" />
+          </div>
+          {hovered && (
+            <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: '#fff', padding: '8px 16px', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1a1a1a', fontWeight: 600, whiteSpace: 'nowrap', border: '1px solid #ddd', boxShadow: '0 2px 8px rgba(0,0,0,0.10)', cursor: 'pointer' }}>
+              Quick View
+            </div>
+          )}
         </div>
+      </Link>
+      <div style={{ height: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '2px', overflow: 'hidden', marginTop: '6px' }}>
+        <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#1a1a1a', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {product.name}
+          </div>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'baseline', marginTop: '2px' }}>
+            <span style={{ fontSize: '12px', color: onSale ? '#c0392b' : '#555', fontWeight: onSale ? 600 : 400 }}>{convert(Number(product.price))}</span>
+            {onSale && <span style={{ fontSize: '11px', color: '#aaa', textDecoration: 'line-through' }}>{convert(Number(product.comparePrice))}</span>}
+          </div>
+        </Link>
       </div>
-    </Link>
+    </div>
   )
 }
-
 // Small square card for "Style With" section
 function StyleCard({ product }: { product: GridProduct }) {
   const href = `/products/${product.slug ?? product.id}`
   const img = Array.isArray(product.images) ? product.images[0] : ''
+const [hovered, setHovered] = useState(false)
+  const { convert } = useCurrency()
 
   return (
-    <Link href={href} className="group no-underline" style={{ display: 'block' }}>
-      <div style={{ aspectRatio: '1/1', overflow: 'hidden', background: '#f5f2ed' }}>
-        {img ? (
-          <img src={img} alt={product.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease', display: 'block' }}
-            className="group-hover:scale-105" />
-        ) : (
-          <div style={{ width: '100%', height: '100%', background: '#f0ece6' }} />
-        )}
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ border: '1px solid #eeebe6', padding: '8px', background: '#fff', transition: 'box-shadow 0.3s ease', boxShadow: hovered ? '0 8px 30px rgba(0,0,0,0.10)' : 'none' }}
+    >
+      <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
+        <div style={{ position: 'relative', overflow: 'hidden', background: '#f9f9f9', aspectRatio: '3/4' }}>
+          {img
+            ? <img src={img} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease', transform: hovered ? 'scale(1.04)' : 'scale(1)' }} />
+            : <div style={{ width: '100%', height: '100%', background: '#f0ece6' }} />
+          }
+         <div onClick={e => e.preventDefault()}
+            style={{ position: 'absolute', top: '10px', right: '10px', opacity: hovered ? 1 : 0, transition: 'opacity 0.2s ease' }}>
+            <WishlistButton productId={product.id} size={13}
+              className="w-[30px] h-[30px] rounded-full bg-white/90 flex items-center justify-center shadow-sm" />
+          </div>
+          {hovered && (
+            <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: '#fff', padding: '8px 16px', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1a1a1a', fontWeight: 600, whiteSpace: 'nowrap', border: '1px solid #ddd', boxShadow: '0 2px 8px rgba(0,0,0,0.10)', cursor: 'pointer' }}>
+              Quick View
+            </div>
+          )}
+        </div>
+      </Link>
+      <div style={{ height: '52px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '2px', overflow: 'hidden', marginTop: '6px' }}>
+        <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#1a1a1a', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {product.name}
+          </div>
+          <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>{convert(Number(product.price))}</div>
+        </Link>
       </div>
-      <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#1a1a1a', marginTop: '8px', lineHeight: 1.3 }}
-        className="group-hover:underline">{product.name}</p>
-      <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#888' }}>
-        ${Number(product.price).toFixed(2)}
-      </p>
-    </Link>
+    </div>
   )
 }
 

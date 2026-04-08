@@ -1,11 +1,11 @@
-// Save as: src/app/admin/settings/page.tsx
 'use client'
-import { useState } from 'react'
-import { Save, Store, DollarSign, Truck, Mail, Shield } from 'lucide-react'
+// Save as: src/app/admin/settings/page.tsx
+import { useState, useEffect } from 'react'
+import { Save, Store, DollarSign, Truck, Mail, Shield, Code, Tag } from 'lucide-react'
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
-    storeName:       'Solomon Lawrence',
+    storeName:       'Solomon & Sage',
     storeEmail:      'orders@solomonlawrence.com',
     currency:        'USD',
     taxRate:         8,
@@ -16,6 +16,43 @@ export default function SettingsPage() {
     timezone:        'America/New_York',
   })
   const [saved, setSaved] = useState(false)
+
+  const [tags, setTags] = useState({
+  gtmId: '',
+  ga4Id: '',
+  metaPixelId: '',
+  tiktokPixelId: '',
+  snapPixelId: '',
+  customHeadScripts: '',
+  customBodyScripts: '',
+})
+const [tagsSaved, setTagsSaved] = useState(false)
+const [tagsLoading, setTagsLoading] = useState(true)
+
+useEffect(() => {
+  fetch('/api/cms/settings')
+    .then(r => r.json())
+    .then(d => {
+      const t = d.settings?.tracking_tags
+      if (t) setTags(prev => ({ ...prev, ...t }))
+    })
+    .catch(() => {})
+    .finally(() => setTagsLoading(false))
+}, [])
+
+const saveTags = async () => {
+  try {
+    const res = await fetch('/api/cms/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'tracking_tags', value: tags }),
+    })
+    if (res.ok) {
+      setTagsSaved(true)
+      setTimeout(() => setTagsSaved(false), 2000)
+    }
+  } catch {}
+}
 
   const save = async () => {
     setSaved(true)
@@ -122,6 +159,131 @@ export default function SettingsPage() {
           </div>
         </div>
       </Section>
+
+
+
+      <Section icon={Tag} title="Tracking & Analytics Tags">
+  <p className="text-[12px] text-gray-400 mb-4 leading-relaxed">
+    Add your tracking IDs here. Tags are injected server-side for best SEO and performance.
+  </p>
+
+  {tagsLoading ? (
+    <div className="animate-pulse space-y-3">
+      {[1,2,3].map(i => <div key={i} className="h-10 bg-gray-100 rounded-lg" />)}
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {/* GTM */}
+      <div>
+        <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+          Google Tag Manager ID
+        </label>
+        <input
+          type="text"
+          value={tags.gtmId}
+          onChange={e => setTags(p => ({ ...p, gtmId: e.target.value }))}
+          placeholder="GTM-XXXXXXX"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] font-mono"
+        />
+        <p className="text-[11px] text-gray-400 mt-1">Recommended — manages all other tags including GA4, Meta Pixel etc.</p>
+      </div>
+
+      {/* GA4 */}
+      <div>
+        <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+          Google Analytics 4 (GA4) ID
+        </label>
+        <input
+          type="text"
+          value={tags.ga4Id}
+          onChange={e => setTags(p => ({ ...p, ga4Id: e.target.value }))}
+          placeholder="G-XXXXXXXXXX"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] font-mono"
+        />
+        <p className="text-[11px] text-gray-400 mt-1">Only needed if not using GTM. If using GTM, add GA4 inside GTM instead.</p>
+      </div>
+
+      {/* Meta Pixel */}
+      <div>
+        <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+          Meta (Facebook) Pixel ID
+        </label>
+        <input
+          type="text"
+          value={tags.metaPixelId}
+          onChange={e => setTags(p => ({ ...p, metaPixelId: e.target.value }))}
+          placeholder="XXXXXXXXXXXXXXXX"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] font-mono"
+        />
+      </div>
+
+      {/* TikTok */}
+      <div>
+        <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+          TikTok Pixel ID
+        </label>
+        <input
+          type="text"
+          value={tags.tiktokPixelId}
+          onChange={e => setTags(p => ({ ...p, tiktokPixelId: e.target.value }))}
+          placeholder="CXXXXXXXXXXXXXXXXX"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] font-mono"
+        />
+      </div>
+
+      {/* Snapchat */}
+      <div>
+        <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+          Snapchat Pixel ID
+        </label>
+        <input
+          type="text"
+          value={tags.snapPixelId}
+          onChange={e => setTags(p => ({ ...p, snapPixelId: e.target.value }))}
+          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[13px] outline-none focus:border-[#1a1a1a] font-mono"
+        />
+      </div>
+
+      {/* Custom Head Scripts */}
+      <div>
+        <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+          Custom &lt;head&gt; Scripts
+        </label>
+        <textarea
+          value={tags.customHeadScripts}
+          onChange={e => setTags(p => ({ ...p, customHeadScripts: e.target.value }))}
+          placeholder={'<!-- Paste any custom script tags here -->\n<script>...</script>'}
+          rows={4}
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[12px] outline-none focus:border-[#1a1a1a] font-mono resize-y"
+        />
+        <p className="text-[11px] text-gray-400 mt-1">Injected inside &lt;head&gt; — for verification tags, heatmaps, etc.</p>
+      </div>
+
+      {/* Custom Body Scripts */}
+      <div>
+        <label className="block text-[11px] font-semibold text-gray-500 tracking-wide uppercase mb-1.5">
+          Custom &lt;body&gt; Scripts
+        </label>
+        <textarea
+          value={tags.customBodyScripts}
+          onChange={e => setTags(p => ({ ...p, customBodyScripts: e.target.value }))}
+          placeholder={'<!-- Paste any body scripts here -->\n<noscript>...</noscript>'}
+          rows={4}
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-[12px] outline-none focus:border-[#1a1a1a] font-mono resize-y"
+        />
+        <p className="text-[11px] text-gray-400 mt-1">Injected after &lt;body&gt; opens — for GTM noscript fallback etc.</p>
+      </div>
+
+      <button
+        onClick={saveTags}
+        className={`flex items-center gap-2 px-4 py-2.5 text-[12px] font-medium rounded-lg border-none cursor-pointer transition-all
+          ${tagsSaved ? 'bg-[#4a6741] text-white' : 'bg-[#1a1a1a] text-white hover:bg-gray-800'}`}>
+        <Save size={14} /> {tagsSaved ? 'Saved!' : 'Save Tags'}
+      </button>
+    </div>
+  )}
+</Section>
     </div>
   )
 }

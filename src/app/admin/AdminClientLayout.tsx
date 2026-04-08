@@ -1,5 +1,5 @@
-// Save as: src/app/admin/AdminClientLayout.tsx (REPLACE existing)
 'use client'
+// Save as: src/app/admin/AdminClientLayout.tsx (REPLACE existing)
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -9,14 +9,19 @@ import {
   ChevronRight, Bell, Search, Store, LogOut,
   ShieldCheck, UserCog,
   FileText, MessageSquare,
-  FolderOpen
+  FolderOpen,
+  Monitor,
+  Layout,
+  Mail
 } from 'lucide-react'
+import { Type } from 'lucide-react'
 
 const nav = [
   { href: '/admin',            label: 'Home',        icon: LayoutDashboard },
   { href: '/admin/orders',     label: 'Orders',      icon: ShoppingBag },
   { href: '/admin/products',   label: 'Products',    icon: Package },
   { href: '/admin/customers',  label: 'Customers',   icon: Users },
+  { href: '/admin/newsletter', icon: Mail, label: 'Newsletter' },
   { href: '/admin/analytics',  label: 'Analytics',   icon: BarChart2 },
   { href: '/admin/discounts',  label: 'Discounts',   icon: Tag },
  { href: '/admin/inventory',   label: 'Inventory',    icon: Layers },
@@ -25,7 +30,10 @@ const nav = [
   { href: '/admin/users',       label: 'Admin Users',  icon: UserCog },
   { href: '/admin/settings',   label: 'Settings',    icon: Settings },
    { href: '/admin/cms',     label: 'Content', icon: FileText },
+   { href: '/admin/footer', icon: Layout, label: 'Footer' },
   { href: '/admin/reviews', label: 'Reviews', icon: MessageSquare },
+  { href: '/admin/theme', icon: Monitor, label: 'Theme' },
+  { href: '/admin/fonts', icon: Type, label: 'Fonts' }
 ]
 
 export default function AdminClientLayout({
@@ -114,7 +122,7 @@ export default function AdminClientLayout({
                 <ShieldCheck size={16} strokeWidth={1.5} className="text-white" />
               </div>
               <div>
-                <p className="text-white font-semibold tracking-wide text-[13px]">Solomon Lawrence</p>
+                <p className="text-white font-semibold tracking-wide text-[13px]">Solomon & Sage</p>
                 <p className="text-white/40 text-[10px] tracking-wide">Admin Dashboard</p>
               </div>
             </div>

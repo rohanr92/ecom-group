@@ -1,11 +1,12 @@
-// Save as: src/app/admin/cms/page.tsx (NEW FILE)
 'use client'
+// Save as: src/app/admin/cms/page.tsx (NEW FILE)
 import { useState, useEffect } from 'react'
 import {
   FileText, Globe, AlignLeft, Plus, Trash2, Save,
   ChevronDown, ChevronUp, Image, Link2, Type, AlignJustify,
   Menu, Columns, AlertCircle, CheckCircle2, Eye, EyeOff, Settings
 } from 'lucide-react'
+import { link } from 'fs/promises';
 
 // ── Types ─────────────────────────────────────────────────────────
 interface Section { id: string; type: string; content: any }
@@ -69,7 +70,7 @@ export default function CmsAdminPage() {
 
   // Footer state
   const [footerCols,    setFooterCols]    = useState<FooterCol[]>([])
-  const [footerTagline, setFooterTagline] = useState('Solomon Lawrence Group')
+  const [footerTagline, setFooterTagline] = useState('Solomon & Sage Group')
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ msg, type })
@@ -193,24 +194,195 @@ export default function CmsAdminPage() {
     const c = section.content
     return (
       <div style={{ padding: '16px', background: '#fafafa', borderTop: '1px solid #e8e4de' }}>
-        {section.type === 'text' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div>
-              <label style={labelStyle}>Heading</label>
-              <input value={c.heading ?? ''} onChange={e => updateSection(section.id, { ...c, heading: e.target.value })} style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>Body Text</label>
-              <textarea value={c.body ?? ''} onChange={e => updateSection(section.id, { ...c, body: e.target.value })} rows={5} style={{ ...inputStyle, resize: 'vertical' }} />
-            </div>
-          </div>
-        )}
-        {section.type === 'rich_text' && (
-          <div>
-            <label style={labelStyle}>Content (supports basic HTML)</label>
-            <textarea value={c.body ?? ''} onChange={e => updateSection(section.id, { ...c, body: e.target.value })} rows={8} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'monospace', fontSize: '12px' }} />
-          </div>
-        )}
+       {section.type === 'text' && (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div>
+      <label style={labelStyle}>Heading</label>
+      <input value={c.heading ?? ''} onChange={e => updateSection(section.id, { ...c, heading: e.target.value })} style={inputStyle} />
+    </div>
+
+    {/* Heading style options */}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+      <div>
+        <label style={labelStyle}>Font Family</label>
+       <select value={c.headingFont ?? 'display'} onChange={e => updateSection(section.id, { ...c, headingFont: e.target.value })}
+  style={{ ...inputStyle, padding: '7px 10px' }}>
+  <option value="display">Display — Site Default</option>
+  <option value="body">Body — Site Default</option>
+  <option value="var(--google-playfair)">Playfair Display</option>
+  <option value="var(--google-lora)">Lora</option>
+  <option value="var(--google-merriweather)">Merriweather</option>
+  <option value="var(--google-crimson)">Crimson Text</option>
+  <option value="var(--google-garamond)">EB Garamond</option>
+  <option value="var(--google-nunito)">Nunito</option>
+  <option value="var(--google-raleway)">Raleway</option>
+  <option value="var(--google-josefin)">Josefin Sans</option>
+  <option value="Georgia, serif">Georgia</option>
+  <option value="'Times New Roman', serif">Times New Roman</option>
+  <option value="Arial, sans-serif">Arial</option>
+  <option value="Helvetica, sans-serif">Helvetica</option>
+  <option value="Verdana, sans-serif">Verdana</option>
+  <option value="'Courier New', monospace">Courier New</option>
+  <option value="cursive">Cursive</option>
+</select>
+      </div>
+      <div>
+        <label style={labelStyle}>Font Size</label>
+        <select value={c.headingSize ?? '32px'} onChange={e => updateSection(section.id, { ...c, headingSize: e.target.value })}
+          style={{ ...inputStyle, padding: '7px 10px' }}>
+          {['14px','16px','18px','20px','24px','28px','32px','36px','42px','48px','56px','64px'].map(s => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label style={labelStyle}>Font Weight</label>
+        <select value={c.headingWeight ?? '400'} onChange={e => updateSection(section.id, { ...c, headingWeight: e.target.value })}
+          style={{ ...inputStyle, padding: '7px 10px' }}>
+          <option value="300">Light (300)</option>
+          <option value="400">Regular (400)</option>
+          <option value="500">Medium (500)</option>
+          <option value="600">Semibold (600)</option>
+          <option value="700">Bold (700)</option>
+        </select>
+      </div>
+      <div>
+        <label style={labelStyle}>Text Align</label>
+        <select value={c.headingAlign ?? 'left'} onChange={e => updateSection(section.id, { ...c, headingAlign: e.target.value })}
+          style={{ ...inputStyle, padding: '7px 10px' }}>
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+    </div>
+
+    {/* Heading color + style */}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+      <div>
+        <label style={labelStyle}>Text Color</label>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <input type="color" value={c.headingColor ?? '#1a1a1a'} onChange={e => updateSection(section.id, { ...c, headingColor: e.target.value })}
+            style={{ width: '36px', height: '34px', border: '1px solid #ddd', cursor: 'pointer', padding: '2px' }} />
+          <input value={c.headingColor ?? '#1a1a1a'} onChange={e => updateSection(section.id, { ...c, headingColor: e.target.value })}
+            style={{ ...inputStyle, flex: 1 }} placeholder="#1a1a1a" />
+        </div>
+      </div>
+      <div>
+        <label style={labelStyle}>Italic</label>
+        <select value={c.headingItalic ?? 'italic'} onChange={e => updateSection(section.id, { ...c, headingItalic: e.target.value })}
+          style={{ ...inputStyle, padding: '7px 10px' }}>
+          <option value="normal">Normal</option>
+          <option value="italic">Italic</option>
+        </select>
+      </div>
+      <div>
+        <label style={labelStyle}>Text Transform</label>
+        <select value={c.headingTransform ?? 'none'} onChange={e => updateSection(section.id, { ...c, headingTransform: e.target.value })}
+          style={{ ...inputStyle, padding: '7px 10px' }}>
+          <option value="none">None</option>
+          <option value="uppercase">UPPERCASE</option>
+          <option value="lowercase">lowercase</option>
+          <option value="capitalize">Capitalize</option>
+        </select>
+      </div>
+    </div>
+
+    {/* Live heading preview */}
+    {c.heading && (
+      <div style={{ padding: '12px 16px', border: '1px solid #e8e4de', background: '#fafafa', textAlign: c.headingAlign ?? 'left' }}>
+        <p style={{ fontFamily: c.headingFont === 'display' ? 'var(--font-display)' : c.headingFont === 'body' ? 'var(--font-body)' : (c.headingFont ?? 'var(--font-display)'), fontSize: c.headingSize ?? '32px', fontWeight: c.headingWeight ?? '400', fontStyle: c.headingItalic ?? 'italic', color: c.headingColor ?? '#1a1a1a', textTransform: (c.headingTransform ?? 'none') as any, margin: 0 }}>
+          {c.heading}
+        </p>
+      </div>
+    )}
+
+    <div>
+      <label style={labelStyle}>Body Text</label>
+      <textarea value={c.body ?? ''} onChange={e => updateSection(section.id, { ...c, body: e.target.value })} rows={5}
+        style={{ ...inputStyle, resize: 'vertical', whiteSpace: 'pre-wrap' }} />
+    </div>
+
+    {/* Body options */}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+      <div>
+        <label style={labelStyle}>Body Font Size</label>
+        <select value={c.bodySize ?? '14px'} onChange={e => updateSection(section.id, { ...c, bodySize: e.target.value })}
+          style={{ ...inputStyle, padding: '7px 10px' }}>
+          {['12px','13px','14px','15px','16px','18px','20px'].map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+      <div>
+        <label style={labelStyle}>Body Align</label>
+        <select value={c.bodyAlign ?? 'left'} onChange={e => updateSection(section.id, { ...c, bodyAlign: e.target.value })}
+          style={{ ...inputStyle, padding: '7px 10px' }}>
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+          <option value="justify">Justify</option>
+        </select>
+      </div>
+      <div>
+        <label style={labelStyle}>Body Color</label>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <input type="color" value={c.bodyColor ?? '#666666'} onChange={e => updateSection(section.id, { ...c, bodyColor: e.target.value })}
+            style={{ width: '36px', height: '34px', border: '1px solid #ddd', cursor: 'pointer', padding: '2px' }} />
+          <input value={c.bodyColor ?? '#666666'} onChange={e => updateSection(section.id, { ...c, bodyColor: e.target.value })}
+            style={{ ...inputStyle, flex: 1 }} />
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+       {section.type === 'rich_text' && (
+  <div>
+    <label style={labelStyle}>Content</label>
+    {/* Formatting toolbar */}
+    <div style={{ display:'flex', gap:'4px', marginBottom:'6px', flexWrap:'wrap' }}>
+      {[
+        { label: 'B', title: 'Bold', wrap: ['<strong>', '</strong>'] },
+        { label: 'I', title: 'Italic', wrap: ['<em>', '</em>'] },
+        { label: 'U', title: 'Underline', wrap: ['<u>', '</u>'] },
+        { label: '• List', title: 'Bullet List', wrap: ['<ul>\n  <li>', '</li>\n</ul>'] },
+        { label: '1. List', title: 'Numbered List', wrap: ['<ol>\n  <li>', '</li>\n</ol>'] },
+        { label: 'H2', title: 'Heading 2', wrap: ['<h2>', '</h2>'] },
+        { label: 'H3', title: 'Heading 3', wrap: ['<h3>', '</h3>'] },
+        { label: 'Link', title: 'Link', wrap: ['<a href="URL">', '</a>'] },
+        { label: '—', title: 'Divider', wrap: ['<hr/>', ''] },
+        { label: 'BR', title: 'Line Break', wrap: ['<br/>', ''] },
+      ].map(btn => (
+        <button key={btn.label} title={btn.title}
+          onClick={() => {
+            const ta = document.getElementById(`rte-${section.id}`) as HTMLTextAreaElement
+            if (!ta) return
+            const start = ta.selectionStart
+            const end   = ta.selectionEnd
+            const selected = ta.value.substring(start, end)
+            const newVal = ta.value.substring(0, start) + btn.wrap[0] + selected + btn.wrap[1] + ta.value.substring(end)
+            updateSection(section.id, { ...c, body: newVal })
+          }}
+          style={{ padding:'4px 10px', border:'1px solid #ddd', background:'#fff', fontFamily:'var(--font-body)', fontSize:'11px', cursor:'pointer', fontWeight: btn.label === 'B' ? 700 : btn.label === 'I' ? undefined : 400, fontStyle: btn.label === 'I' ? 'italic' : 'normal' }}>
+          {btn.label}
+        </button>
+      ))}
+    </div>
+    <textarea
+      id={`rte-${section.id}`}
+      value={c.body ?? ''}
+      onChange={e => updateSection(section.id, { ...c, body: e.target.value })}
+      rows={10}
+      style={{ ...inputStyle, resize:'vertical', fontFamily:'monospace', fontSize:'12px' }}
+      placeholder="Type content here, or use the toolbar above to format. Supports HTML tags." />
+    {/* Live preview */}
+    {c.body && (
+      <div style={{ marginTop:'8px', padding:'12px', border:'1px solid #e8e4de', background:'#fafafa' }}>
+        <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'#aaa', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'8px' }}>Preview</p>
+        <div style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'var(--color-mid)', lineHeight:1.8 }}
+          dangerouslySetInnerHTML={{ __html: c.body }} />
+      </div>
+    )}
+  </div>
+)}
         {section.type === 'hero' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div><label style={labelStyle}>Title</label><input value={c.title ?? ''} onChange={e => updateSection(section.id, { ...c, title: e.target.value })} style={inputStyle} /></div>
@@ -636,6 +808,6 @@ const defaultNav: NavItem[] = [
 const defaultFooterCols: FooterCol[] = [
   { heading: 'YOUR ORDER',   links: [{ label: 'Track Order', href: '/track' }, { label: 'Shipping & Delivery', href: '/shipping' }, { label: 'Returns & Exchanges', href: '/returns' }, { label: 'Size Guide', href: '/size-guide' }, { label: 'FAQ', href: '/faq' }] },
   { heading: 'HELP & INFO',  links: [{ label: 'Contact Us', href: '/contact' }, { label: 'About Us', href: '/about' }, { label: 'Job Opportunities', href: '/jobs' }, { label: 'Affiliate Program', href: '/affiliate' }, { label: 'Gift Cards', href: '/gift-cards' }] },
-  { heading: 'ABOUT SOLOMON LAWRENCE', links: [{ label: 'Our Story', href: '/about' }, { label: 'Sustainability', href: '/sustainability' }, { label: 'Press', href: '/press' }, { label: 'Free People King', href: '#' }, { label: 'Influencers', href: '/influencers' }] },
+  { heading: 'ABOUT Solomon & Sage', links: [{ label: 'Our Story', href: '/about' }, { label: 'Sustainability', href: '/sustainability' }, { label: 'Press', href: '/press' }, { label: 'Free People King', href: '#' }, { label: 'Influencers', href: '/influencers' }] },
   { heading: 'RETAILERS',    links: [{ label: 'Nordstrom', href: '#' }, { label: "Macy's", href: '#' }, { label: "Kohl's", href: '#' }, { label: 'JCPenney', href: '#' }, { label: 'Find a Store', href: '#' }] },
 ]

@@ -48,7 +48,8 @@ const order = await prisma.order.update({
     ...(courier        && { courier }),
     ...(trackingUrl !== undefined && { trackingUrl }),
   },
-    })
+  include: { items: true, addresses: true },
+})
 
     // ── Trigger emails based on new status ───────────────────────
     if (status === 'SHIPPED' && trackingNumber) {
@@ -81,6 +82,24 @@ const order = await prisma.order.update({
         total:       Number(order.total),
       }))
     }
+
+
+
+    if (status === 'CANCELLED') {
+  const orderItems = await prisma.orderItem.findMany({
+    where: { orderId: id },
+  })
+  for (const item of orderItems) {
+    if (item.variantId) {
+      await prisma.productVariant.update({
+        where: { id: item.variantId },
+        data: { inventory: { increment: item.quantity } },
+      })
+    }
+  }
+}
+
+    // Restore inventory on cancellation
 
     return NextResponse.json({ order })
   } catch (err: any) {

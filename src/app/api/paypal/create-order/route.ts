@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         purchase_units: [
           {
             reference_id: `sl-${Date.now()}`,
-            description:  'Solomon Lawrence Order',
+            description:  'Solomon & Sage Order',
             amount: {
               currency_code: currency,
               value:         amount.toFixed(2),
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
           },
         ],
         application_context: {
-          brand_name:          'Solomon Lawrence',
+          brand_name:          'Solomon & Sage',
           locale:              'en-US',
           landing_page:        'LOGIN',
           shipping_preference: 'NO_SHIPPING',

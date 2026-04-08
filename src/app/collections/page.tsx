@@ -1,7 +1,15 @@
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import CollectionsPage from '@/components/CollectionsPage'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+
+export const metadata: Metadata = {
+  title: "Women's Clothing",
+  description: "Shop Solomon & Sage women's clothing. Browse dresses, tops, jeans, jackets, skirts and accessories. Free shipping on orders over $150.",
+  alternates: { canonical: 'https://solomonandsage.com/collections' },
+}
+
 
 export default function CollectionsRoute() {
   return (

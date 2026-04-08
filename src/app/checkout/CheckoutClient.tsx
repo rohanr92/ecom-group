@@ -3,23 +3,24 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import Navbar from '@/components/Navbar'
 import { useCart } from '@/components/CartContext'
 import {
-  Truck, Gift, Mail, Lock, Check, CreditCard,
+  Truck, Gift, Mail, Lock, Check,
   ChevronDown, Info, Package, MapPin, MessageCircle,
-  ShieldCheck, Tag, Loader2, ArrowLeft
+  ShieldCheck, Tag, Loader2, ArrowLeft, CreditCard as CreditCardIcon
 } from 'lucide-react'
+import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk'
+import { useRef } from 'react'
+import { useCurrency } from '@/hooks/useCurrency'
 
 // ── Stripe setup ──────────────────────────────────────────────────
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 // ── Styles ────────────────────────────────────────────────────────
 const inp = "w-full px-3 py-2.5 border border-gray-300 text-[13px] text-[#1a1a1a] tracking-wide outline-none focus:border-[#1a1a1a] transition-colors bg-white placeholder:text-gray-300"
 const lbl = "block text-[11px] text-gray-500 tracking-wide mb-1"
 const req = <span className="text-red-500 ml-0.5">*</span>
+
 
 const US_STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming']
 
@@ -30,114 +31,15 @@ const DELIVERY_OPTIONS = [
 ]
 
 // ── Inner Stripe form (must be inside <Elements>) ─────────────────
-function StripeForm({
-  amount, orderData, onSuccess, onError,
-}: {
-  amount: number
-  orderData: any
-  onSuccess: (orderNumber: string) => void
-  onError:   (msg: string) => void
-}) {
-  const stripe   = useStripe()
-  const elements = useElements()
-  const [loading, setLoading] = useState(false)
- 
-  const handlePay = async () => {
-    if (!stripe || !elements) return
-    setLoading(true)
-    try {
-      // Step 1 — validate the payment element fields
-      const { error: submitErr } = await elements.submit()
-      if (submitErr) {
-        onError(submitErr.message ?? 'Please check your card details')
-        setLoading(false)
-        return
-      }
- 
-      // Step 2 — confirm payment with Stripe FIRST (charges the card)
-      const { error: confirmErr, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          payment_method_data: {
-            billing_details: {
-              email: orderData.email,
-              name:  `${orderData.address?.firstName} ${orderData.address?.lastName}`,
-              address: {
-                line1:       orderData.address?.street,
-                city:        orderData.address?.city,
-                state:       orderData.address?.state,
-                postal_code: orderData.address?.zip,
-                country:     'US',
-              },
-            },
-          },
-          // No return_url — we handle redirect ourselves
-          return_url: `${window.location.origin}/checkout`,
-        },
-        redirect: 'if_required', // stay on page if possible
-      })
- 
-      // Step 3 — if Stripe charge failed, stop here — do NOT save order
-      if (confirmErr) {
-        onError(confirmErr.message ?? 'Payment failed. Please try a different card.')
-        setLoading(false)
-        return
-      }
- 
-      // Step 4 — payment succeeded → now save order to DB
-      if (paymentIntent?.status === 'succeeded') {
-        const orderRes  = await fetch('/api/orders/create', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({
-            ...orderData,
-            paymentMethod:   'STRIPE',
-            stripePaymentId: paymentIntent.id, // pass real Stripe ID for verification
-          }),
-        })
-        const orderJson = await orderRes.json()
- 
-        if (!orderRes.ok) {
-          onError(orderJson.error ?? 'Payment succeeded but order failed to save. Contact support.')
-          setLoading(false)
-          return
-        }
- 
-        onSuccess(orderJson.orderNumber)
-      } else {
-        onError('Payment was not completed. Please try again.')
-      }
- 
-    } catch (err: any) {
-      onError(err.message ?? 'Something went wrong')
-    } finally {
-      setLoading(false)
-    }
-  }
- 
-  return (
-    <div className="space-y-4">
-      <PaymentElement options={{ layout: 'tabs' }} />
-      <button
-        onClick={handlePay}
-        disabled={loading || !stripe}
-        className="w-full h-12 bg-[#1a1a1a] text-white text-[11px] font-semibold tracking-widest uppercase border-none cursor-pointer hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        {loading
-          ? <><Loader2 size={14} className="animate-spin" /> Processing...</>
-          : <><Lock size={13} strokeWidth={1.5} /> Pay ${amount.toFixed(2)}</>
-        }
-      </button>
-      <p className="text-center text-[10px] text-gray-400 tracking-wide">
-        🔒 Secured by Stripe — your card is charged only after verification
-      </p>
-    </div>
-  )
-}
+
 
 // ── Main Checkout Page ────────────────────────────────────────────
 export default function CheckoutClient({ initialUser }: { initialUser: any }) {
   const { items, totalPrice, totalCount, clearCart } = useCart()
+  
+  const { convert } = useCurrency()
+  const streetInputRef = useRef<HTMLInputElement>(null)
+const autocompleteRef = useRef<any>(null)
 
   // Steps
   const [step, setStep] = useState<'address' | 'payment'>('address')
@@ -153,6 +55,11 @@ export default function CheckoutClient({ initialUser }: { initialUser: any }) {
     isPOBox: false,
   })
   const [addrErrors, setAddrErrors] = useState<Record<string, string>>({})
+
+
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([])
+const [showSuggestions, setShowSuggestions] = useState(false)
+const suggestionTimer = useRef<any>(null)
 
   // Delivery
   const [deliveryId, setDeliveryId] = useState('standard')
@@ -176,8 +83,8 @@ export default function CheckoutClient({ initialUser }: { initialUser: any }) {
   const [payMethod, setPayMethod] = useState<'stripe' | 'paypal'>('stripe')
 
   // Stripe clientSecret
-  const [clientSecret,    setClientSecret]    = useState<string | null>(null)
-  const [clientSecretErr, setClientSecretErr] = useState('')
+
+  
   const [paypalLoading,   setPaypalLoading]   = useState(false)
   const [paymentError,    setPaymentError]    = useState('')
 const [user, setUser] = useState<any>(initialUser)
@@ -194,56 +101,77 @@ const [user, setUser] = useState<any>(initialUser)
     }
   }, [])
 
+
+  // ── Address Autocomplete (OpenStreetMap) ─────────────────────────
+const fetchAddressSuggestions = (query: string) => {
+  if (query.length < 4) { setAddressSuggestions([]); setShowSuggestions(false); return }
+  clearTimeout(suggestionTimer.current)
+  suggestionTimer.current = setTimeout(async () => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&countrycodes=us`,
+        { headers: { 'Accept-Language': 'en' } }
+      )
+      const data = await res.json()
+      setAddressSuggestions(data ?? [])
+      setShowSuggestions(data?.length > 0)
+    } catch {}
+  }, 500)
+}
+
+const selectAddress = (item: any) => {
+  const a = item.address ?? {}
+  setAddr(p => ({
+    ...p,
+    street: `${a.house_number ?? ''} ${a.road ?? ''}`.trim(),
+    city:   a.city ?? a.town ?? a.village ?? a.county ?? '',
+    state:  a.state ?? '',
+    zip:    a.postcode ?? '',
+  }))
+  setAddressSuggestions([])
+  setShowSuggestions(false)
+}
+
   // ── Computed totals ─────────────────────────────────────────────
   const discount    = promoResult?.discount ?? 0
   const tax         = (totalPrice - discount) * 0.08
   const donationAmt = donation ?? 0
   const orderTotal  = totalPrice - discount + delivery.price + tax + donationAmt
 
-  // ── Fetch Stripe clientSecret when reaching payment step ────────
-  useEffect(() => {
-    if (step !== 'payment' || payMethod !== 'stripe' || clientSecret) return
-    ;(async () => {
-      try {
-        const res  = await fetch('/api/stripe/payment-intent', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({
-            amount: orderTotal,
-            metadata: {
-              email: addr.email,
-              name:  `${addr.firstName} ${addr.lastName}`,
-              city:  addr.city,
-              items: JSON.stringify(items.map(i => ({ id: i.id, name: i.name, qty: i.quantity }))),
-            },
-          }),
-        })
-        const data = await res.json()
-        if (data.clientSecret) {
-          setClientSecret(data.clientSecret)
-        } else {
-          setClientSecretErr(data.error ?? 'Failed to initialize payment')
-        }
-      } catch (err: any) {
-        setClientSecretErr(err.message)
-      }
-    })()
-  }, [step, payMethod, orderTotal])
+ 
 
   // ── Validate address ────────────────────────────────────────────
-  const validateAddr = () => {
-    const e: Record<string, string> = {}
-    if (!addr.email)     e.email     = 'Required'
-    if (!addr.firstName) e.firstName = 'Required'
-    if (!addr.lastName)  e.lastName  = 'Required'
-    if (!addr.street)    e.street    = 'Required'
-    if (!addr.city)      e.city      = 'Required'
-    if (!addr.state)     e.state     = 'Required'
-    if (!addr.zip)       e.zip       = 'Required'
-    if (!addr.phone)     e.phone     = 'Required'
-    setAddrErrors(e)
-    return Object.keys(e).length === 0
+const validateAddr = () => {
+  const e: Record<string, string> = {}
+  if (!addr.email)     e.email     = 'Required'
+  if (!addr.firstName) e.firstName = 'Required'
+  if (!addr.lastName)  e.lastName  = 'Required'
+  if (!addr.street)    e.street    = 'Required'
+  if (!addr.city)      e.city      = 'Required'
+  if (!addr.state)     e.state     = 'Required'
+  if (!addr.zip)       e.zip       = 'Required'
+
+  // Phone validation — must be 10 digits
+  const phoneDigits = addr.phone.replace(/\D/g, '')
+  if (!addr.phone) {
+    e.phone = 'Required'
+  } else if (phoneDigits.length < 10) {
+    e.phone = 'Please enter a valid 10-digit US phone number'
   }
+
+  // Email validation
+  if (addr.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr.email)) {
+    e.email = 'Please enter a valid email address'
+  }
+
+  // ZIP validation
+  if (addr.zip && !/^\d{5}(-\d{4})?$/.test(addr.zip)) {
+    e.zip = 'Please enter a valid ZIP code'
+  }
+
+  setAddrErrors(e)
+  return Object.keys(e).length === 0
+}
 
   // ── Validate promo ──────────────────────────────────────────────
   const applyPromo = async () => {
@@ -397,7 +325,7 @@ const [user, setUser] = useState<any>(initialUser)
         <div className="max-w-5xl mx-auto px-4 flex items-center justify-center gap-0">
           {[
             { key: 'address', label: 'Address',  icon: <MapPin size={13} strokeWidth={1.5} /> },
-            { key: 'payment', label: 'Payment',  icon: <CreditCard size={13} strokeWidth={1.5} /> },
+            { key: 'payment', label: 'Payment', icon: <CreditCardIcon size={13} strokeWidth={1.5} /> },
           ].map((s, i) => (
             <div key={s.key} className="flex items-center">
               <div className="flex flex-col items-center gap-1.5">
@@ -483,22 +411,51 @@ const [user, setUser] = useState<any>(initialUser)
                       <div>
                         <label className={lbl}>Country{req}</label>
                         <select value={addr.country}
-                          onChange={e => setAddr(p => ({ ...p, country: e.target.value }))}
+                          onChange={e => setAddr(p => ({ ...p, country: e.target.value, state: '' }))}
                           className={inp}>
-                          {['United States','Canada','United Kingdom','Australia','Bangladesh','Other'].map(c =>
+                          {['United States','Canada','United Kingdom','Australia','Other'].map(c =>
                             <option key={c}>{c}</option>)}
                         </select>
                       </div>
 
                       {/* Street */}
-                      <div>
-                        <label className={lbl}>Street Address{req}</label>
-                        <input value={addr.street}
-                          onChange={e => setAddr(p => ({ ...p, street: e.target.value }))}
-                          placeholder="123 Main Street"
-                          className={`${inp} ${addrErrors.street ? 'border-red-400' : ''}`} />
-                        {addrErrors.street && <p className="text-red-500 text-[11px] mt-0.5">{addrErrors.street}</p>}
-                      </div>
+                     {/* Street */}
+<div className="relative">
+  <label className={lbl}>Street Address{req}</label>
+  <input
+    value={addr.street}
+    onChange={e => {
+      setAddr(p => ({ ...p, street: e.target.value }))
+      fetchAddressSuggestions(e.target.value)
+    }}
+    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+    placeholder="Start typing your address..."
+    className={`${inp} ${addrErrors.street ? 'border-red-400' : ''}`}
+    autoComplete="off"
+  />
+  {showSuggestions && addressSuggestions.length > 0 && (
+    <div className="absolute z-50 w-full bg-white border border-gray-200 shadow-lg mt-0.5 max-h-60 overflow-y-auto">
+   {addressSuggestions.map((item: any, i: number) => {
+  const a = item.address ?? {}
+  const street = `${a.house_number ?? ''} ${a.road ?? ''}`.trim() || item.display_name.split(',')[0]
+  const cityState = [a.city ?? a.town ?? a.village ?? '', a.state ?? '', a.postcode ?? ''].filter(Boolean).join(', ')
+  return (
+    <button key={i} onMouseDown={() => selectAddress(item)}
+      className="w-full text-left px-3 py-2.5 border-none bg-transparent cursor-pointer border-b border-gray-100 last:border-0 hover:bg-[#f8f6f1] transition-colors">
+      <div className="flex items-start gap-2">
+        <MapPin size={12} className="text-gray-400 mt-0.5 shrink-0" />
+        <div>
+          <p className="text-[12px] text-[#1a1a1a] font-medium leading-tight">{street}</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">{cityState}</p>
+        </div>
+      </div>
+    </button>
+  )
+})}
+    </div>
+  )}
+  {addrErrors.street && <p className="text-red-500 text-[11px] mt-0.5">{addrErrors.street}</p>}
+</div>
 
                       {/* Apt */}
                       <div>
@@ -528,12 +485,17 @@ const [user, setUser] = useState<any>(initialUser)
                         </div>
                         <div>
                           <label className={lbl}>State{req}</label>
-                          <select value={addr.state}
-                            onChange={e => setAddr(p => ({ ...p, state: e.target.value }))}
-                            className={`${inp} ${addrErrors.state ? 'border-red-400' : ''}`}>
-                            <option value="">Select</option>
-                            {US_STATES.map(s => <option key={s}>{s}</option>)}
-                          </select>
+                        <select value={addr.state}
+  onChange={e => setAddr(p => ({ ...p, state: e.target.value }))}
+  className={`${inp} ${addrErrors.state ? 'border-red-400' : ''}`}>
+  <option value="">Select</option>
+  {(addr.country === 'Canada' ? ['Alberta','British Columbia','Manitoba','New Brunswick','Newfoundland and Labrador','Nova Scotia','Ontario','Prince Edward Island','Quebec','Saskatchewan']
+  : addr.country === 'United Kingdom' ? ['England','Scotland','Wales','Northern Ireland']
+  : addr.country === 'Australia' ? ['New South Wales','Victoria','Queensland','Western Australia','South Australia','Tasmania','Australian Capital Territory','Northern Territory']
+  : addr.country === 'Other' ? []
+  : US_STATES
+  ).map(s => <option key={s}>{s}</option>)}
+</select>
                           {addrErrors.state && <p className="text-red-500 text-[11px] mt-0.5">{addrErrors.state}</p>}
                         </div>
                         <div>
@@ -551,7 +513,16 @@ const [user, setUser] = useState<any>(initialUser)
                         <div className="flex">
                           <span className="px-3 py-2.5 border border-r-0 border-gray-300 bg-gray-50 text-[13px] text-gray-500">+1</span>
                           <input value={addr.phone} type="tel"
-                            onChange={e => setAddr(p => ({ ...p, phone: e.target.value }))}
+                            onChange={e => {
+  const digits = e.target.value.replace(/\D/g, '').slice(0, 10)
+  let formatted = digits
+  if (digits.length >= 6) {
+    formatted = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`
+  } else if (digits.length >= 3) {
+    formatted = `(${digits.slice(0,3)}) ${digits.slice(3)}`
+  }
+  setAddr(p => ({ ...p, phone: formatted }))
+}}
                             placeholder="(XXX) XXX-XXXX"
                             className={`${inp} flex-1 ${addrErrors.phone ? 'border-red-400' : ''}`} />
                         </div>
@@ -579,7 +550,7 @@ const [user, setUser] = useState<any>(initialUser)
                                 </div>
                               </div>
                               <span className="text-[12px] font-medium text-[#1a1a1a]">
-                                {opt.price === 0 ? <span className="text-[#4a6741]">Free</span> : `$${opt.price.toFixed(2)}`}
+                                {opt.price === 0 ? <span className="text-[#4a6741]">Free</span> : convert(opt.price)}
                               </span>
                             </label>
                           ))}
@@ -623,7 +594,7 @@ const [user, setUser] = useState<any>(initialUser)
                     <button onClick={() => setGiftOpen(o => !o)}
                       className="flex items-center justify-between w-full bg-transparent border-none cursor-pointer">
                       <div className="flex items-center gap-2">
-                        <Gift size={14} strokeWidth={1.5} className="text-[#c8a882]" />
+                        <Gift size={14} strokeWidth={1.5} className="text-[#151515]" />
                         <span className="text-[13px] font-semibold text-[#1a1a1a] tracking-wide">Gift Options</span>
                       </div>
                       <ChevronDown size={14} className={`text-gray-400 transition-transform ${giftOpen ? 'rotate-180' : ''}`} />
@@ -641,7 +612,7 @@ const [user, setUser] = useState<any>(initialUser)
                   {/* Contact info recap */}
                   <div className="bg-white border border-gray-200 px-5 py-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <Mail size={13} strokeWidth={1.5} className="text-[#c8a882]" />
+                      <Mail size={13} strokeWidth={1.5} className="text-[#151515]" />
                       <span className="text-[12px] font-semibold text-[#1a1a1a] tracking-wide">Contact Info</span>
                     </div>
                     <p className="text-[12px] text-gray-500 tracking-wide">{addr.email} · +1 {addr.phone}</p>
@@ -650,23 +621,23 @@ const [user, setUser] = useState<any>(initialUser)
                   {/* Payment */}
                   <div className="bg-white border border-gray-200 px-5 py-5">
                     <div className="flex items-center gap-2 mb-4">
-                      <CreditCard size={14} strokeWidth={1.5} className="text-[#c8a882]" />
+                      <CreditCardIcon size={14} strokeWidth={1.5} className="text-[#151515]" />
                       <h3 className="text-[13px] font-semibold text-[#1a1a1a] tracking-wide">Payment</h3>
                     </div>
 
                     {/* Payment method tabs */}
                     <div className="flex mb-4 border border-gray-300">
-                      <button onClick={() => setPayMethod('stripe')}
-                        className={`flex-1 py-2.5 text-[11px] tracking-widest uppercase border-none cursor-pointer transition-colors flex items-center justify-center gap-1.5
-                          ${payMethod === 'stripe' ? 'bg-[#1a1a1a] text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
-                        <CreditCard size={12} strokeWidth={1.5} /> Credit Card
-                      </button>
-                      <button onClick={() => setPayMethod('paypal')}
-                        className={`flex-1 py-2.5 text-[11px] tracking-widest uppercase border-none cursor-pointer transition-colors
-                          ${payMethod === 'paypal' ? 'bg-[#1a1a1a] text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
-                        <span className="font-black">Pay</span><span className="font-black">Pal</span>
-                      </button>
-                    </div>
+  <button onClick={() => setPayMethod('stripe')}
+    className={`flex-1 py-2.5 text-[11px] tracking-widest uppercase border-none cursor-pointer transition-colors flex items-center justify-center gap-1.5
+      ${payMethod === 'stripe' ? 'bg-[#1a1a1a] text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+    <CreditCardIcon size={12} strokeWidth={1.5} /> Credit Card
+  </button>
+  <button onClick={() => setPayMethod('paypal')}
+    className={`flex-1 py-2.5 text-[11px] tracking-widests uppercase border-none cursor-pointer transition-colors
+      ${payMethod === 'paypal' ? 'bg-[#1a1a1a] text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+    <span className="font-black">Pay</span><span className="font-black">Pal</span>
+  </button>
+</div>
 
                     {/* Payment error */}
                     {paymentError && (
@@ -675,49 +646,107 @@ const [user, setUser] = useState<any>(initialUser)
                       </div>
                     )}
 
-                    {/* ── Stripe ── */}
-                    {payMethod === 'stripe' && (
-                      <>
-                        {clientSecretErr && (
-                          <p className="text-red-500 text-[12px] mb-3">{clientSecretErr}</p>
-                        )}
-                        {!clientSecret && !clientSecretErr && (
-                          <div className="flex items-center justify-center py-8 gap-2 text-gray-400 text-[12px]">
-                            <Loader2 size={16} className="animate-spin" /> Loading payment form...
-                          </div>
-                        )}
-                        {clientSecret && (
-                          <Elements
-                            stripe={stripePromise}
-                            options={{
-                              clientSecret,
-                              appearance: {
-                                theme: 'stripe',
-                                variables: {
-                                  colorPrimary:    '#1a1a1a',
-                                  colorBackground: '#ffffff',
-                                  colorText:       '#1a1a1a',
-                                  colorDanger:     '#c0392b',
-                                  borderRadius:    '0px',
-                                  fontSizeBase:    '13px',
-                                },
-                              },
-                            }}
-                          >
-                            <StripeForm
-                              amount={orderTotal}
-                              orderData={buildOrderData()}
-                              onSuccess={(num) => {
-                                clearCart()
-                                setOrderNumber(num)
-                                setOrderPlaced(true)
-                              }}
-                              onError={(msg) => setPaymentError(msg)}
-                            />
-                          </Elements>
-                        )}
-                      </>
-                    )}
+
+                    <div className="flex justify-between items-center gap-2 mb-3">
+  <span className="text-[11px] text-gray-400 tracking-wide">We Accept</span>
+  <div className="flex gap-1.5">
+    {/* Visa */}
+    <div className="h-7 px-2 border border-gray-200 bg-white flex items-center justify-center rounded-sm">
+      <svg width="38" height="12" viewBox="0 0 38 12" fill="none">
+        <path d="M14.5 11.5H11.7L13.5 0.5H16.3L14.5 11.5Z" fill="#1A1F71"/>
+        <path d="M24.3 0.8C23.7 0.6 22.7 0.3 21.5 0.3C18.7 0.3 16.8 1.8 16.8 3.9C16.8 5.5 18.2 6.4 19.3 6.9C20.4 7.5 20.8 7.8 20.8 8.3C20.8 9 20 9.4 19.3 9.4C18.2 9.4 17.6 9.2 16.6 8.8L16.2 8.6L15.8 11.1C16.5 11.4 17.8 11.7 19.1 11.7C22.1 11.7 23.9 10.2 23.9 8C23.9 6.7 23.1 5.8 21.4 5.1C20.4 4.6 19.8 4.3 19.8 3.7C19.8 3.2 20.4 2.7 21.6 2.7C22.6 2.7 23.3 2.9 23.9 3.1L24.2 3.3L24.6 0.8H24.3Z" fill="#1A1F71"/>
+        <path d="M28.3 7.7C28.5 7.1 29.5 4.3 29.5 4.3C29.5 4.3 29.7 3.7 29.8 3.3L30 4.2C30 4.2 30.6 7 30.8 7.7H28.3ZM33.3 0.5H31.1C30.4 0.5 29.9 0.7 29.6 1.4L25.5 11.5H28.5C28.5 11.5 29 10.1 29.1 9.8H32.8C32.9 10.2 33.2 11.5 33.2 11.5H36L33.3 0.5Z" fill="#1A1F71"/>
+        <path d="M9.6 0.5L6.8 8L6.5 6.5C5.9 4.6 4.1 2.5 2.1 1.5L4.7 11.5H7.8L12.7 0.5H9.6Z" fill="#1A1F71"/>
+        <path d="M3.8 0.5H-0.1L-0.1 0.7C2.9 1.4 4.9 3.3 5.7 5.6L4.8 1.4C4.6 0.7 4.2 0.5 3.8 0.5Z" fill="#F9A51A"/>
+      </svg>
+    </div>
+    {/* Mastercard */}
+    <div className="h-7 px-1.5 border border-gray-200 bg-white flex items-center justify-center rounded-sm">
+      <svg width="30" height="19" viewBox="0 0 30 19" fill="none">
+        <circle cx="9.5" cy="9.5" r="9.5" fill="#EB001B"/>
+        <circle cx="20.5" cy="9.5" r="9.5" fill="#F79E1B"/>
+        <path d="M15 3.2C16.8 4.6 18 6.9 18 9.5C18 12.1 16.8 14.4 15 15.8C13.2 14.4 12 12.1 12 9.5C12 6.9 13.2 4.6 15 3.2Z" fill="#FF5F00"/>
+      </svg>
+    </div>
+    {/* Amex */}
+    <div className="h-7 px-2 border border-gray-200 bg-[#007BC1] flex items-center justify-center rounded-sm">
+      <span className="text-white text-[9px] font-bold tracking-wider">AMEX</span>
+    </div>
+    {/* Discover */}
+    <div className="h-7 px-2 border border-gray-200 bg-white flex items-center justify-center rounded-sm">
+      <span className="text-[#F76F20] text-[9px] font-bold tracking-wider">DISCOVER</span>
+    </div>
+  </div>
+</div>
+
+                   {/* ── Square ── */}
+{payMethod === 'stripe' && (
+  
+  <PaymentForm
+    applicationId={process.env.NEXT_PUBLIC_SQUARE_APP_ID!}
+    locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
+    cardTokenizeResponseReceived={async (token) => {
+      setPaymentError('')
+      try {
+        const res = await fetch('/api/square', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceId:   token.token,
+            amount:     orderTotal,
+            buyerEmail: addr.email,
+            note:       `Solomon & Sage Order — ${addr.firstName} ${addr.lastName}`,
+          }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setPaymentError(data.error ?? 'Payment failed')
+          return
+        }
+        // Payment succeeded — save order
+        const orderRes = await fetch('/api/orders/create', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            ...buildOrderData(),
+            paymentMethod:   'STRIPE',
+            stripePaymentId: data.payment.id,
+          }),
+        })
+        const orderJson = await orderRes.json()
+        if (!orderRes.ok) {
+          setPaymentError(orderJson.error ?? 'Order failed to save')
+          return
+        }
+        clearCart()
+        setOrderNumber(orderJson.orderNumber)
+        setOrderPlaced(true)
+      } catch (err: any) {
+        setPaymentError(err.message ?? 'Something went wrong')
+      }
+    }}>
+    <CreditCard
+      buttonProps={{
+        css: {
+          backgroundColor: '#1a1a1a',
+          color:           '#fff',
+          fontSize:        '11px',
+          fontWeight:      '600',
+          letterSpacing:   '0.2em',
+          padding:         '14px',
+          width:           '100%',
+          border:          'none',
+          cursor:          'pointer',
+          textTransform:   'uppercase',
+        },
+      }}>
+     Pay {convert(orderTotal)}
+    </CreditCard>
+    <p className="text-center text-[10px] text-gray-400 tracking-wide mt-2">
+      🔒 Secured by Square — your card details are encrypted
+    </p>
+  </PaymentForm>
+)}
 
                     {/* ── PayPal ── */}
                     {payMethod === 'paypal' && (
@@ -743,9 +772,9 @@ const [user, setUser] = useState<any>(initialUser)
                     {/* Donation */}
                     <div className="border-t border-gray-100 pt-4 mt-4">
                       <div className="flex items-start gap-2 mb-3">
-                        <ShieldCheck size={13} strokeWidth={1.5} className="text-[#c8a882] mt-0.5 shrink-0" />
+                        <ShieldCheck size={13} strokeWidth={1.5} className="text-[#151515] mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-[12px] font-semibold text-[#1a1a1a] tracking-wide">Solomon Lawrence Cares</p>
+                          <p className="text-[12px] font-semibold text-[#1a1a1a] tracking-wide">Solomon & Sage Cares</p>
                           <p className="text-[11px] text-gray-400 tracking-wide">Support sustainable fashion initiatives</p>
                         </div>
                       </div>
@@ -793,7 +822,7 @@ const [user, setUser] = useState<any>(initialUser)
                           <p className="text-[10px] text-gray-400 tracking-wide">{item.size} · {item.color}</p>
                         </div>
                         <p className="text-[12px] text-[#1a1a1a] font-medium shrink-0">
-                          ${(item.price * item.quantity).toFixed(2)}
+                         {convert(item.price * item.quantity)}
                         </p>
                       </div>
                     ))
@@ -835,32 +864,32 @@ const [user, setUser] = useState<any>(initialUser)
                 {/* Totals */}
                 <div className="px-5 py-4 space-y-2.5 text-[13px]">
                   <div className="flex justify-between text-gray-500 tracking-wide">
-                    <span>Subtotal</span><span>${totalPrice.toFixed(2)}</span>
+                    <span>Subtotal</span><span>{convert(totalPrice)}</span>
                   </div>
                   {promoResult && (
                     <div className="flex justify-between text-[#4a6741] tracking-wide">
                       <span>Promo ({promoResult.code})</span>
-                      <span>-${promoResult.discount.toFixed(2)}</span>
+                     <span>-{convert(promoResult.discount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-gray-500 tracking-wide">
                     <span>Shipping</span>
                     <span className={delivery.price === 0 ? 'text-[#4a6741]' : ''}>
-                      {delivery.price === 0 ? 'Free' : `$${delivery.price.toFixed(2)}`}
+                      {delivery.price === 0 ? 'Free' : convert(delivery.price)}
                     </span>
                   </div>
                   <div className="flex justify-between text-gray-500 tracking-wide">
-                    <span>Tax (8%)</span><span>${tax.toFixed(2)}</span>
+                    <span>Tax (8%)</span><span>{convert(tax)}</span>
                   </div>
                   {donation && (
                     <div className="flex justify-between text-gray-500 tracking-wide">
-                      <span>Donation</span><span>${donation.toFixed(2)}</span>
+                      <span>Donation</span><span>{convert(donation)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-baseline border-t border-gray-100 pt-3 mt-1">
                     <span className="text-[13px] font-semibold tracking-widest uppercase text-[#1a1a1a]">Total</span>
                     <span className="font-[family-name:var(--font-display)] text-xl font-light text-[#1a1a1a]">
-                      ${orderTotal.toFixed(2)}
+                      {convert(orderTotal)}
                     </span>
                   </div>
                 </div>
@@ -869,7 +898,7 @@ const [user, setUser] = useState<any>(initialUser)
                 <div className="px-5 pb-5 border-t border-gray-100 pt-3 text-center">
                   <p className="text-[11px] text-gray-500 tracking-wide mb-1.5">Questions about your order?</p>
                   <button className="flex items-center justify-center gap-1.5 mx-auto text-[11px] text-[#1a1a1a] tracking-wide bg-transparent border-none cursor-pointer hover:underline">
-                    <MessageCircle size={12} strokeWidth={1.5} /> Chat with us
+                    <MessageCircle size={12} strokeWidth={1.5} /> <Link href="/contact"> Talk to us</Link>
                   </button>
                 </div>
               </div>

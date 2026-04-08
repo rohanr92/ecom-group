@@ -6,8 +6,8 @@ export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json()
 
-    const validEmail    = process.env.ADMIN_EMAIL    ?? 'admin@solomonlawrence.com'
-    const validPassword = process.env.ADMIN_PASSWORD ?? 'SolomonAdmin2026!'
+    const validEmail    = process.env.ADMIN_EMAIL
+    const validPassword = process.env.ADMIN_PASSWORD
 
     if (email !== validEmail || password !== validPassword) {
       // Delay to prevent brute force

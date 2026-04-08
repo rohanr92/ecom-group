@@ -1,17 +1,35 @@
+import type { Metadata } from 'next'
+export const metadata: Metadata = { title: 'Order Confirmed - Thank You' }
+
 // Save as: src/app/checkout/success/page.tsx (NEW FILE)
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import { Check, Truck, ShoppingBag } from 'lucide-react'
+import { pushDataLayer } from '@/components/DataLayer'
 
 function SuccessContent() {
   const params      = useSearchParams()
   const orderNumber = params.get('order') ?? ''
   const method      = params.get('method') ?? 'card'
   const error       = params.get('error')
+
+
+  useEffect(() => {
+  if (orderNumber && !error) {
+    pushDataLayer({
+      event: 'purchase',
+      ecommerce: {
+        transaction_id: orderNumber,
+        currency: 'USD',
+        payment_type: method,
+      }
+    })
+  }
+}, [orderNumber, error, method])
 
   // Payment failed / cancelled
   if (error) {

@@ -1,8 +1,9 @@
-// Save as: src/app/admin/products/page.tsx (REPLACE existing)
 'use client'
+// Save as: src/app/admin/products/page.tsx (REPLACE existing)
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Plus, Search, Filter, Package, ChevronDown, X, Edit2, Trash2, Tag } from 'lucide-react'
+
+import { Plus, Search, Filter, Package, ChevronDown, X, Edit2, Trash2, Tag, FileSpreadsheet } from 'lucide-react'
 import { memo } from 'react';
 const CATEGORIES = ['All', 'Dresses', 'Tops', 'Pants', 'Jeans', 'Jackets', 'Sets', 'Accessories']
 const STATUSES   = ['All', 'Active', 'Draft']
@@ -133,6 +134,10 @@ useEffect(() => {
             className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1a] text-white text-[12px] font-medium rounded-lg no-underline hover:bg-gray-800 transition-colors">
             <Plus size={14} /> Add Product
           </Link>
+          <Link href="/admin/products/import"
+  className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 text-[12px] text-[#1a1a1a] bg-white hover:border-[#1a1a1a] no-underline transition-colors">
+  <FileSpreadsheet size={13} /> Bulk Import
+</Link>
         </div>
       </div>
 

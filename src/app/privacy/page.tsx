@@ -1,3 +1,6 @@
+import type { Metadata } from 'next'
+export const metadata: Metadata = { title: 'Privacy Policy', alternates: { canonical: 'https://solomonandsage.com/privacy' } }
+
 // Save as: src/app/privacy/page.tsx  (REPLACE)
 import CmsPage from '@/components/CmsPage'
 import PrivacyFallback from '@/components/cms-fallbacks/privacy'

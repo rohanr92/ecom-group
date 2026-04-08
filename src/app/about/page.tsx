@@ -1,3 +1,6 @@
+import type { Metadata } from 'next'
+export const metadata: Metadata = { title: 'About Us', alternates: { canonical: 'https://solomonandsage.com/about' } }
+
 // Save as: src/app/about/page.tsx  (REPLACE entire file)
 import CmsPage from '@/components/CmsPage'
 import AboutFallback from '@/components/cms-fallbacks/about'

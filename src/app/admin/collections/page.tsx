@@ -1,5 +1,5 @@
-// Save as: src/app/admin/collections/page.tsx (REPLACE entire file)
 'use client'
+// Save as: src/app/admin/collections/page.tsx (REPLACE entire file)
 import { useState, useEffect } from 'react'
 import {
   Plus, Pencil, Trash2, Check, X, ChevronDown, ChevronUp,
@@ -180,43 +180,109 @@ export default function CollectionsPage() {
   )
 
   function ProductPicker({ selected, onChange }: { selected: string[]; onChange: (ids: string[]) => void }) {
-    const toggle = (id: string) =>
-      onChange(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id])
-    return (
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
-        <div className="p-2 bg-gray-50 border-b border-gray-200">
-          <div className="relative">
-            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input value={productSearch} onChange={e => setProductSearch(e.target.value)}
-              placeholder="Search products..."
-              className="w-full pl-8 pr-3 py-1.5 text-[12px] border border-gray-200 rounded outline-none focus:border-[#1a1a1a]" />
-          </div>
+  const [dragIdx, setDragIdx] = useState<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
+
+  const toggle = (id: string) =>
+    onChange(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id])
+
+  const handleDragStart = (e: React.DragEvent, idx: number) => {
+    setDragIdx(idx)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault()
+    setDragOverIdx(idx)
+  }
+  const handleDrop = (e: React.DragEvent, dropIdx: number) => {
+    e.preventDefault()
+    if (dragIdx === null || dragIdx === dropIdx) { setDragIdx(null); setDragOverIdx(null); return }
+    const arr = [...selected]
+    const [moved] = arr.splice(dragIdx, 1)
+    arr.splice(dropIdx, 0, moved)
+    onChange(arr)
+    setDragIdx(null); setDragOverIdx(null)
+  }
+
+  const selectedProducts = selected.map(id => allProducts.find(p => p.id === id)).filter(Boolean) as Product[]
+  const unselectedFiltered = allProducts.filter(p => !selected.includes(p.id) && (
+    !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase())
+  ))
+
+  return (
+    <div className="border border-gray-200 rounded-lg overflow-hidden">
+      {/* Selected products with drag to reorder */}
+      {selectedProducts.length > 0 && (
+        <div className="border-b border-gray-200">
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 px-3 py-2 bg-[#f8f6f1]">
+            Selected — drag to reorder
+          </p>
+          {selectedProducts.map((p, idx) => (
+            <div key={p.id}
+              draggable
+              onDragStart={e => handleDragStart(e, idx)}
+              onDragOver={e => handleDragOver(e, idx)}
+              onDrop={e => handleDrop(e, idx)}
+              onDragEnd={() => { setDragIdx(null); setDragOverIdx(null) }}
+              className={`flex items-center gap-3 px-3 py-2 cursor-grab active:cursor-grabbing select-none border-b border-gray-50 last:border-0
+                ${dragIdx === idx ? 'opacity-40' : ''}
+                ${dragOverIdx === idx && dragIdx !== idx ? 'bg-[#f0ece6] border-l-2 border-l-[#1a1a1a]' : 'bg-white'}`}>
+              <div className="text-gray-300 shrink-0">
+                <svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor">
+                  <circle cx="4" cy="4" r="1.5"/><circle cx="8" cy="4" r="1.5"/>
+                  <circle cx="4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/>
+                  <circle cx="4" cy="12" r="1.5"/><circle cx="8" cy="12" r="1.5"/>
+                </svg>
+              </div>
+              <span className="text-[10px] text-gray-400 w-4 text-center shrink-0">{idx + 1}</span>
+              {p.images?.[0] && <img src={p.images[0]} alt={p.name} className="w-8 h-8 object-cover rounded shrink-0 bg-gray-100" />}
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] text-[#1a1a1a] font-medium truncate">{p.name}</p>
+                {p.category && <p className="text-[10px] text-gray-400">{p.category}</p>}
+              </div>
+              <span className="text-[11px] text-gray-400 shrink-0">${Number(p.price).toFixed(2)}</span>
+              <button onClick={() => toggle(p.id)}
+                className="w-5 h-5 flex items-center justify-center text-gray-300 hover:text-red-500 bg-transparent border-none cursor-pointer shrink-0">
+                <X size={12} />
+              </button>
+            </div>
+          ))}
         </div>
-        <div className="max-h-52 overflow-y-auto divide-y divide-gray-100">
-          {filteredProducts.length === 0
-            ? <p className="py-6 text-center text-[12px] text-gray-400">No products found</p>
-            : filteredProducts.map(p => (
-              <label key={p.id} className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center shrink-0 transition-colors
-                  ${selected.includes(p.id) ? 'bg-[#1a1a1a] border-[#1a1a1a]' : 'border-gray-300'}`}>
-                  {selected.includes(p.id) && <Check size={10} strokeWidth={3} className="text-white" />}
-                </div>
-                <input type="checkbox" className="sr-only" checked={selected.includes(p.id)} onChange={() => toggle(p.id)} />
-                {p.images?.[0] && <img src={p.images[0]} alt={p.name} className="w-8 h-8 object-cover rounded shrink-0 bg-gray-100" />}
-                <div className="flex-1 min-w-0">
-                  <p className="text-[12px] text-[#1a1a1a] font-medium truncate">{p.name}</p>
-                  {p.category && <p className="text-[10px] text-gray-400">{p.category}</p>}
-                </div>
-                <span className="text-[11px] text-gray-400 shrink-0">${Number(p.price).toFixed(2)}</span>
-              </label>
-            ))}
-        </div>
-        <div className="px-3 py-2 bg-gray-50 border-t border-gray-200 text-[11px] text-gray-500">
-          {selected.length} product{selected.length !== 1 ? 's' : ''} selected
+      )}
+      {/* Search + add unselected */}
+      <div className="p-2 bg-gray-50 border-b border-gray-200">
+        <div className="relative">
+          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input value={productSearch} onChange={e => setProductSearch(e.target.value)}
+            placeholder="Search to add more products..."
+            className="w-full pl-8 pr-3 py-1.5 text-[12px] border border-gray-200 rounded outline-none focus:border-[#1a1a1a]" />
         </div>
       </div>
-    )
-  }
+      <div className="max-h-48 overflow-y-auto divide-y divide-gray-100">
+        {unselectedFiltered.length === 0
+          ? <p className="py-4 text-center text-[12px] text-gray-400">
+              {productSearch ? 'No products found' : 'All products added'}
+            </p>
+          : unselectedFiltered.map(p => (
+            <label key={p.id} className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50">
+              <div className="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center shrink-0">
+              </div>
+              <input type="checkbox" className="sr-only" checked={false} onChange={() => toggle(p.id)} />
+              {p.images?.[0] && <img src={p.images[0]} alt={p.name} className="w-8 h-8 object-cover rounded shrink-0 bg-gray-100" />}
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] text-[#1a1a1a] font-medium truncate">{p.name}</p>
+                {p.category && <p className="text-[10px] text-gray-400">{p.category}</p>}
+              </div>
+              <span className="text-[11px] text-gray-400 shrink-0">${Number(p.price).toFixed(2)}</span>
+            </label>
+          ))}
+      </div>
+      <div className="px-3 py-2 bg-gray-50 border-t border-gray-200 text-[11px] text-gray-500">
+        {selected.length} product{selected.length !== 1 ? 's' : ''} in collection
+      </div>
+    </div>
+  )
+}
 
   return (
     <div className="p-6 space-y-6">
@@ -226,7 +292,7 @@ export default function CollectionsPage() {
       <div className="bg-white border border-gray-200 p-5 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-[18px] font-semibold text-[#1a1a1a] flex items-center gap-2">
-            <Layers size={18} strokeWidth={1.5} className="text-[#c8a882]" /> Collections
+            <Layers size={18} strokeWidth={1.5} className="text-[#151515]" /> Collections
           </h1>
           <p className="text-[12px] text-gray-500 mt-0.5">
             Create collections and assign them to homepage / cart display slots
@@ -257,7 +323,7 @@ export default function CollectionsPage() {
         <div className="space-y-4">
           {/* Create form */}
           {showCreate && (
-            <div className="bg-white border border-[#c8a882] p-5 space-y-4">
+            <div className="bg-white border border-[#151515] p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-[14px] font-semibold text-[#1a1a1a]">New Collection</h2>
                 <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0">
@@ -358,7 +424,14 @@ export default function CollectionsPage() {
                         </>
                       ) : (
                         <>
-                          <button onClick={() => { setEditId(col.id); setEditName(col.name); setEditDesc(col.description ?? ''); setEditImage(col.image ?? ''); setEditProducts([]); setExpandedEdit(col.id) }}
+                          <button onClick={async () => { 
+  setEditId(col.id); setEditName(col.name); setEditDesc(col.description ?? ''); setEditImage(col.image ?? ''); setExpandedEdit(col.id)
+  // Load existing products for this collection
+  const res = await fetch(`/api/collections/${col.slug}`)
+  const d = await res.json()
+  const ids = (d.products ?? []).map((p: any) => p.id)
+  setEditProducts(ids)
+}}
                             className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white text-gray-500 hover:border-[#1a1a1a] cursor-pointer">
                             <Pencil size={13} strokeWidth={1.5} />
                           </button>
@@ -391,7 +464,7 @@ export default function CollectionsPage() {
                       </div>
                       <div>
                         <label className="block text-[11px] font-semibold tracking-widests uppercase text-gray-500 mb-1.5">
-                          Add / change products ({editProducts.length} selected — leave empty to keep existing)
+                         Products in collection ({editProducts.length} selected)
                         </label>
                         <ProductPicker selected={editProducts} onChange={setEditProducts} />
                       </div>
@@ -422,7 +495,7 @@ export default function CollectionsPage() {
               {/* Homepage slots */}
               <div className="bg-white border border-gray-200">
                 <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
-                  <Home size={15} strokeWidth={1.5} className="text-[#c8a882]" />
+                  <Home size={15} strokeWidth={1.5} className="text-[#151515]" />
                   <h2 className="text-[13px] font-semibold text-[#1a1a1a]">Homepage Slots</h2>
                   <span className="text-[11px] text-gray-400 ml-1">— 3 product grids on the homepage</span>
                 </div>
@@ -440,7 +513,7 @@ export default function CollectionsPage() {
               {/* Cart slots */}
               <div className="bg-white border border-gray-200">
                 <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
-                  <ShoppingCart size={15} strokeWidth={1.5} className="text-[#c8a882]" />
+                  <ShoppingCart size={15} strokeWidth={1.5} className="text-[#151515]" />
                   <h2 className="text-[13px] font-semibold text-[#1a1a1a]">Cart Page Slots</h2>
                   <span className="text-[11px] text-gray-400 ml-1">— 2 product carousels on the cart page</span>
                 </div>
@@ -460,7 +533,7 @@ export default function CollectionsPage() {
               {/* Product Page slots */}
               <div className="bg-white border border-gray-200">
                 <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
-                  <Package size={15} strokeWidth={1.5} className="text-[#c8a882]" />
+                  <Package size={15} strokeWidth={1.5} className="text-[#151515]" />
                   <h2 className="text-[13px] font-semibold text-[#1a1a1a]">Product Page Slots</h2>
                   <span className="text-[11px] text-gray-400 ml-1">— grids shown on every product detail page</span>
                 </div>

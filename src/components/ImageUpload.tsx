@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef, useCallback } from 'react'
-import { Upload, X, Loader2, AlertCircle } from 'lucide-react'
+import { Upload, X, Loader2, AlertCircle, GripVertical } from 'lucide-react'
 import imageCompression from 'browser-image-compression'
 
 interface ImageUploadProps {
@@ -10,64 +10,16 @@ interface ImageUploadProps {
 }
 
 export default function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadProps) {
-  const [uploading, setUploading] = useState<string | null>(null)
-  const [progress,  setProgress]  = useState(0)
-  const [dragOver,  setDragOver]  = useState(false)
-  const [error,     setError]     = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading,    setUploading]    = useState<string | null>(null)
+  const [progress,     setProgress]     = useState(0)
+  const [dragOver,     setDragOver]     = useState(false)
+  const [error,        setError]        = useState('')
+  const [dragIndex,    setDragIndex]    = useState<number | null>(null)
+  const [dragOverIdx,  setDragOverIdx]  = useState<number | null>(null)
+  const inputRef       = useRef<HTMLInputElement>(null)
+  const accumulatedRef = useRef<string[]>([])
 
-  const uploadFile = useCallback(async (file: File) => {
-    setError('')
-    setUploading(file.name)
-    setProgress(0)
-
-    try {
-      // Compress — keeps quality at 92%, just reduces file size
-      setProgress(10)
-      const compressed = await imageCompression(file, {
-        maxSizeMB:        2,
-        maxWidthOrHeight: 2400,
-        useWebWorker:     true,
-        fileType:         'image/webp',
-        initialQuality:   0.92,
-        onProgress:       (p) => setProgress(10 + Math.round(p * 0.4)),
-      })
-
-      setProgress(55)
-
-      // Get presigned URL
-      const metaRes = await fetch('/api/admin/upload', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          filename:    file.name.replace(/\.[^.]+$/, '.webp'),
-          contentType: 'image/webp',
-        }),
-      })
-      if (!metaRes.ok) throw new Error('Failed to get upload URL')
-      const { signedUrl, publicUrl } = await metaRes.json()
-
-      setProgress(65)
-
-      // Upload directly to S3
-      const uploadRes = await fetch(signedUrl, {
-        method:  'PUT',
-        body:    compressed,
-        headers: { 'Content-Type': 'image/webp' },
-      })
-      if (!uploadRes.ok) throw new Error('Upload to S3 failed')
-
-      setProgress(100)
-      onChange([...images, publicUrl])
-
-    } catch (err: any) {
-      setError(err.message || 'Upload failed')
-    } finally {
-      setUploading(null)
-      setProgress(0)
-    }
-  }, [images, onChange])
-
+  // ── Bulk upload ───────────────────────────────────────────────
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     const arr       = Array.from(files)
     const remaining = maxImages - images.length
@@ -75,68 +27,181 @@ export default function ImageUpload({ images, onChange, maxImages = 10 }: ImageU
       setError(`You can only upload ${remaining} more image${remaining !== 1 ? 's' : ''}`)
       return
     }
-    for (const file of arr) {
-      if (!file.type.startsWith('image/')) { setError(`${file.name} is not an image`); continue }
-      await uploadFile(file)
-    }
-  }, [images, maxImages, uploadFile])
+    const validFiles = arr.filter(file => {
+      if (!file.type.startsWith('image/')) { setError(`${file.name} is not an image`); return false }
+      return true
+    })
+    if (!validFiles.length) return
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+    accumulatedRef.current = [...images]
+
+    for (const file of validFiles) {
+      try {
+        setError('')
+        setUploading(file.name)
+        setProgress(0)
+        setProgress(10)
+
+        const compressed = await imageCompression(file, {
+          maxSizeMB:        2,
+          maxWidthOrHeight: 2400,
+          useWebWorker:     true,
+          fileType:         'image/webp',
+          initialQuality:   0.92,
+          onProgress:       (p) => setProgress(10 + Math.round(p * 0.4)),
+        })
+
+        setProgress(55)
+
+        const metaRes = await fetch('/api/admin/upload', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            filename:    file.name.replace(/\.[^.]+$/, '.webp'),
+            contentType: 'image/webp',
+          }),
+        })
+        if (!metaRes.ok) throw new Error('Failed to get upload URL')
+        const { signedUrl, publicUrl } = await metaRes.json()
+
+        setProgress(65)
+
+        const uploadRes = await fetch(signedUrl, {
+          method:  'PUT',
+          body:    compressed,
+          headers: { 'Content-Type': 'image/webp' },
+        })
+        if (!uploadRes.ok) throw new Error('Upload to S3 failed')
+
+        setProgress(100)
+        accumulatedRef.current = [...accumulatedRef.current, publicUrl]
+        onChange(accumulatedRef.current)
+
+      } catch (err: any) {
+        setError(err.message || 'Upload failed')
+      } finally {
+        setUploading(null)
+        setProgress(0)
+      }
+    }
+  }, [images, maxImages, onChange])
+
+  // ── Drop zone for new files ────────────────────────────────────
+  const handleDropZone = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     setDragOver(false)
     if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files)
   }, [handleFiles])
 
-  const removeImage = (url: string) => onChange(images.filter(i => i !== url))
-
-  const moveLeft = (i: number) => {
-    if (i === 0) return
-    const arr = [...images]
-    ;[arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]
-    onChange(arr)
+  // ── Drag to reorder ────────────────────────────────────────────
+  const handleImageDragStart = (e: React.DragEvent, index: number) => {
+    setDragIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+    const ghost = document.createElement('div')
+    ghost.style.opacity = '0'
+    document.body.appendChild(ghost)
+    e.dataTransfer.setDragImage(ghost, 0, 0)
+    setTimeout(() => document.body.removeChild(ghost), 0)
   }
+
+  const handleImageDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (dragIndex === null || dragIndex === index) return
+    setDragOverIdx(index)
+  }
+
+  const handleImageDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    if (dragIndex === null || dragIndex === dropIndex) {
+      setDragIndex(null)
+      setDragOverIdx(null)
+      return
+    }
+    const arr = [...images]
+    const [moved] = arr.splice(dragIndex, 1)
+    arr.splice(dropIndex, 0, moved)
+    onChange(arr)
+    setDragIndex(null)
+    setDragOverIdx(null)
+  }
+
+  const handleImageDragEnd = () => {
+    setDragIndex(null)
+    setDragOverIdx(null)
+  }
+
+  const removeImage = (url: string) => onChange(images.filter(i => i !== url))
 
   return (
     <div className="space-y-4">
 
-      {/* Image grid */}
+      {/* Image grid with drag to reorder */}
       {images.length > 0 && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-          {images.map((url, i) => (
-            <div key={url} className="relative group aspect-[3/4] bg-[#f5f2ed] overflow-hidden border border-gray-200">
-              <img src={url} alt="" className="w-full h-full object-cover" />
-              {i === 0 && (
-                <span className="absolute bottom-1 left-1 bg-[#1a1a1a] text-white text-[8px] font-semibold tracking-widest uppercase px-1.5 py-0.5">
-                  Main
-                </span>
-              )}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5">
-                {i > 0 && (
-                  <button onClick={() => moveLeft(i)}
-                    className="text-white text-[10px] bg-white/20 hover:bg-white/40 px-2 py-1 border-none cursor-pointer">
-                    Set as main
-                  </button>
+        <>
+          <p className="text-[11px] text-gray-400 flex items-center gap-1.5">
+            <GripVertical size={12} className="text-gray-300" />
+            Drag images to reorder · First image is the main photo
+          </p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+            {images.map((url, i) => (
+              <div
+                key={url}
+                draggable
+                onDragStart={e => handleImageDragStart(e, i)}
+                onDragOver={e => handleImageDragOver(e, i)}
+                onDrop={e => handleImageDrop(e, i)}
+                onDragEnd={handleImageDragEnd}
+                className={`relative group aspect-[3/4] bg-[#f9f9f9] overflow-hidden border-2 transition-all cursor-grab active:cursor-grabbing select-none
+                  ${dragIndex === i ? 'opacity-40 scale-95 border-dashed border-gray-400' : ''}
+                  ${dragOverIdx === i && dragIndex !== i ? 'border-[#1a1a1a] scale-105 shadow-lg' : 'border-gray-200'}
+                `}
+              >
+                <img src={url} alt="" className="w-full h-full object-cover pointer-events-none" />
+
+                {/* Position number */}
+                <div className="absolute top-1.5 left-1.5 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
+                  <span className="text-white text-[9px] font-bold leading-none">{i + 1}</span>
+                </div>
+
+                {/* Main badge */}
+                {i === 0 && (
+                  <span className="absolute bottom-1 left-1 bg-[#c8a882] text-white text-[8px] font-semibold tracking-widest uppercase px-1.5 py-0.5">
+                    Main
+                  </span>
                 )}
-                <button onClick={() => removeImage(url)}
-                  className="flex items-center gap-1 text-white text-[10px] bg-red-500/80 hover:bg-red-600 px-2 py-1 border-none cursor-pointer">
-                  <X size={10} /> Remove
-                </button>
+
+                {/* Grip handle top right */}
+                <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-5 h-5 bg-white/80 flex items-center justify-center rounded shadow-sm">
+                    <GripVertical size={11} className="text-gray-600" />
+                  </div>
+                </div>
+
+                {/* Remove button */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-2">
+                  <button
+                    onClick={e => { e.stopPropagation(); removeImage(url) }}
+                    className="flex items-center gap-1 text-white text-[10px] bg-red-500/90 hover:bg-red-600 px-2 py-1 border-none cursor-pointer rounded">
+                    <X size={10} /> Remove
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
-      {/* Upload zone */}
+      {/* Upload drop zone */}
       {images.length < maxImages && (
         <div
-          onDrop={handleDrop}
+          onDrop={handleDropZone}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
           onClick={() => !uploading && inputRef.current?.click()}
           className={`border-2 border-dashed transition-all cursor-pointer
-            ${dragOver   ? 'border-[#1a1a1a] bg-[#f8f6f1]' : 'border-gray-300 bg-white hover:border-gray-400'}
-            ${uploading  ? 'cursor-not-allowed opacity-75' : ''}`}
+            ${dragOver  ? 'border-[#1a1a1a] bg-[#f8f6f1]' : 'border-gray-300 bg-white hover:border-gray-400'}
+            ${uploading ? 'cursor-not-allowed opacity-75' : ''}`}
         >
           <div className="flex flex-col items-center justify-center py-10 px-6 text-center">
             {uploading ? (
@@ -153,7 +218,7 @@ export default function ImageUpload({ images, onChange, maxImages = 10 }: ImageU
               </>
             ) : (
               <>
-                <div className="w-12 h-12 bg-[#f5f2ed] flex items-center justify-center mb-3">
+                <div className="w-12 h-12 bg-[#f9f9f9] flex items-center justify-center mb-3">
                   <Upload size={20} strokeWidth={1.5} className="text-[#c8a882]" />
                 </div>
                 <p className="text-[13px] font-medium text-[#1a1a1a] mb-1">Drag & drop images here</p>
@@ -182,10 +247,6 @@ export default function ImageUpload({ images, onChange, maxImages = 10 }: ImageU
 
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden"
         onChange={e => e.target.files && handleFiles(e.target.files)} />
-
-      <p className="text-[11px] text-gray-400">
-        First image is the main product photo. Hover images to reorder or remove.
-      </p>
     </div>
   )
 }

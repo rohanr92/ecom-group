@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Heart, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useCurrency } from '@/hooks/useCurrency'
 
 interface Product {
   id: string
@@ -11,6 +12,8 @@ interface Product {
   image: string
   badge?: string
   href: string
+  colors?: { hex: string; name: string }[]
+  comparePrice?: number
 }
 
 interface ProductGridProps {
@@ -22,22 +25,43 @@ interface ProductGridProps {
 
 function ProductCard({ product }: { product: Product }) {
   const [wished, setWished] = useState(false)
+  const [hovered, setHovered] = useState(false)
+  const colors = (product as any).colors ?? []
+  const comparePrice = (product as any).comparePrice
+  const onSale = comparePrice && comparePrice > product.price
+  const { convert } = useCurrency()
 
   return (
-    <div>
+<div
+  onMouseEnter={() => setHovered(true)}
+  onMouseLeave={() => setHovered(false)}
+  style={{
+    position: 'relative',
+    border: '1px solid #eeebe6',
+    padding: '8px',
+    background: '#fff',
+    transition: 'box-shadow 0.3s ease',
+    boxShadow: hovered ? '0 8px 30px rgba(0,0,0,0.10)' : 'none',
+  }}
+>
       <Link href={product.href} style={{ display: 'block', color: 'inherit', textDecoration: 'none' }}>
-        <div style={{ position: 'relative', overflow: 'hidden', background: '#f5f2ed', aspectRatio: '3/4' }}>
+        <div style={{
+         background: '#f9f9f9', aspectRatio: '3/4',
+        }}>
           <img
             src={product.image}
             alt={product.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }}
-            className="product-img"
+            style={{
+              width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+              transition: 'transform 0.5s ease',
+              transform: hovered ? 'scale(1.04)' : 'scale(1)',
+            }}
           />
           {product.badge && (
             <div style={{
               position: 'absolute', top: '10px', left: '10px',
-              background: 'var(--color-charcoal)', color: '#fff',
-              fontFamily: 'var(--font-body)', fontSize: '9px',
+              background: product.badge === 'Sale' ? '#c0392b' : product.badge === 'Best Seller' ? '#4a6741' : 'var(--color-charcoal)',
+              color: '#fff', fontFamily: 'var(--font-body)', fontSize: '9px',
               letterSpacing: '0.15em', fontWeight: 600,
               textTransform: 'uppercase', padding: '4px 8px',
             }}>
@@ -52,20 +76,68 @@ function ProductCard({ product }: { product: Product }) {
               borderRadius: '50%', width: '34px', height: '34px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+              opacity: hovered ? 1 : 0,
+              transition: 'opacity 0.2s ease',
             }}
             aria-label="Add to wishlist"
           >
             <Heart size={15} strokeWidth={1.5} fill={wished ? '#c0392b' : 'none'} color={wished ? '#c0392b' : '#333'} />
           </button>
+
+          {/* Quick View */}
+     {hovered && (
+  <div style={{
+    position: 'absolute', bottom: '90px', left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#fff',
+    padding: '10px 24px',
+    textAlign: 'center',
+    fontFamily: 'var(--font-body)', fontSize: '11px',
+    letterSpacing: '0.12em', textTransform: 'uppercase',
+    color: '#1a1a1a', fontWeight: 600,
+    whiteSpace: 'nowrap',
+    border: '1px solid #ddd',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+    cursor: 'pointer',
+  }}>
+    Quick View
+  </div>
+)}
         </div>
       </Link>
-      <div style={{ padding: '8px 2px 4px' }}>
+
+      {/* Color swatches */}
+      {colors.length > 0 && (
+        <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap' }}>
+          {colors.slice(0, 6).map((c: any) => (
+            <div key={c.hex} title={c.name} style={{
+              width: '14px', height: '14px', borderRadius: '50%',
+              background: c.hex,
+              border: c.hex === '#ffffff' || c.hex === '#fffff0' ? '1px solid #ddd' : '1px solid transparent',
+              boxShadow: '0 0 0 1px rgba(0,0,0,0.08)',
+              cursor: 'pointer',
+            }} />
+          ))}
+          {colors.length > 6 && (
+            <span style={{ fontSize: '10px', color: '#999', alignSelf: 'center' }}>+{colors.length - 6}</span>
+          )}
+        </div>
+      )}
+
+      <div style={{ padding: colors.length > 0 ? '4px 2px 4px' : '8px 2px 4px', height: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '2px', overflow: 'hidden' }}>
         <Link href={product.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', letterSpacing: '0.02em', color: 'var(--color-charcoal)', lineHeight: 1.35, marginBottom: '3px' }}>
-            {product.name}
-          </div>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#555', letterSpacing: '0.02em' }}>
-            ${product.price.toFixed(2)}
+      <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', letterSpacing: '0.02em', color: 'var(--color-charcoal)', lineHeight: 1.35, marginBottom: '3px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+  {product.name}
+</div>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'baseline' }}>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: onSale ? '#c0392b' : '#555', letterSpacing: '0.02em', fontWeight: onSale ? 600 : 400 }}>
+              {convert(product.price)}
+            </span>
+            {onSale && (
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#aaa', letterSpacing: '0.02em', textDecoration: 'line-through' }}>
+                {convert(comparePrice)}
+              </span>
+            )}
           </div>
         </Link>
       </div>

@@ -1,5 +1,5 @@
-// Save as: src/app/account/reset-password/page.tsx (NEW FILE)
 'use client'
+// Save as: src/app/account/reset-password/page.tsx (NEW FILE)
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'

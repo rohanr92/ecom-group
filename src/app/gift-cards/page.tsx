@@ -1,5 +1,5 @@
-// Save as: src/app/gift-cards/page.tsx
 'use client'
+// Save as: src/app/gift-cards/page.tsx
 import { useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -18,7 +18,7 @@ export default function GiftCardsPage() {
       <main className="flex-1">
         <div style={{ background: 'var(--color-cream)', borderBottom: '1px solid #e8e4de', padding: '48px 0 40px' }}>
           <div className="max-container" style={{ padding: '0 clamp(16px,4vw,60px)', textAlign: 'center' }}>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--color-mid)', marginBottom: '12px' }}>Solomon Lawrence</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--color-mid)', marginBottom: '12px' }}>Solomon & Sage</p>
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', color: 'var(--color-charcoal)', margin: 0 }}>Gift Cards</h1>
           </div>
         </div>
@@ -37,7 +37,7 @@ export default function GiftCardsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px,1fr))', gap: '48px' }}>
               <div>
                 <div style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #3a2a1a 100%)', aspectRatio: '1.6/1', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '28px', marginBottom: '32px' }}>
-                  <p style={{ fontFamily: 'var(--font-display)', fontSize: '22px', fontStyle: 'italic', fontWeight: 300, color: '#fff', letterSpacing: '0.1em' }}>SOLOMON LAWRENCE</p>
+                  <p style={{ fontFamily: 'var(--font-display)', fontSize: '22px', fontStyle: 'italic', fontWeight: 300, color: '#fff', letterSpacing: '0.1em' }}>Solomon & Sage</p>
                   <div>
                     <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>Gift Card</p>
                     <p style={{ fontFamily: 'var(--font-display)', fontSize: '36px', fontWeight: 300, color: 'var(--color-accent)' }}>${custom || amount}.00</p>

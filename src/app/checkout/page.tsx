@@ -1,5 +1,9 @@
+import type { Metadata } from 'next'
+export const metadata: Metadata = { title: 'Checkout' }
+
 import { cookies } from 'next/headers'
 import CheckoutClient from './CheckoutClient'
+import { useCurrency } from '@/hooks/useCurrency'
 
 export default async function CheckoutPage() {
   let user = null

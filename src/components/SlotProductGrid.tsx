@@ -71,15 +71,50 @@ export default function SlotProductGrid({ title, subtitle, slot, limit = 10, vie
     fetch(`/api/collections/slot?slot=${slot}&limit=${limit}`)
       .then(r => r.json())
       .then(d => {
-        const mapped = (d.products ?? []).map((p: any) => ({
-          id:    p.id,
-          name:  p.name,
-          price: Number(p.price),
-          image: p.images?.[0] ?? '',
-          badge: p.badge ?? undefined,
-          href:  `/products/${p.slug ?? p.id}`,
-        }))
-        setProducts(mapped)
+     const raw = d.products ?? []
+const expanded: any[] = []
+for (const p of raw) {
+  if (p.isGrouped === false && Array.isArray(p.variants) && p.variants.length > 0) {
+    const seen = new Map<string, any>()
+    for (const v of p.variants) {
+      if (!seen.has(v.color)) seen.set(v.color, v)
+    }
+    for (const [color, v] of seen) {
+     let img = p.images?.[0] ?? ''
+if (Array.isArray(v.images) && v.images.length > 0) {
+  img = v.images[0]
+} else if (Array.isArray(p.images) && p.images.length > 0) {
+  const colorSlug = color.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const matched = p.images.find((url: string) => url.toLowerCase().includes(colorSlug))
+  img = matched ?? p.images[0]
+}
+      expanded.push({
+          id:    `${p.id}__${color}`,
+  name:  p.name,
+  price: Number(p.price),
+  image: img,
+  badge: p.badge ?? undefined,
+  href:  `/products/${p.slug ?? p.id}`,
+  colors: [{ hex: v.colorHex, name: color }],
+  comparePrice: p.comparePrice ? Number(p.comparePrice) : undefined,
+      })
+    }
+  } else {
+    expanded.push({
+  id:    p.id,
+  name:  p.name,
+  price: Number(p.price),
+  image: p.images?.[0] ?? '',
+  badge: p.badge ?? undefined,
+  href:  `/products/${p.slug ?? p.id}`,
+  colors: p.variants
+    ? [...new Map(p.variants.map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color }])).values()]
+    : [],
+  comparePrice: p.comparePrice ? Number(p.comparePrice) : undefined,
+    })
+  }
+}
+setProducts(expanded)
       })
       .catch(() => setProducts([]))
       .finally(() => setLoading(false))

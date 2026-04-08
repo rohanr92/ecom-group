@@ -1,5 +1,5 @@
-// Save as: src/app/account/forgot-password/page.tsx (NEW FILE)
 'use client'
+// Save as: src/app/account/forgot-password/page.tsx (NEW FILE)
 import { useState } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'

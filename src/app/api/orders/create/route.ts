@@ -1,6 +1,7 @@
 // Save as: src/app/api/orders/create/route.ts (REPLACE existing)
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { sendOrderConfirmation, sendEmail } from '@/lib/email'
 
 function generateOrderNumber(): string {
   const timestamp = Date.now().toString(36).toUpperCase()
@@ -21,41 +22,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // ── STRIPE: verify payment actually succeeded before saving ───
-    if (paymentMethod === 'STRIPE') {
-      if (!stripePaymentId) {
-        return NextResponse.json(
-          { error: 'Payment not completed. No payment ID received.' },
-          { status: 400 }
-        )
-      }
-
-      // Verify with Stripe that this PaymentIntent actually succeeded
-      const { default: Stripe } = await import('stripe')
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-        apiVersion: '2024-06-20' as any,
-      })
-
-      const paymentIntent = await stripe.paymentIntents.retrieve(stripePaymentId)
-
-      if (paymentIntent.status !== 'succeeded') {
-        return NextResponse.json(
-          { error: `Payment not successful. Status: ${paymentIntent.status}` },
-          { status: 402 }
-        )
-      }
-
-      // Check this paymentIntent hasn't already been used for an order
-      const existing = await prisma.order.findFirst({
-        where: { stripePaymentId },
-      })
-      if (existing) {
-        return NextResponse.json(
-          { error: 'This payment has already been processed.', orderNumber: existing.orderNumber },
-          { status: 409 }
-        )
-      }
-    }
+   // ── SQUARE: verify payment not already used ───────────────────
+if (paymentMethod === 'STRIPE' && stripePaymentId) {
+  // Check this Square payment hasn't already been used
+  const existing = await prisma.order.findFirst({
+    where: { stripePaymentId },
+  })
+  if (existing) {
+    return NextResponse.json(
+      { error: 'This payment has already been processed.', orderNumber: existing.orderNumber },
+      { status: 409 }
+    )
+  }
+}
 
     // ── PAYPAL: verify capture status ─────────────────────────────
     if (paymentMethod === 'PAYPAL') {
@@ -86,6 +65,12 @@ export async function POST(req: NextRequest) {
       ) ?? dbProduct.variants[0]
 
       if (!dbVariant) { console.warn(`No variant for: ${item.name}`); continue }
+
+      if (dbVariant.inventory < item.quantity) {
+  return NextResponse.json({
+    error: `Sorry, "${item.name}" (${item.size}, ${item.color}) only has ${dbVariant.inventory} left in stock.`
+  }, { status: 400 })
+}
 
       orderItemsData.push({
         productId: dbProduct.id,
@@ -153,13 +138,29 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    console.log(`✅ Order confirmed & saved: ${order.orderNumber}`)
+  console.log(`✅ Order confirmed & saved: ${order.orderNumber}`)
 
-    return NextResponse.json({
-      success:     true,
-      orderId:     order.id,
-      orderNumber: order.orderNumber,
-    })
+// Send confirmation email
+await sendEmail(() => sendOrderConfirmation({
+  email:         email,
+  name:          `${address.firstName} ${address.lastName}`,
+  orderNumber:   order.orderNumber,
+  orderId:       order.id,
+  items:         orderItemsData,
+  subtotal:      Number(subtotal ?? 0),
+  shipping:      Number(shippingCost ?? 0),
+  tax:           Number(tax ?? 0),
+  discount:      Number(discount ?? 0),
+  total:         Number(total),
+  address:       address,
+  paymentMethod: paymentMethod ?? 'STRIPE',
+}))
+
+return NextResponse.json({
+  success:     true,
+  orderId:     order.id,
+  orderNumber: order.orderNumber,
+})
 
   } catch (err: any) {
     console.error('❌ Create order error:', err)

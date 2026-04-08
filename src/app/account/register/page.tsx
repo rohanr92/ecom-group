@@ -1,5 +1,5 @@
-// Save as: src/app/account/register/page.tsx
 'use client'
+// Save as: src/app/account/register/page.tsx
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -46,7 +46,7 @@ export default function RegisterPage() {
               Create Account
             </h1>
             <p className="text-[13px] text-gray-500 tracking-wide">
-              Join Solomon Lawrence for a better experience
+              Join Solomon & Sage for a better experience
             </p>
           </div>
 

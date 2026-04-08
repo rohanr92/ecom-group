@@ -3,12 +3,12 @@ export default function PressFallback() {
   return (
     <div style={{ maxWidth: '720px' }}>
       <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--color-mid)', lineHeight: 1.9, marginBottom: '48px' }}>
-        Solomon Lawrence has been featured in leading fashion publications and media outlets. For press inquiries, samples, or interview requests, contact our team directly.
+        Solomon & Sage has been featured in leading fashion publications and media outlets. For press inquiries, samples, or interview requests, contact our team directly.
       </p>
       {[
-        { outlet: 'Vogue', headline: 'Solomon Lawrence Is the California Brand You Need to Know', date: 'March 2026' },
+        { outlet: 'Vogue', headline: 'Solomon & Sage Is the California Brand You Need to Know', date: 'March 2026' },
         { outlet: "Harper's Bazaar", headline: '15 Under-the-Radar Brands That Fashion Editors Are Wearing', date: 'February 2026' },
-        { outlet: 'WWD', headline: 'Solomon Lawrence Group Expands Nordstrom Partnership', date: 'January 2026' },
+        { outlet: 'WWD', headline: 'Solomon & Sage Group Expands Nordstrom Partnership', date: 'January 2026' },
         { outlet: 'Refinery29', headline: 'The Best New Dresses to Buy Right Now', date: 'December 2025' },
         { outlet: 'InStyle', headline: 'Cool California Brands Redefining Accessible Luxury', date: 'November 2025' },
       ].map((item, i, arr) => (

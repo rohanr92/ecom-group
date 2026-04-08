@@ -1,18 +1,18 @@
 import Link from 'next/link'
 
 const womenCategories = [
-  { label: "Women's New Arrivals", image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop&q=80', href: '/collections/new-arrivals' },
-  { label: "Men's New Arrivals",   image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b5b2a?w=600&auto=format&fit=crop&q=80', href: '/collections/men-new' },
-  { label: 'Dresses',             image: 'https://images.unsplash.com/photo-1550614000-4895a10e1bfd?w=600&auto=format&fit=crop&q=80', href: '/collections/dresses' },
-  { label: 'Jeans & Denim',      image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&auto=format&fit=crop&q=80', href: '/collections/denim' },
-  { label: 'Wide Leg Suits',     image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&auto=format&fit=crop&q=80', href: '/collections/suits' },
-  { label: "Women's Spring Essentials", image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80', href: '/collections/spring' },
-  { label: "Women's Vacation",   image: 'https://images.unsplash.com/photo-1570464197285-9949814674a7?w=600&auto=format&fit=crop&q=80', href: '/collections/vacation' },
-  { label: "Men's Vacation",     image: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=600&auto=format&fit=crop&q=80', href: '/collections/men-vacation' },
-  { label: 'Boots & Sandals',    image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&auto=format&fit=crop&q=80', href: '/collections/shoes' },
-  { label: 'Swim',               image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80', href: '/collections/swim' },
-  { label: 'Handbags',           image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80', href: '/collections/handbags' },
-  { label: 'Sunglasses & Eyewear', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&auto=format&fit=crop&q=80', href: '/collections/accessories' },
+  { label: "Women's New Arrivals", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775598851179-wmns_opc02f_0126_d3-1b-008-050.jpeg', href: '/collections/womens-new-arrivals' },
+  { label: "Men's New Arrivals",   image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775598849682-mens_cont02f_0126_074.jpeg', href: '/collections/mens-new-arrivals' },
+  { label: "Women's Spring Essentials",      image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775599025404-wmns_adc07f_0326_0165_altbgd_ext_1-1-1-.jpeg', href: '/collections/womens-spring-essentials' },
+  { label: "Men's Denim",      image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775599234635-mens_ymt03f_0326_0091_altbgd_ext_8-5.jpeg', href: '/collections/mens-denim' },
+  { label: "Women's Denim",     image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775599347953-wmns_trd04f_0126_063.jpeg', href: '/collections/womens-denim' },
+  { label: "Women's Pants", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775599582552-32778185_fpx.webp', href: '/collections/womens-pants' },
+  { label: "Women's Button Up",   image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775600506360-wmns_adc09f_0126_062-1-.jpeg', href: '/collections/womens-button-up' },
+  { label: "Men's T-Shirts",     image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775600787242-c2601577_103_9_4x5.webp', href: '/collections/mens-tshirts' },
+  { label: "Women's Sweatshirts",    image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775600957901-35458740_fpx.jpg', href: '/collections/womens-sweatshirts' },
+  { label: "Women's Shorts",               image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775601251870-36309272_fpx.webp', href: '/collections/womens-shorts' },
+  { label: "Women's Shoes", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775601371018-wmns_adc02f_0126_op_0696.jpeg', href: '/collections/womens-shoes' },
+  { label: "Handbags", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775600565396-wmns_core01f_0226_041.jpeg', href: '/collections/womens-handbags' },
 ]
 
 export default function ShopByCategory() {

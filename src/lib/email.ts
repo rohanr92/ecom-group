@@ -2,7 +2,7 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM    = process.env.RESEND_FROM_EMAIL ?? 'Solomon Lawrence <onboarding@resend.dev>'
+const FROM    = process.env.RESEND_FROM_EMAIL ?? 'Solomon & Sage <onboarding@resend.dev>'
 const SITE    = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 const TO_OVERRIDE = process.env.NODE_ENV !== 'production' ? process.env.RESEND_TEST_EMAIL : null
 
@@ -38,7 +38,7 @@ function wrap(content: string, previewText = ''): string {
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="color-scheme" content="light"/>
-<title>Solomon Lawrence</title>
+<title>Solomon & Sage</title>
 </head>
 <body style="${s.body}">
 <div style="display:none;max-height:0;overflow:hidden;">${previewText}</div>
@@ -48,7 +48,7 @@ function wrap(content: string, previewText = ''): string {
 
   <!-- Header -->
   <div style="${s.header}">
-    <div style="${s.logo}">SOLOMON LAWRENCE</div>
+    <div style="${s.logo}">Solomon & Sage</div>
     <div style="${s.tagline}">California Women's Fashion</div>
   </div>
 
@@ -59,10 +59,10 @@ function wrap(content: string, previewText = ''): string {
 
   <!-- Footer -->
   <div style="${s.footer}">
-    <p style="${s.footerText}">© ${new Date().getFullYear()} Solomon Lawrence Group LLC. All rights reserved.</p>
+    <p style="${s.footerText}">© ${new Date().getFullYear()} Solomon & Sage Group LLC. All rights reserved.</p>
     <p style="${s.footerText}">California, United States</p>
     <p style="${s.footerText}">
-      <a href="${SITE}" style="color:#999;text-decoration:none;">solomonlawrence.com</a>
+      <a href="${SITE}" style="color:#999;text-decoration:none;">solomonandsage.com</a>
       &nbsp;·&nbsp;
       <a href="${SITE}/policies/privacy" style="color:#999;text-decoration:none;">Privacy</a>
       &nbsp;·&nbsp;
@@ -305,7 +305,7 @@ export async function sendWelcomeEmail(data: {
   email: string; name: string;
 }) {
   const html = wrap(`
-    <h1 style="${s.h1}">Welcome to Solomon Lawrence.</h1>
+    <h1 style="${s.h1}">Welcome to Solomon & Sage.</h1>
     <p style="${s.subtitle}">Your account has been created</p>
 
     <p style="font-size:14px;color:#666;line-height:1.8;margin:0 0 24px;">
@@ -342,9 +342,9 @@ export async function sendWelcomeEmail(data: {
     <center>
       <a href="${SITE}" style="${s.btnOutline}">Start Shopping</a>
     </center>
-  `, `Welcome to Solomon Lawrence, ${data.name.split(' ')[0]}!`)
+  `, `Welcome to Solomon & Sage, ${data.name.split(' ')[0]}!`)
 
-  return resend.emails.send({ from: FROM, to: TO_OVERRIDE ?? data.email, subject: `Welcome to Solomon Lawrence`, html })
+  return resend.emails.send({ from: FROM, to: TO_OVERRIDE ?? data.email, subject: `Welcome to Solomon & Sage`, html })
 }
 
 // 8. Password Reset
@@ -374,9 +374,9 @@ export async function sendPasswordReset(data: {
     <p style="font-size:11px;color:#bbb;text-align:center;word-break:break-all;">
       Or copy this link: ${resetUrl}
     </p>
-  `, 'Reset your Solomon Lawrence password')
+  `, 'Reset your Solomon & Sage password')
 
-  return resend.emails.send({ from: FROM, to: TO_OVERRIDE ?? data.email, subject: `Reset Your Password — Solomon Lawrence`, html })
+  return resend.emails.send({ from: FROM, to: TO_OVERRIDE ?? data.email, subject: `Reset Your Password — Solomon & Sage`, html })
 }
 
 // 9. New Admin User Invite
@@ -385,11 +385,11 @@ export async function sendAdminInvite(data: {
 }) {
   const html = wrap(`
     <h1 style="${s.h1}">You've been invited to the admin panel.</h1>
-    <p style="${s.subtitle}">Solomon Lawrence · Admin Access</p>
+    <p style="${s.subtitle}">Solomon & Sage · Admin Access</p>
 
     <div style="${s.infoBox}">
       <p style="margin:0;font-size:13px;color:#666;">
-        <strong>${data.invitedBy}</strong> has invited you to manage the Solomon Lawrence admin dashboard
+        <strong>${data.invitedBy}</strong> has invited you to manage the Solomon & Sage admin dashboard
         with the role of <strong style="text-transform:capitalize;">${data.role}</strong>.
       </p>
     </div>
@@ -403,9 +403,9 @@ export async function sendAdminInvite(data: {
     <center>
       <a href="${SITE}/admin/login" style="${s.btn}">Access Admin Panel</a>
     </center>
-  `, 'You have been invited to Solomon Lawrence admin')
+  `, 'You have been invited to Solomon & Sage admin')
 
-  return resend.emails.send({ from: FROM, to: TO_OVERRIDE ?? data.email, subject: `Admin Access Invitation — Solomon Lawrence`, html })
+  return resend.emails.send({ from: FROM, to: TO_OVERRIDE ?? data.email, subject: `Admin Access Invitation — Solomon & Sage`, html })
 }
 
 // 10. Low Stock Alert (admin notification)

@@ -1,5 +1,5 @@
-// Save as: src/app/admin/products/new/page.tsx (REPLACE existing)
 'use client'
+// Save as: src/app/admin/products/new/page.tsx (REPLACE existing)
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'

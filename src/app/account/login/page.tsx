@@ -1,5 +1,5 @@
-// Save as: src/app/account/login/page.tsx
 'use client'
+// Save as: src/app/account/login/page.tsx
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -48,7 +48,7 @@ function LoginForm() {
               Sign In
             </h1>
             <p className="text-[13px] text-gray-500 tracking-wide">
-              Welcome back to Solomon Lawrence
+              Welcome back to Solomon & Sage
             </p>
           </div>
 

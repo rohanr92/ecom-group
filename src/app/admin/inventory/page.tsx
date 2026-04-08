@@ -1,5 +1,5 @@
-// Save as: src/app/admin/inventory/page.tsx
 'use client'
+// Save as: src/app/admin/inventory/page.tsx
 import { useState, useEffect } from 'react'
 import { AlertTriangle, Search, Save } from 'lucide-react'
 

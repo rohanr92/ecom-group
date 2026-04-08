@@ -1,5 +1,4 @@
-// Save as: src/components/HomeProductGrid.tsx (REPLACE existing)
-// Now fetches from collection slot API — admin controls which collection shows here
+// Save as: src/components/HomeProductGrid.tsx
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
@@ -8,18 +7,28 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import WishlistButton from '@/components/WishlistButton'
 
 interface Props {
-  title:        string
-  subtitle?:    string
-  slot:         string   // e.g. "homepage_new_arrivals"
+  title:           string
+  subtitle?:       string
+  slot:            string
   fallbackFilter?: 'new' | 'bestseller' | 'sale' | 'all'
-  limit?:       number
-  viewAllHref:  string
+  limit?:          number
+  viewAllHref:     string
 }
 
 interface Product {
-  id: string; slug: string; name: string
-  price: number; comparePrice: number | null
-  image: string; badge: string | null
+  id:           string
+  slug:         string
+  name:         string
+  price:        number
+  comparePrice: number | null
+  image:        string
+  images:       string[]
+  badge:        string | null
+  isGrouped:    boolean | null
+  variants:     any[]
+  _expandedKey?: string
+  _colorLabel?:  string
+  _colorHex?:    string
 }
 
 function SkeletonCard() {
@@ -34,12 +43,39 @@ function SkeletonCard() {
   )
 }
 
+function expandProducts(products: Product[]): Product[] {
+  const result: Product[] = []
+  for (const p of products) {
+    if (p.isGrouped === false && Array.isArray(p.variants) && p.variants.length > 0) {
+      const seen = new Map<string, any>()
+      for (const v of p.variants) {
+        if (!seen.has(v.color)) seen.set(v.color, v)
+      }
+      for (const [color, v] of seen) {
+        const colorImages: string[] = Array.isArray(v.images) && v.images.length > 0
+          ? v.images
+          : Array.isArray(p.images) ? p.images : []
+        result.push({
+          ...p,
+          image:        colorImages[0] ?? p.image,
+          _colorLabel:  color,
+          _colorHex:    v.colorHex,
+          _expandedKey: `${p.id}__${color}`,
+        })
+      }
+    } else {
+      result.push({ ...p, _expandedKey: p.id })
+    }
+  }
+  return result
+}
+
 export default function HomeProductGrid({
-  title, subtitle, slot, fallbackFilter = 'all', limit = 10, viewAllHref
+  title, subtitle, slot, limit = 10, viewAllHref
 }: Props) {
-  const [products,        setProducts]        = useState<Product[]>([])
-  const [collectionName,  setCollectionName]  = useState<string | null>(null)
-  const [loading,         setLoading]         = useState(true)
+  const [products,       setProducts]       = useState<Product[]>([])
+  const [collectionName, setCollectionName] = useState<string | null>(null)
+  const [loading,        setLoading]        = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -49,13 +85,16 @@ export default function HomeProductGrid({
       .then(d => {
         setCollectionName(d.collection?.name ?? null)
         const mapped: Product[] = (d.products ?? []).slice(0, limit).map((p: any) => ({
-          id:           p.id,
-          slug:         p.slug ?? p.id,
-          name:         p.name,
+          id:           String(p.id),
+          slug:         String(p.slug ?? p.id),
+          name:         String(p.name),
           price:        Number(p.price),
           comparePrice: p.comparePrice ? Number(p.comparePrice) : null,
-          image:        p.images?.[0] ?? '',
+          image:        Array.isArray(p.images) && p.images.length ? p.images[0] : '',
+          images:       Array.isArray(p.images) ? p.images : [],
           badge:        p.badge ?? null,
+          isGrouped:    p.isGrouped === false ? false : (p.isGrouped === true ? true : null),
+          variants:     Array.isArray(p.variants) ? p.variants : [],
         }))
         setProducts(mapped)
       })
@@ -65,6 +104,8 @@ export default function HomeProductGrid({
 
   const scroll = (dir: 'left' | 'right') =>
     scrollRef.current?.scrollBy({ left: dir === 'left' ? -300 : 300, behavior: 'smooth' })
+
+  const displayProducts = expandProducts(products)
 
   return (
     <section className="py-10 md:py-14">
@@ -102,14 +143,14 @@ export default function HomeProductGrid({
           className="flex gap-4 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
           {loading
             ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
-            : products.length === 0
+            : displayProducts.length === 0
               ? <div className="w-full py-12 text-center text-gray-300 text-[13px] italic">No products</div>
-              : products.map(product => {
+              : displayProducts.map(product => {
                   const onSale = product.comparePrice && product.comparePrice > product.price
                   return (
-                    <div key={product.id} className="shrink-0 w-40 md:w-52 group">
+                    <div key={product._expandedKey} className="shrink-0 w-40 md:w-52 group">
                       <Link href={`/products/${product.slug}`}
-                        className="block aspect-[3/4] overflow-hidden bg-[#f5f2ed] relative no-underline">
+                        className="block aspect-[3/4] overflow-hidden bg-[#f9f9f9] relative no-underline">
                         {product.image
                           ? <img src={product.image} alt={product.name}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -130,6 +171,11 @@ export default function HomeProductGrid({
                         />
                       </Link>
                       <Link href={`/products/${product.slug}`} className="no-underline block mt-2">
+                        {product._colorLabel && (
+                          <p className="text-[10px] text-gray-400 tracking-wide uppercase mb-0.5">
+                            {product._colorLabel}
+                          </p>
+                        )}
                         <p className="text-[12px] text-[#1a1a1a] leading-snug tracking-wide group-hover:underline line-clamp-2">
                           {product.name}
                         </p>

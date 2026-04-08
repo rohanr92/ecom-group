@@ -16,15 +16,35 @@ function Block({ s }: { s: Section }) {
   const c = s.content ?? {}
 
   if (s.type === 'text') return (
-    <div style={{ paddingBottom: '40px', marginBottom: '40px', borderBottom: '1px solid #f0ece6' }}>
-      {c.heading && <h2 style={{ fontFamily:'var(--font-display)', fontSize:'clamp(22px,3vw,32px)', fontWeight:400, fontStyle:'italic', color:'var(--color-charcoal)', marginBottom:'14px' }}>{c.heading}</h2>}
-      {c.body && <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--color-mid)', lineHeight:1.9, maxWidth:'680px' }}>{c.body}</p>}
-    </div>
-  )
+  <div style={{ paddingBottom: '32px', marginBottom: '32px' }}>
+    {c.heading && (
+      <h2 style={{
+        fontFamily: c.headingFont === 'display' ? 'var(--font-display)' : c.headingFont === 'body' ? 'var(--font-body)' : (c.headingFont ?? 'var(--font-display)'),
+        fontSize:      c.headingSize ?? 'clamp(22px,3vw,32px)',
+        fontWeight:    c.headingWeight ?? 400,
+        fontStyle:     c.headingItalic ?? 'italic',
+        color:         c.headingColor ?? 'var(--color-charcoal)',
+        textAlign:     (c.headingAlign ?? 'left') as any,
+        textTransform: (c.headingTransform ?? 'none') as any,
+        marginBottom:  '14px',
+      }}>{c.heading}</h2>
+    )}
+    {c.body && (
+      <p style={{
+        fontFamily: 'var(--font-body)',
+        fontSize:   c.bodySize ?? '14px',
+        color:      c.bodyColor ?? 'var(--color-mid)',
+        textAlign:  (c.bodyAlign ?? 'left') as any,
+        lineHeight: 1.9,
+        whiteSpace: 'pre-wrap',
+      }}>{c.body}</p>
+    )}
+  </div>
+)
 
   if (s.type === 'rich_text') return (
-    <div style={{ paddingBottom:'40px', marginBottom:'40px', borderBottom:'1px solid #f0ece6', fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--color-mid)', lineHeight:1.9, maxWidth:'680px' }}
-      dangerouslySetInnerHTML={{ __html: c.body ?? '' }} />
+   <div style={{ paddingBottom:'32px', marginBottom:'32px', fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--color-mid)', lineHeight:1.9, maxWidth:'680px' }}
+  dangerouslySetInnerHTML={{ __html: (c.body ?? '').replace(/\n/g, '<br/>') }} />
   )
 
   if (s.type === 'hero') return (
@@ -48,8 +68,8 @@ function Block({ s }: { s: Section }) {
     </div>
   )
 
-  if (s.type === 'image') return (
-    <div style={{ paddingBottom:'40px', marginBottom:'40px', borderBottom:'1px solid #f0ece6' }}>
+ if (s.type === 'image') return (
+  <div style={{ paddingBottom:'32px', marginBottom:'32px' }}>
       {c.src && <figure style={{ margin:0 }}>
         <img src={c.src} alt={c.alt ?? ''} style={{ width:'100%', maxHeight:'460px', objectFit:'cover', display:'block' }} />
         {c.caption && <figcaption style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'var(--color-mid)', marginTop:'8px', fontStyle:'italic' }}>{c.caption}</figcaption>}
@@ -58,14 +78,14 @@ function Block({ s }: { s: Section }) {
   )
 
   if (s.type === 'columns') return (
-    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'48px', paddingBottom:'40px', marginBottom:'40px', borderBottom:'1px solid #f0ece6' }}>
+    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'48px', paddingBottom:'32px', marginBottom:'32px' }}>
       <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--color-mid)', lineHeight:1.9 }}>{c.left}</p>
       <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--color-mid)', lineHeight:1.9 }}>{c.right}</p>
     </div>
   )
 
   if (s.type === 'faq') return (
-    <div style={{ paddingBottom:'40px', marginBottom:'40px', borderBottom:'1px solid #f0ece6' }}>
+    <div style={{ paddingBottom:'32px', marginBottom:'32px' }}>
       {(c.items ?? []).map((item: any, i: number) => (
         <details key={i} style={{ borderBottom:'1px solid #e8e4de' }}>
           <summary style={{ padding:'16px 0', fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--color-charcoal)', fontWeight:500, cursor:'pointer', listStyle:'none', display:'flex', justifyContent:'space-between', alignItems:'center' }}>

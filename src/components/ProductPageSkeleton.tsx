@@ -22,11 +22,11 @@ export default function ProductPageSkeleton() {
             {/* Thumbnail strip */}
             <div className="hidden md:flex flex-col gap-2 w-16 shrink-0">
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} className="aspect-[3/4] bg-gray-200 w-full" />
+                <div key={i} className="aspect-[2.5/3.8] bg-gray-200 w-full" />
               ))}
             </div>
             {/* Main image */}
-            <div className="flex-1 aspect-[3/4] bg-gray-200" />
+            <div className="flex-1 aspect-[2.5/3.8] bg-gray-200" />
           </div>
 
           {/* Product info skeleton */}
@@ -159,7 +159,7 @@ export default function ProductPageSkeleton() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-6">
             {[1,2,3,4,5].map(i => (
               <div key={i}>
-                <div className="aspect-[3/4] bg-gray-200 w-full" />
+                <div className="aspect-[2.5/3.8] bg-gray-200 w-full" />
                 <div className="h-3 w-3/4 bg-gray-200 rounded mt-2" />
                 <div className="h-3 w-1/4 bg-gray-200 rounded mt-1.5" />
               </div>

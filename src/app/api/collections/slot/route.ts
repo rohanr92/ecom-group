@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
         collection: {
           include: {
             products: {
-              include: { product: true },
+              include: { product: { include: { variants: true } } },
               orderBy: { sortOrder: 'asc' },
               take: limit,
             },

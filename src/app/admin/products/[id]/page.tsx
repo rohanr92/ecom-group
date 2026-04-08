@@ -46,6 +46,9 @@ export default function ProductDetailPage() {
   const [savingVariants, setSavingVariants] = useState(false)
   const [newVariant, setNewVariant] = useState({ size: 'S', color: '', colorHex: '#1a1a1a', sku: '', inventory: 0 })
   const [expandedColor, setExpandedColor] = useState<string | null>(null)
+  const [isGrouped, setIsGrouped] = useState(true)
+const [tags, setTags] = useState<string[]>([])
+const [tagInput, setTagInput] = useState('')
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ msg, type })
@@ -95,6 +98,8 @@ export default function ProductDetailPage() {
           setDetails(Array.isArray(p.details) ? p.details : [])
           setIsActive(p.isActive ?? true)
           setVariants(p.variants ?? [])
+          setIsGrouped(p.isGrouped ?? true)
+setTags(p.tags ?? [])
         }
         setLoading(false)
       })
@@ -107,7 +112,7 @@ export default function ProductDetailPage() {
       const res = await fetch('/api/admin/products', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, description, price, comparePrice, category, badge, images, details, isActive }),
+body: JSON.stringify({ id, name, description, price, comparePrice, category, badge, images, details, isActive, isGrouped, tags }),
       })
       const d = await res.json()
       if (res.ok) { setProduct(d.product); showToast('Product saved', 'success') }
@@ -533,6 +538,61 @@ export default function ProductDetailPage() {
                 <p className="text-[11px] text-gray-400 font-mono bg-gray-50 px-3 py-2 border border-gray-200 break-all">/products/{product.slug}</p>
               </div>
             )}
+          </div>
+
+          {/* Tags */}
+          <div className="bg-white border border-gray-200 p-4 space-y-3">
+            <h3 className="text-[12px] font-semibold tracking-widest uppercase text-gray-500">Tags</h3>
+            <div className="flex flex-wrap gap-1.5">
+              {tags.map(tag => (
+                <span key={tag} className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-[11px] text-gray-600 rounded">
+                  {tag}
+                  <button onClick={() => setTags(tags.filter(t => t !== tag))}
+                    className="text-gray-400 hover:text-red-500 bg-transparent border-none cursor-pointer p-0 leading-none">
+                    <X size={10} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input value={tagInput} onChange={e => setTagInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault()
+                    const t = tagInput.trim().toLowerCase().replace(/,/g, '')
+                    if (t && !tags.includes(t)) setTags([...tags, t])
+                    setTagInput('')
+                  }
+                }}
+                placeholder="Add tag + Enter"
+                className="flex-1 px-2 py-1.5 border border-gray-200 text-[12px] outline-none focus:border-[#1a1a1a]" />
+              <button onClick={() => {
+                const t = tagInput.trim().toLowerCase().replace(/,/g, '')
+                if (t && !tags.includes(t)) setTags([...tags, t])
+                setTagInput('')
+              }} className="px-2 py-1.5 bg-[#1a1a1a] text-white text-[11px] border-none cursor-pointer">Add</button>
+            </div>
+            <p className="text-[10px] text-gray-400">Press Enter or comma to add a tag</p>
+          </div>
+
+          {/* Display / Grouping */}
+          <div className="bg-white border border-gray-200 p-4 space-y-3">
+            <h3 className="text-[12px] font-semibold tracking-widest uppercase text-gray-500">Display</h3>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <div className="relative mt-0.5 shrink-0">
+                <div onClick={() => setIsGrouped(!isGrouped)}
+                  className={`w-9 h-5 rounded-full transition-colors cursor-pointer relative ${isGrouped ? 'bg-[#1a1a1a]' : 'bg-gray-300'}`}>
+                  <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"
+                    style={{ left: isGrouped ? '18px' : '2px' }} />
+                </div>
+              </div>
+              <div>
+                <p className="text-[12px] font-medium text-[#1a1a1a]">Group by color</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">
+                  {isGrouped ? 'Colors shown as swatches on one card' : 'Each color shown as separate card'}
+                </p>
+              </div>
+            </label>
           </div>
 
           <div className="bg-white border border-gray-200 p-5 space-y-2">

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
 export type CartItem = {
-  id: number
+  id: number | string
   name: string
   brand: string
   price: number
@@ -16,8 +16,8 @@ export type CartItem = {
 type CartContextType = {
   items: CartItem[]
   addItem: (item: CartItem) => void
-  removeItem: (id: number, size: string, color: string) => void
-  updateQty: (id: number, size: string, color: string, qty: number) => void
+  removeItem: (id: number | string, size: string, color: string) => void
+  updateQty: (id: number | string, size: string, color: string, qty: number) => void
   clearCart: () => void
   totalCount: number
   totalPrice: number
@@ -27,28 +27,35 @@ const CartContext = createContext<CartContextType | null>(null)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
-  const [ready, setReady] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
 
-  // Load from localStorage on mount
+  // Load from localStorage only after mount — fixes SSR mismatch
   useEffect(() => {
     try {
       const saved = localStorage.getItem('sl_cart')
       if (saved) setItems(JSON.parse(saved))
     } catch {}
-    setReady(true)
+    setHydrated(true)
   }, [])
 
-  // Save to localStorage on change
+  // Save to localStorage whenever items change — only after hydration
   useEffect(() => {
-    if (ready) localStorage.setItem('sl_cart', JSON.stringify(items))
-  }, [items, ready])
+    if (!hydrated) return
+    try {
+      localStorage.setItem('sl_cart', JSON.stringify(items))
+    } catch {}
+  }, [items, hydrated])
 
   const addItem = (newItem: CartItem) => {
     setItems(prev => {
-      const exists = prev.find(i => i.id === newItem.id && i.size === newItem.size && i.color === newItem.color)
+      const exists = prev.find(i =>
+        String(i.id) === String(newItem.id) &&
+        i.size === newItem.size &&
+        i.color === newItem.color
+      )
       if (exists) {
         return prev.map(i =>
-          i.id === newItem.id && i.size === newItem.size && i.color === newItem.color
+          String(i.id) === String(newItem.id) && i.size === newItem.size && i.color === newItem.color
             ? { ...i, quantity: i.quantity + newItem.quantity }
             : i
         )
@@ -57,14 +64,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
-  const removeItem = (id: number, size: string, color: string) => {
-    setItems(prev => prev.filter(i => !(i.id === id && i.size === size && i.color === color)))
+  const removeItem = (id: number | string, size: string, color: string) => {
+    setItems(prev => prev.filter(i =>
+      !(String(i.id) === String(id) && i.size === size && i.color === color)
+    ))
   }
 
-  const updateQty = (id: number, size: string, color: string, qty: number) => {
+  const updateQty = (id: number | string, size: string, color: string, qty: number) => {
     if (qty < 1) { removeItem(id, size, color); return }
     setItems(prev => prev.map(i =>
-      i.id === id && i.size === size && i.color === color ? { ...i, quantity: qty } : i
+      String(i.id) === String(id) && i.size === size && i.color === color
+        ? { ...i, quantity: qty }
+        : i
     ))
   }
 

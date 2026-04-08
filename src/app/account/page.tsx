@@ -41,7 +41,7 @@ export default function AccountDashboard() {
           {greeting}, {user?.name?.split(' ')[0] ?? 'there'}.
         </h1>
         <p className="text-[13px] text-gray-500 tracking-wide">
-          Welcome to your Solomon Lawrence account.
+          Welcome to your Solomon & Sage account.
         </p>
       </div>
 
@@ -55,7 +55,7 @@ export default function AccountDashboard() {
         ].map(item => (
           <Link key={item.href} href={item.href}
             className="bg-white border border-gray-200 p-4 flex flex-col items-center gap-2 no-underline hover:border-[#1a1a1a] transition-colors group text-center">
-            <item.icon size={20} strokeWidth={1.5} className="text-[#c8a882] group-hover:text-[#1a1a1a] transition-colors" />
+            <item.icon size={20} strokeWidth={1.5} className="text-[#151515] group-hover:text-[#1a1a1a] transition-colors" />
             <span className="text-[12px] font-medium text-[#1a1a1a] tracking-wide">{item.label}</span>
             {item.count !== null && (
               <span className="text-[11px] text-gray-400">{item.count} total</span>

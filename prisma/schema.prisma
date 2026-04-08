@@ -103,7 +103,9 @@ model Product {
   category     String
   badge        String?
   images       String[]
-  isActive     Boolean  @default(true) @map("is_active")
+    isActive     Boolean  @default(true) @map("is_active")
+  isGrouped    Boolean  @default(true) @map("is_grouped")
+  tags         String[] @default([])
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -400,4 +402,72 @@ model NavFeatured {
   navItem NavItem @relation(fields: [navItemId], references: [id], onDelete: Cascade)
 
   @@map("nav_featured")
+}
+
+
+
+model AdminSession {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  adminId   String?  @map("admin_id")
+  role      String   @default("editor")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("admin_sessions")
+}
+
+
+model FooterColumn {
+  id        String      @id @default(uuid())
+  heading   String
+  position  Int         @default(0)
+  isActive  Boolean     @default(true) @map("is_active")
+  createdAt DateTime    @default(now()) @map("created_at")
+  links     FooterLink[]
+  @@map("footer_columns")
+}
+
+model FooterLink {
+  id             String      @id @default(uuid())
+  label          String
+  href           String      @default("#")
+  position       Int         @default(0)
+  isActive       Boolean     @default(true) @map("is_active")
+  openInNewTab   Boolean     @default(false) @map("open_in_new_tab")
+  footerColumnId String      @map("footer_column_id")
+  column         FooterColumn @relation(fields: [footerColumnId], references: [id], onDelete: Cascade)
+  @@map("footer_links")
+}
+
+model FooterSettings {
+  id              String   @id @default(uuid())
+  key             String   @unique
+  value           Json
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  @@map("footer_settings")
+}
+
+model InfluencerApplication {
+  id            String   @id @default(uuid())
+  name          String
+  email         String
+  handle        String
+  followerCount String   @map("follower_count")
+  message       String
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("influencer_applications")
+}
+
+
+model NewsletterSubscriber {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  isActive    Boolean  @default(true) @map("is_active")
+  source      String   @default("footer") 
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("newsletter_subscribers")
 }

@@ -40,8 +40,8 @@ function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
           key={i}
           size={size}
           strokeWidth={1.5}
-          fill={i <= Math.round(rating) ? '#c8a882' : 'none'}
-          color={i <= Math.round(rating) ? '#c8a882' : '#d1d5db'}
+          fill={i <= Math.round(rating) ? '#151515' : 'none'}
+          color={i <= Math.round(rating) ? '#151515' : '#d1d5db'}
         />
       ))}
     </div>
@@ -65,8 +65,8 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
           <Star
             size={24}
             strokeWidth={1.5}
-            fill={i <= (hovered || value) ? '#c8a882' : 'none'}
-            color={i <= (hovered || value) ? '#c8a882' : '#9ca3af'}
+            fill={i <= (hovered || value) ? '#151515' : 'none'}
+            color={i <= (hovered || value) ? '#151515' : '#9ca3af'}
           />
         </button>
       ))}
@@ -156,7 +156,7 @@ function WriteReviewModal({
 
         {success ? (
           <div className="px-6 py-16 text-center">
-            <CheckCircle size={40} className="text-[#c8a882] mx-auto mb-4" strokeWidth={1.5} />
+            <CheckCircle size={40} className="text-[#151515] mx-auto mb-4" strokeWidth={1.5} />
             <p className="font-[family-name:var(--font-display)] text-xl font-light italic text-[#1a1a1a] mb-2">
               Thank you for your review!
             </p>
@@ -186,7 +186,7 @@ function WriteReviewModal({
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   placeholder="Jane D."
-                  className="w-full border border-gray-200 px-3 py-2.5 text-[13px] text-[#1a1a1a] placeholder-gray-300 focus:outline-none focus:border-[#c8a882] transition-colors"
+                  className="w-full border border-gray-200 px-3 py-2.5 text-[13px] text-[#1a1a1a] placeholder-gray-300 focus:outline-none focus:border-[#151515] transition-colors"
                 />
               </div>
               <div>
@@ -198,7 +198,7 @@ function WriteReviewModal({
                   value={form.email}
                   onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                   placeholder="jane@email.com"
-                  className="w-full border border-gray-200 px-3 py-2.5 text-[13px] text-[#1a1a1a] placeholder-gray-300 focus:outline-none focus:border-[#c8a882] transition-colors"
+                  className="w-full border border-gray-200 px-3 py-2.5 text-[13px] text-[#1a1a1a] placeholder-gray-300 focus:outline-none focus:border-[#151515] transition-colors"
                 />
               </div>
             </div>
@@ -214,7 +214,7 @@ function WriteReviewModal({
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 placeholder="Summarize your experience"
                 maxLength={80}
-                className="w-full border border-gray-200 px-3 py-2.5 text-[13px] text-[#1a1a1a] placeholder-gray-300 focus:outline-none focus:border-[#c8a882] transition-colors"
+                className="w-full border border-gray-200 px-3 py-2.5 text-[13px] text-[#1a1a1a] placeholder-gray-300 focus:outline-none focus:border-[#151515] transition-colors"
               />
             </div>
 
@@ -229,7 +229,7 @@ function WriteReviewModal({
                 placeholder="Tell others about your experience with this product..."
                 rows={5}
                 maxLength={2000}
-                className="w-full border border-gray-200 px-3 py-2.5 text-[13px] text-[#1a1a1a] placeholder-gray-300 focus:outline-none focus:border-[#c8a882] transition-colors resize-none"
+                className="w-full border border-gray-200 px-3 py-2.5 text-[13px] text-[#1a1a1a] placeholder-gray-300 focus:outline-none focus:border-[#151515] transition-colors resize-none"
               />
               <p className="text-[11px] text-gray-300 text-right mt-1">{form.reviewBody.length}/2000</p>
             </div>
@@ -337,7 +337,7 @@ function ReviewCard({ review }: { review: Review }) {
         <div className="flex items-center gap-3 text-[11px] text-gray-400">
           <span className="font-medium text-[#1a1a1a]">{review.name}</span>
           {review.verified && (
-            <span className="flex items-center gap-1 text-[#c8a882]">
+            <span className="flex items-center gap-1 text-[#151515]">
               <CheckCircle size={11} strokeWidth={2} />
               Verified Purchase
             </span>
@@ -354,7 +354,7 @@ function ReviewCard({ review }: { review: Review }) {
         <button
           onClick={markHelpful}
           className={`ml-auto flex items-center gap-1.5 text-[11px] tracking-wide transition-colors
-            ${voted ? 'text-[#c8a882]' : 'text-gray-400 hover:text-[#1a1a1a]'}`}
+            ${voted ? 'text-[#151515]' : 'text-gray-400 hover:text-[#1a1a1a]'}`}
         >
           <ThumbsUp size={12} strokeWidth={1.5} />
           Helpful ({helpfulCount})
@@ -363,6 +363,73 @@ function ReviewCard({ review }: { review: Review }) {
     </div>
   )
 }
+
+// ── Review Carousel ───────────────────────────────────────────────────────────
+function ReviewCarousel({ reviews }: { reviews: Review[] }) {
+  const perPage = 3
+  const [page, setPage] = useState(0)
+  const totalPages = Math.ceil(reviews.length / perPage)
+  const start = page * perPage
+  const visible = reviews.slice(start, start + perPage)
+
+  return (
+    <div>
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {visible.map(review => (
+          <div key={review.id} className="bg-white px-6">
+            <ReviewCard review={review} />
+          </div>
+        ))}
+        {/* Fill empty slot if odd number on last page */}
+        {visible.length === 1 && (
+          <div className="hidden md:block bg-white/50" />
+        )}
+      </div>
+
+      {/* Carousel controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          {/* Prev */}
+          <button
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="w-9 h-9 flex items-center justify-center border border-gray-300 bg-white hover:border-[#1a1a1a] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronDown size={14} strokeWidth={1.5} className="rotate-90" />
+          </button>
+
+          {/* Dots */}
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={`rounded-full transition-all border-none cursor-pointer
+                  ${i === page ? 'w-5 h-1.5 bg-[#1a1a1a]' : 'w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400'}`}
+              />
+            ))}
+          </div>
+
+          {/* Next */}
+          <button
+            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+            disabled={page === totalPages - 1}
+            className="w-9 h-9 flex items-center justify-center border border-gray-300 bg-white hover:border-[#1a1a1a] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronDown size={14} strokeWidth={1.5} className="-rotate-90" />
+          </button>
+
+          {/* Counter */}
+          <span className="text-[11px] text-gray-400 tracking-wide">
+            {start + 1}–{Math.min(start + perPage, reviews.length)} of {reviews.length}
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 
 // ── MAIN ProductReviews Component ─────────────────────────────────────────────
 export default function ProductReviews({
@@ -376,7 +443,7 @@ export default function ProductReviews({
   const [loading, setLoading] = useState(true)
   const [sort, setSort] = useState('newest')
   const [showModal, setShowModal] = useState(false)
-  const [showAll, setShowAll] = useState(false)
+  // const visibleReviews = showAll ? reviews : reviews.slice(0, 4)
 
   // rating breakdown from live reviews
   const [ratingBreakdown, setRatingBreakdown] = useState<RatingBreakdown>(initialRatingBreakdown)
@@ -408,7 +475,7 @@ export default function ProductReviews({
   useEffect(() => { loadReviews() }, [productId, sort])
 
   const totalReviews = Object.values(ratingBreakdown).reduce((a, b) => a + b, 0)
-  const visibleReviews = showAll ? reviews : reviews.slice(0, 4)
+  // const visibleReviews = showAll ? reviews : reviews.slice(0, 4)
 
   return (
     <section id="reviews" className="border-t border-gray-100 py-12 bg-[#f8f6f1]">
@@ -447,9 +514,9 @@ export default function ProductReviews({
                 return (
                   <div key={star} className="flex items-center gap-3">
                     <span className="text-[12px] text-gray-500 w-4 shrink-0">{star}</span>
-                    <Star size={11} strokeWidth={1.5} fill="#c8a882" color="#c8a882" />
+                    <Star size={11} strokeWidth={1.5} fill="#151515" color="#151515" />
                     <div className="flex-1 h-1.5 bg-gray-200 overflow-hidden">
-                      <div className="h-full bg-[#c8a882] transition-all duration-500" style={{ width: `${pct}%` }} />
+                      <div className="h-full bg-[#151515] transition-all duration-500" style={{ width: `${pct}%` }} />
                     </div>
                     <span className="text-[11px] text-gray-400 w-6 shrink-0">{count}</span>
                   </div>
@@ -513,30 +580,8 @@ export default function ProductReviews({
               Write a Review
             </button>
           </div>
-        ) : (
-          <>
-            <div className="bg-white divide-y divide-gray-100 px-6">
-              {visibleReviews.map(review => (
-                <ReviewCard key={review.id} review={review} />
-              ))}
-            </div>
-
-            {reviews.length > 4 && (
-              <div className="text-center mt-6">
-                <button
-                  onClick={() => setShowAll(v => !v)}
-                  className="flex items-center gap-2 mx-auto text-[12px] tracking-widest uppercase text-[#1a1a1a] hover:text-[#c8a882] transition-colors"
-                >
-                  {showAll ? 'Show Less' : `Show All ${reviews.length} Reviews`}
-                  <ChevronDown
-                    size={14}
-                    strokeWidth={1.5}
-                    className={`transition-transform ${showAll ? 'rotate-180' : ''}`}
-                  />
-                </button>
-              </div>
-            )}
-          </>
+      ) : (
+          <ReviewCarousel reviews={reviews} />
         )}
       </div>
 

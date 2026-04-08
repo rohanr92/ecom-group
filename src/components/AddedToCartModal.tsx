@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { X, Check, ShoppingBag } from 'lucide-react'
 import { CartItem, useCart } from './CartContext'
+import { useCurrency } from '@/hooks/useCurrency'
 
 type Props = {
   item: CartItem
@@ -12,6 +13,7 @@ type Props = {
 
 export default function AddedToCartModal({ item, onClose }: Props) {
   const { totalCount, totalPrice } = useCart()
+  const { convert } = useCurrency()
 
   return (
     <>
@@ -40,7 +42,7 @@ export default function AddedToCartModal({ item, onClose }: Props) {
 
         {/* Product row */}
         <div className="flex gap-4 px-6 py-5">
-          <div className="w-24 aspect-[3/4] overflow-hidden bg-[#f5f2ed] shrink-0">
+          <div className="w-24 aspect-[2.5/3.8] overflow-hidden bg-[#f5f2ed] shrink-0">
             <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col justify-center gap-1.5">
@@ -51,7 +53,7 @@ export default function AddedToCartModal({ item, onClose }: Props) {
             <p className="text-[12px] text-gray-500 tracking-wide">Size: {item.size}</p>
             <p className="text-[12px] text-gray-500 tracking-wide">Color: {item.color}</p>
             <p className="font-[family-name:var(--font-display)] text-xl font-light text-[#1a1a1a] mt-1">
-              ${item.price}
+              {convert(item.price)}
             </p>
           </div>
         </div>
@@ -65,7 +67,7 @@ export default function AddedToCartModal({ item, onClose }: Props) {
             </span>
           </div>
           <span className="font-[family-name:var(--font-display)] text-base font-light text-[#1a1a1a]">
-            ${totalPrice.toFixed(2)}
+            {convert(totalPrice)}
           </span>
         </div>
 

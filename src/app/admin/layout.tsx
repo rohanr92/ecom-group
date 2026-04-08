@@ -1,4 +1,3 @@
-// Save as: src/app/admin/layout.tsx (REPLACE existing)
 import { cookies } from 'next/headers'
 import AdminClientLayout from './AdminClientLayout'
 

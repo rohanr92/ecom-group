@@ -1,5 +1,5 @@
-// Save as: src/app/admin/login/page.tsx (NEW FILE)
 'use client'
+// Save as: src/app/admin/login/page.tsx (NEW FILE)
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react'
@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
             <ShieldCheck size={26} strokeWidth={1.5} className="text-white" />
           </div>
           <h1 className="text-[20px] font-semibold text-[#1a1a1a]">Admin Portal</h1>
-          <p className="text-[13px] text-gray-500 mt-1">Solomon Lawrence</p>
+          <p className="text-[13px] text-gray-500 mt-1">Solomon & Sage</p>
         </div>
 
         {/* Card */}

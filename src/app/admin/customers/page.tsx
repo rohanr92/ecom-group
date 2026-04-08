@@ -1,5 +1,5 @@
-// Save as: src/app/admin/customers/page.tsx
 'use client'
+// Save as: src/app/admin/customers/page.tsx
 import { useState, useEffect, useCallback } from 'react'
 import { Search, Users, ShoppingBag, DollarSign } from 'lucide-react'
 

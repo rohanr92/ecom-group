@@ -1,5 +1,5 @@
-// Save as: src/app/admin/orders/page.tsx (REPLACE)
 'use client'
+// Save as: src/app/admin/orders/page.tsx (REPLACE)
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, X, Package, RotateCcw, Check, Mail } from 'lucide-react'

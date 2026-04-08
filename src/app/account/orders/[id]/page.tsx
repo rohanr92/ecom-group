@@ -112,7 +112,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       {/* Items */}
       <div className="bg-white border border-gray-200 p-5">
         <h2 className="text-[13px] font-semibold text-[#1a1a1a] mb-4 flex items-center gap-2">
-          <Package size={15} strokeWidth={1.5} className="text-[#c8a882]" />
+          <Package size={15} strokeWidth={1.5} className="text-[#151515]" />
           Items Ordered
         </h2>
         <div className="space-y-4">
@@ -139,7 +139,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         {addr && (
           <div className="bg-white border border-gray-200 p-5">
             <h2 className="text-[13px] font-semibold text-[#1a1a1a] mb-3 flex items-center gap-2">
-              <MapPin size={14} strokeWidth={1.5} className="text-[#c8a882]" /> Shipping Address
+              <MapPin size={14} strokeWidth={1.5} className="text-[#151515]" /> Shipping Address
             </h2>
             <div className="text-[13px] text-gray-600 leading-relaxed space-y-0.5">
               <p className="font-medium text-[#1a1a1a]">{addr.firstName} {addr.lastName}</p>
@@ -153,7 +153,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         {/* Order summary */}
         <div className="bg-white border border-gray-200 p-5">
           <h2 className="text-[13px] font-semibold text-[#1a1a1a] mb-3 flex items-center gap-2">
-            <CreditCard size={14} strokeWidth={1.5} className="text-[#c8a882]" /> Order Summary
+            <CreditCard size={14} strokeWidth={1.5} className="text-[#151515]" /> Order Summary
           </h2>
           <div className="space-y-2 text-[13px]">
             <div className="flex justify-between text-gray-500"><span>Subtotal</span><span>${Number(order.subtotal).toFixed(2)}</span></div>

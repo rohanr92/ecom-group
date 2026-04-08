@@ -5,29 +5,30 @@ import Link from 'next/link'
 import { SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight, Star, X, Check, Grid, LayoutList } from 'lucide-react'
 import WishlistButton from '@/components/WishlistButton'
 import { useSearchParams } from 'next/navigation'
+import { useCurrency } from '@/hooks/useCurrency'
 
 
 const allProducts = [
-  { id: 1,  name: 'Linen Wide-Leg Trousers',   brand: 'Solomon Lawrence', price: 128, originalPrice: null, rating: 4.5, reviews: 23,  badge: 'New',         colors: ['#1a1a1a','#d4cfc8','#4a6741'], category: 'Pants',       image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80' },
-  { id: 2,  name: 'Silk Wrap Midi Dress',       brand: 'Solomon Lawrence', price: 218, originalPrice: null, rating: 4.8, reviews: 41,  badge: 'Best Seller', colors: ['#c8a882','#1a1a1a','#8b6f5e'], category: 'Dresses',     image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=80' },
-  { id: 3,  name: 'Structured Blazer',          brand: 'Solomon Lawrence', price: 248, originalPrice: null, rating: 4.6, reviews: 18,  badge: null,          colors: ['#1a1a1a','#c4bfb5','#6b5d4f'], category: 'Jackets',     image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&auto=format&fit=crop&q=80' },
-  { id: 4,  name: 'Ruffle Wrap Set',            brand: 'Solomon Lawrence', price: 148, originalPrice: null, rating: 4.3, reviews: 56,  badge: 'New',         colors: ['#e8d5c4','#1a1a1a'],           category: 'Sets',        image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&auto=format&fit=crop&q=80' },
-  { id: 5,  name: 'Barrel Leg Crop Jeans',      brand: 'Solomon Lawrence', price: 138, originalPrice: null, rating: 4.7, reviews: 92,  badge: 'Best Seller', colors: ['#4a5568','#2d3748','#c4bfb5'], category: 'Denim',       image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=80' },
-  { id: 6,  name: 'Cashmere Crew Sweater',      brand: 'Solomon Lawrence', price: 188, originalPrice: 248,  rating: 4.9, reviews: 134, badge: 'Sale',        colors: ['#c8a882','#1a1a1a','#e8d5c4'], category: 'Tops',        image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&auto=format&fit=crop&q=80' },
-  { id: 7,  name: 'Strappy Heel Sandal',        brand: 'Solomon Lawrence', price: 118, originalPrice: null, rating: 4.2, reviews: 29,  badge: null,          colors: ['#c8a882','#1a1a1a'],           category: 'Shoes',       image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&auto=format&fit=crop&q=80' },
-  { id: 8,  name: 'Plissé Midi Skirt',          brand: 'Solomon Lawrence', price: 158, originalPrice: null, rating: 4.5, reviews: 37,  badge: 'New',         colors: ['#e8d5c4','#1a1a1a','#4a6741'], category: 'Skirts',      image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=500&auto=format&fit=crop&q=80' },
-  { id: 9,  name: 'Linen Shirt Dress',          brand: 'Solomon Lawrence', price: 178, originalPrice: 228,  rating: 4.6, reviews: 61,  badge: 'Sale',        colors: ['#fff','#c4bfb5','#1a1a1a'],    category: 'Dresses',     image: 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=500&auto=format&fit=crop&q=80' },
-  { id: 10, name: 'Wide Brim Sun Hat',          brand: 'Solomon Lawrence', price: 68,  originalPrice: null, rating: 4.4, reviews: 48,  badge: null,          colors: ['#c8a882','#1a1a1a'],           category: 'Accessories', image: 'https://images.unsplash.com/photo-1587467512961-120760940315?w=500&auto=format&fit=crop&q=80' },
-  { id: 11, name: 'Cropped Trench Coat',        brand: 'Solomon Lawrence', price: 328, originalPrice: null, rating: 4.8, reviews: 22,  badge: 'New',         colors: ['#c8a882','#1a1a1a','#8b6f5e'], category: 'Jackets',     image: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=500&auto=format&fit=crop&q=80' },
-  { id: 12, name: 'Petal Print Cami Top',       brand: 'Solomon Lawrence', price: 88,  originalPrice: null, rating: 4.3, reviews: 73,  badge: null,          colors: ['#e8d5c4','#c0392b','#1a1a1a'], category: 'Tops',        image: 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=500&auto=format&fit=crop&q=80' },
-  { id: 13, name: 'Tailored Bermuda Shorts',    brand: 'Solomon Lawrence', price: 108, originalPrice: null, rating: 4.1, reviews: 15,  badge: 'New',         colors: ['#1a1a1a','#c4bfb5'],           category: 'Pants',       image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b5b2a?w=500&auto=format&fit=crop&q=80' },
-  { id: 14, name: 'Leather Belt Bag',           brand: 'Solomon Lawrence', price: 148, originalPrice: null, rating: 4.7, reviews: 88,  badge: 'Best Seller', colors: ['#c8a882','#1a1a1a','#8b6f5e'], category: 'Accessories', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&auto=format&fit=crop&q=80' },
-  { id: 15, name: 'Smocked Maxi Dress',         brand: 'Solomon Lawrence', price: 198, originalPrice: 248,  rating: 4.5, reviews: 44,  badge: 'Sale',        colors: ['#e8d5c4','#4a6741','#c0392b'], category: 'Dresses',     image: 'https://images.unsplash.com/photo-1570464197285-9949814674a7?w=500&auto=format&fit=crop&q=80' },
-  { id: 16, name: 'Ribbed Tank Top',            brand: 'Solomon Lawrence', price: 58,  originalPrice: null, rating: 4.2, reviews: 106, badge: null,          colors: ['#1a1a1a','#fff','#c8a882'],    category: 'Tops',        image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80' },
-  { id: 17, name: 'Slip-On Leather Loafers',   brand: 'Solomon Lawrence', price: 178, originalPrice: null, rating: 4.6, reviews: 33,  badge: 'New',         colors: ['#1a1a1a','#c8a882','#8b6f5e'], category: 'Shoes',       image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=500&auto=format&fit=crop&q=80' },
-  { id: 18, name: 'Broderie Blouse',            brand: 'Solomon Lawrence', price: 128, originalPrice: null, rating: 4.4, reviews: 27,  badge: null,          colors: ['#fff','#e8d5c4'],              category: 'Tops',        image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&auto=format&fit=crop&q=80' },
-  { id: 19, name: 'High-Rise Flare Jeans',      brand: 'Solomon Lawrence', price: 148, originalPrice: 188,  rating: 4.8, reviews: 159, badge: 'Sale',        colors: ['#4a5568','#1a1a1a'],           category: 'Denim',       image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=80' },
-  { id: 20, name: 'Gold Hoop Earring Set',      brand: 'Solomon Lawrence', price: 48,  originalPrice: null, rating: 4.9, reviews: 201, badge: 'Best Seller', colors: ['#c8a882'],                    category: 'Accessories', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80' },
+  { id: 1, name: 'Linen Wide-Leg Trousers', brand: 'Solomon & Sage', price: 128, originalPrice: null, rating: 4.5, reviews: 23, badge: 'New', colors: ['#1a1a1a', '#d4cfc8', '#4a6741'], category: 'Pants', image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80' },
+  { id: 2, name: 'Silk Wrap Midi Dress', brand: 'Solomon & Sage', price: 218, originalPrice: null, rating: 4.8, reviews: 41, badge: 'Best Seller', colors: ['#c8a882', '#1a1a1a', '#8b6f5e'], category: 'Dresses', image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=80' },
+  { id: 3, name: 'Structured Blazer', brand: 'Solomon & Sage', price: 248, originalPrice: null, rating: 4.6, reviews: 18, badge: null, colors: ['#1a1a1a', '#c4bfb5', '#6b5d4f'], category: 'Jackets', image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&auto=format&fit=crop&q=80' },
+  { id: 4, name: 'Ruffle Wrap Set', brand: 'Solomon & Sage', price: 148, originalPrice: null, rating: 4.3, reviews: 56, badge: 'New', colors: ['#e8d5c4', '#1a1a1a'], category: 'Sets', image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&auto=format&fit=crop&q=80' },
+  { id: 5, name: 'Barrel Leg Crop Jeans', brand: 'Solomon & Sage', price: 138, originalPrice: null, rating: 4.7, reviews: 92, badge: 'Best Seller', colors: ['#4a5568', '#2d3748', '#c4bfb5'], category: 'Denim', image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=80' },
+  { id: 6, name: 'Cashmere Crew Sweater', brand: 'Solomon & Sage', price: 188, originalPrice: 248, rating: 4.9, reviews: 134, badge: 'Sale', colors: ['#c8a882', '#1a1a1a', '#e8d5c4'], category: 'Tops', image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&auto=format&fit=crop&q=80' },
+  { id: 7, name: 'Strappy Heel Sandal', brand: 'Solomon & Sage', price: 118, originalPrice: null, rating: 4.2, reviews: 29, badge: null, colors: ['#c8a882', '#1a1a1a'], category: 'Shoes', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&auto=format&fit=crop&q=80' },
+  { id: 8, name: 'Plissé Midi Skirt', brand: 'Solomon & Sage', price: 158, originalPrice: null, rating: 4.5, reviews: 37, badge: 'New', colors: ['#e8d5c4', '#1a1a1a', '#4a6741'], category: 'Skirts', image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=500&auto=format&fit=crop&q=80' },
+  { id: 9, name: 'Linen Shirt Dress', brand: 'Solomon & Sage', price: 178, originalPrice: 228, rating: 4.6, reviews: 61, badge: 'Sale', colors: ['#fff', '#c4bfb5', '#1a1a1a'], category: 'Dresses', image: 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=500&auto=format&fit=crop&q=80' },
+  { id: 10, name: 'Wide Brim Sun Hat', brand: 'Solomon & Sage', price: 68, originalPrice: null, rating: 4.4, reviews: 48, badge: null, colors: ['#c8a882', '#1a1a1a'], category: 'Accessories', image: 'https://images.unsplash.com/photo-1587467512961-120760940315?w=500&auto=format&fit=crop&q=80' },
+  { id: 11, name: 'Cropped Trench Coat', brand: 'Solomon & Sage', price: 328, originalPrice: null, rating: 4.8, reviews: 22, badge: 'New', colors: ['#c8a882', '#1a1a1a', '#8b6f5e'], category: 'Jackets', image: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=500&auto=format&fit=crop&q=80' },
+  { id: 12, name: 'Petal Print Cami Top', brand: 'Solomon & Sage', price: 88, originalPrice: null, rating: 4.3, reviews: 73, badge: null, colors: ['#e8d5c4', '#c0392b', '#1a1a1a'], category: 'Tops', image: 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=500&auto=format&fit=crop&q=80' },
+  { id: 13, name: 'Tailored Bermuda Shorts', brand: 'Solomon & Sage', price: 108, originalPrice: null, rating: 4.1, reviews: 15, badge: 'New', colors: ['#1a1a1a', '#c4bfb5'], category: 'Pants', image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b5b2a?w=500&auto=format&fit=crop&q=80' },
+  { id: 14, name: 'Leather Belt Bag', brand: 'Solomon & Sage', price: 148, originalPrice: null, rating: 4.7, reviews: 88, badge: 'Best Seller', colors: ['#c8a882', '#1a1a1a', '#8b6f5e'], category: 'Accessories', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&auto=format&fit=crop&q=80' },
+  { id: 15, name: 'Smocked Maxi Dress', brand: 'Solomon & Sage', price: 198, originalPrice: 248, rating: 4.5, reviews: 44, badge: 'Sale', colors: ['#e8d5c4', '#4a6741', '#c0392b'], category: 'Dresses', image: 'https://images.unsplash.com/photo-1570464197285-9949814674a7?w=500&auto=format&fit=crop&q=80' },
+  { id: 16, name: 'Ribbed Tank Top', brand: 'Solomon & Sage', price: 58, originalPrice: null, rating: 4.2, reviews: 106, badge: null, colors: ['#1a1a1a', '#fff', '#c8a882'], category: 'Tops', image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80' },
+  { id: 17, name: 'Slip-On Leather Loafers', brand: 'Solomon & Sage', price: 178, originalPrice: null, rating: 4.6, reviews: 33, badge: 'New', colors: ['#1a1a1a', '#c8a882', '#8b6f5e'], category: 'Shoes', image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=500&auto=format&fit=crop&q=80' },
+  { id: 18, name: 'Broderie Blouse', brand: 'Solomon & Sage', price: 128, originalPrice: null, rating: 4.4, reviews: 27, badge: null, colors: ['#fff', '#e8d5c4'], category: 'Tops', image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&auto=format&fit=crop&q=80' },
+  { id: 19, name: 'High-Rise Flare Jeans', brand: 'Solomon & Sage', price: 148, originalPrice: 188, rating: 4.8, reviews: 159, badge: 'Sale', colors: ['#4a5568', '#1a1a1a'], category: 'Denim', image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=80' },
+  { id: 20, name: 'Gold Hoop Earring Set', brand: 'Solomon & Sage', price: 48, originalPrice: null, rating: 4.9, reviews: 201, badge: 'Best Seller', colors: ['#c8a882'], category: 'Accessories', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80' },
 ]
 
 
@@ -40,13 +41,42 @@ const priceRanges = ['Under $75', '$75 – $150', '$150 – $250', '$250+']
 
 
 
+function expandProducts(products: any[]) {
+  const result: any[] = []
+  for (const p of products) {
+    if (p.isGrouped === false && p.variants?.length) {
+      const colors = [...new Map(p.variants.map((v: any) => [v.color, v])).values()]
+      for (const v of colors) {
+       const colorImages = v.images?.length ? v.images : []
+const fallbackImage = p.images?.find((img: string) => {
+  const colorSlug = v.color.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+  return img.toLowerCase().includes(colorSlug)
+}) ?? p.images?.[0] ?? p.image
+result.push({
+  ...p,
+  id: p.id,
+  slug: p.slug,
+  image: colorImages[0] ?? fallbackImage,
+  colors: [v.colorHex ?? v.color],
+  _colorLabel: v.color,
+  _colorHex: v.colorHex,
+  _expandedKey: `${p.id}-${v.color}`,
+})
+      }
+    } else {
+      result.push(p)
+    }
+  }
+  return result
+}
+
 // ── Shimmer skeleton ──────────────────────────────────────────────
 function SkeletonCard() {
   return (
     <div className="animate-pulse">
-      <div className="aspect-[3/4] bg-gray-200 w-full" />
+      <div className="aspect-[2.5/3.8] bg-gray-200 w-full" />
       <div className="flex gap-1.5 mt-2">
-        {[1,2,3].map(i => (
+        {[1, 2, 3].map(i => (
           <div key={i} className="w-3.5 h-3.5 rounded-full bg-gray-200" />
         ))}
       </div>
@@ -55,7 +85,7 @@ function SkeletonCard() {
         <div className="h-3 bg-gray-200 rounded w-3/4" />
         <div className="h-3 bg-gray-200 rounded w-1/4" />
         <div className="flex gap-px mt-1">
-          {[1,2,3,4,5].map(i => (
+          {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="w-3 h-3 bg-gray-200 rounded-sm" />
           ))}
         </div>
@@ -79,21 +109,21 @@ function SkeletonList() {
     <div className="divide-y divide-gray-100 py-4">
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="flex gap-5 py-5 animate-pulse">
-          <div className="shrink-0 w-36 aspect-[3/4] bg-gray-200" />
+          <div className="shrink-0 w-36 aspect-[2.5/3.8] bg-gray-200" />
           <div className="flex-1 space-y-2 pt-1">
             <div className="h-2.5 bg-gray-200 rounded w-1/4" />
             <div className="h-4 bg-gray-200 rounded w-2/3" />
             <div className="flex gap-px mt-1">
-              {[1,2,3,4,5].map(i => (
+              {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} className="w-3 h-3 bg-gray-200 rounded-sm" />
               ))}
             </div>
             <div className="h-3 bg-gray-200 rounded w-1/5 mt-2" />
             <div className="flex gap-1.5 mt-2">
-              {[1,2,3].map(i => <div key={i} className="w-4 h-4 rounded-full bg-gray-200" />)}
+              {[1, 2, 3].map(i => <div key={i} className="w-4 h-4 rounded-full bg-gray-200" />)}
             </div>
             <div className="flex gap-1.5 mt-2">
-              {[1,2,3,4,5,6].map(i => <div key={i} className="w-10 h-7 bg-gray-200 rounded-sm" />)}
+              {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="w-10 h-7 bg-gray-200 rounded-sm" />)}
             </div>
           </div>
         </div>
@@ -107,7 +137,7 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
   return (
     <div className="flex items-center gap-1 mt-0.5">
       <div className="flex gap-px">
-        {[1,2,3,4,5].map(s => (
+        {[1, 2, 3, 4, 5].map(s => (
           <Star key={s} size={11} strokeWidth={1.5}
             fill={s <= Math.round(rating) ? '#c8a882' : 'none'}
             color={s <= Math.round(rating) ? '#c8a882' : '#ccc'} />
@@ -140,63 +170,111 @@ function colorNameToHex(name: string): string {
 
 
 function ProductCard({ product }: { product: typeof allProducts[0] & { id: string | number } }) {
-  const [wished, setWished] = useState(false)
+  const [hovered, setHovered] = useState(false)
   const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : null
-
+  const href = `/products/${(product as any).slug ?? product.id}`
+const { convert } = useCurrency()
   return (
-    <div className="group relative">
-      <Link href={`/products/${product.id}`} className="block relative overflow-hidden bg-[#f5f2ed] aspect-[3/4]">
-        <img
-          src={product.image} alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        {product.badge && (
-          <span className={`absolute top-2.5 left-2.5 ${BadgeColor(product.badge)} text-white text-[9px] font-semibold tracking-widest uppercase px-2 py-1`}>
-            {product.badge}
-          </span>
-        )}
-        {discount && (
-          <span className="absolute top-2.5 left-2.5 mt-6 bg-red-600 text-white text-[9px] font-semibold tracking-wider px-2 py-1">
-            -{discount}%
-          </span>
-        )}
-        <WishlistButton
-  productId={String(product.id)}
-  size={16}
-  className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow-sm"
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: 'relative',
+        border: '1px solid #eeebe6',
+        padding: '8px',
+        background: '#fff',
+        transition: 'box-shadow 0.3s ease',
+        boxShadow: hovered ? '0 8px 30px rgba(0,0,0,0.10)' : 'none',
+      }}
+    >
+      <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
+       <div style={{ position: 'relative', overflow: 'hidden', background: '#f9f9f9', aspectRatio: '3/4', width: '100%' }}>
+<img
+  src={product.image} alt={product.name}
+  loading="lazy"
+  decoding="async"
+  fetchPriority="low"
+  style={{
+    width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+    transition: 'transform 0.5s ease',
+    transform: hovered ? 'scale(1.04)' : 'scale(1)',
+  }}
 />
-        <div className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a]/90 flex items-center justify-center gap-1 py-2.5 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          {sizes.slice(0,5).map(s => (
-            <button key={s} onClick={e => e.preventDefault()}
-              className="text-white text-[10px] tracking-wider border border-white/30 bg-white/10 hover:bg-white/25 px-2 py-1 transition-colors cursor-pointer">
-              {s}
-            </button>
-          ))}
+          {product.badge && (
+            <span className={`absolute top-2.5 left-2.5 ${BadgeColor(product.badge)} text-white text-[9px] font-semibold tracking-widest uppercase px-2 py-1`}>
+              {product.badge}
+            </span>
+          )}
+          {discount && (
+            <span className="absolute top-2.5 left-2.5 mt-6 bg-red-600 text-white text-[9px] font-semibold tracking-wider px-2 py-1">
+              -{discount}%
+            </span>
+          )}
+          <WishlistButton
+            productId={String(product.id)}
+            size={16}
+            className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow-sm"
+            style={{ opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}
+          />
+          {hovered && (
+            <div style={{
+              position: 'absolute', bottom: '16px', left: '50%',
+              transform: 'translateX(-50%)',
+              background: '#fff', padding: '10px 24px',
+              fontFamily: 'var(--font-body)', fontSize: '11px',
+              letterSpacing: '0.12em', textTransform: 'uppercase',
+              color: '#1a1a1a', fontWeight: 600,
+              whiteSpace: 'nowrap', border: '1px solid #ddd',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.10)', cursor: 'pointer',
+            }}>
+              Quick View
+            </div>
+          )}
         </div>
       </Link>
       {product.colors?.length > 0 && (
         <div className="flex gap-1.5 mt-2">
-          {product.colors.slice(0,5).map((c: string) => (
-            <button key={c} className="w-3.5 h-3.5 rounded-full border border-gray-200 hover:border-gray-800 transition-all cursor-pointer p-0"
-              style={{ background: c.startsWith('#') ? c : colorNameToHex(c) }} />
+          {product.colors.slice(0, 6).map((c: string) => (
+            <div key={c} className="w-3.5 h-3.5 rounded-full cursor-pointer"
+              style={{
+                background: c.startsWith('#') ? c : colorNameToHex(c),
+                border: (c === '#ffffff' || c === '#fffff0') ? '1px solid #ddd' : '1px solid transparent',
+                boxShadow: '0 0 0 1px rgba(0,0,0,0.08)',
+              }} />
           ))}
-          {product.colors.length > 5 && <span className="text-[10px] text-gray-400 self-center">+{product.colors.length - 5}</span>}
+          {product.colors.length > 6 && <span className="text-[10px] text-gray-400 self-center">+{product.colors.length - 6}</span>}
         </div>
       )}
-      <div className="mt-1.5">
-        <p className="text-[10px] text-gray-400 tracking-widest uppercase">{product.brand}</p>
-        <Link href={`/products/${product.id}`} className="text-[13px] text-[#1a1a1a] no-underline leading-snug block mt-0.5 hover:underline">
-          {product.name}
-        </Link>
-        <div className="flex items-baseline gap-1.5 mt-0.5">
-          <span className={`text-[13px] font-medium ${product.originalPrice ? 'text-red-600' : 'text-[#1a1a1a]'}`}>
-            ${product.price}
-          </span>
-          {product.originalPrice && (
-            <span className="text-[12px] text-gray-400 line-through">${product.originalPrice}</span>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '2px', overflow: 'hidden', marginTop: '6px' }}>
+        <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#1a1a1a', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {product.name}
+          </div>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'baseline', marginTop: '2px' }}>
+            <span style={{ fontSize: '13px', color: product.originalPrice ? '#c0392b' : '#555', fontWeight: product.originalPrice ? 600 : 400 }}>
+              {convert(product.price)}
+            </span>
+            {product.originalPrice && (
+              <span style={{ fontSize: '12px', color: '#aaa', textDecoration: 'line-through' }}>
+               {convert(product.originalPrice)}
+              </span>
+            )}
+          </div>
+          {(product as any).reviews > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
+              <div style={{ display: 'flex', gap: '1px' }}>
+                {[1,2,3,4,5].map(s => (
+                  <Star key={s} size={10} strokeWidth={1.5}
+                    fill={s <= Math.round((product as any).rating ?? 0) ? '#1a1a1a' : 'none'}
+                    color={s <= Math.round((product as any).rating ?? 0) ? '#1a1a1a' : '#ccc'} />
+                ))}
+              </div>
+              <span style={{ fontSize: '11px', color: '#888' }}>
+                {((product as any).rating ?? 0).toFixed(1)} ({(product as any).reviews})
+              </span>
+            </div>
           )}
-        </div>
-        <StarRating rating={product.rating} count={product.reviews} />
+        </Link>
       </div>
     </div>
   )
@@ -212,7 +290,7 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [selectedPrices, setSelectedPrices] = useState<string[]>([])
   const [onSaleOnly, setOnSaleOnly] = useState(false)
-   const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1)
   const [dbProducts, setDbProducts] = useState<any[]>([])
 
   const [collectionName, setCollectionName] = useState('')
@@ -220,25 +298,48 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
 
   const searchParams = useSearchParams()
   const categoryParam = searchParams?.get('category')
+  const searchQuery = searchParams?.get('search') ?? ''
 
   useEffect(() => {
     if (categoryParam) setActiveCategory(categoryParam)
   }, [categoryParam])
 
   // Simulate initial load — replace this with your real DB fetch later
-   useEffect(() => {
+  useEffect(() => {
     setLoading(true)
     if (slug) {
       // fetch specific collection
       fetch(`/api/collections/${slug}`)
         .then(r => r.json())
-    .then(data => {
-          console.log('Collection API response:', data)
+        .then(data => {
+          
           if (data.error || !data.collection) {
             setDbProducts([])
             setCollectionName('Collection Not Found')
             return
           }
+          if (data.products) {
+            setDbProducts(data.products.map((p: any) => ({
+  ...p,
+  image: p.images?.[0] ?? '',
+  originalPrice: p.comparePrice ? Number(p.comparePrice) : null,
+  colors: p.variants
+    ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, v.colorHex])).values()]
+    : [],
+  reviews: p.reviewCount ?? 0,
+rating: p.avgRating ?? 0,
+})))
+          }
+          if (data.collection?.name) setCollectionName(data.collection.name)
+        })
+        .catch(() => { })
+        .finally(() => setLoading(false))
+    } else {
+      // fetch all products for /collections page
+      fetch('/api/admin/products?limit=100')
+        .then(r => r.json())
+        .then(data => {
+          
           if (data.products) {
             setDbProducts(data.products.map((p: any) => ({
               ...p,
@@ -248,47 +349,31 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
                 ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, v.colorHex])).values()]
                 : [],
               reviews: p.reviewCount ?? 0,
-            })))
-          }
-          if (data.collection?.name) setCollectionName(data.collection.name)
-        })
-        .catch(() => {})
-        .finally(() => setLoading(false))
-    } else {
-      // fetch all products for /collections page
-      fetch('/api/admin/products?limit=100')
-        .then(r => r.json())
-        .then(data => {
-          if (data.products) {
-            setDbProducts(data.products.map((p: any) => ({
-              ...p,
-              image: p.images?.[0] ?? 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=80',
-              originalPrice: p.comparePrice ? Number(p.comparePrice) : null,
-               colors: p.variants
-                ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, v.colorHex])).values()]
-                : [],
-              reviews: p.reviewCount ?? 0,
+              rating: p.avgRating ?? 0,
             })))
           }
         })
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => setLoading(false))
     }
   }, [slug])
 
-    useEffect(() => {
-    setLoading(true)
-    const timer = setTimeout(() => setLoading(false), 400)
-    return () => clearTimeout(timer)
-  }, [activeCategory, page])
 
- const filtered = useMemo(() => {
-    const productsToShow = slug ? dbProducts : (dbProducts.length ? dbProducts : allProducts)
+
+  const filtered = useMemo(() => {
+    const productsToShow = slug ? dbProducts : (dbProducts.length ? dbProducts : [])
     let p = [...productsToShow]
 
-    
+if (searchQuery.trim()) {
+  const q = searchQuery.toLowerCase()
+  p = p.filter(x =>
+    x.name?.toLowerCase().includes(q) ||
+    x.category?.toLowerCase().includes(q) ||
+    x.description?.toLowerCase().includes(q)
+  )
+}
 
-    
+
     if (activeCategory !== 'All') p = p.filter(x => x.category === activeCategory)
     if (onSaleOnly) p = p.filter(x => x.badge === 'Sale' || x.originalPrice)
     if (selectedPrices.length) {
@@ -306,10 +391,11 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
     if (sort === 'Most Reviewed') p.sort((a, b) => b.reviews - a.reviews)
     if (sort === 'New Arrivals') p = [...p.filter(x => x.badge === 'New'), ...p.filter(x => x.badge !== 'New')]
     return p
-   }, [activeCategory, sort, onSaleOnly, selectedPrices, dbProducts, slug])
+ }, [activeCategory, sort, onSaleOnly, selectedPrices, dbProducts, slug, searchQuery])
 
-  const totalPages = Math.ceil(filtered.length / perPage)
-  const paginated = filtered.slice((page - 1) * perPage, page * perPage)
+  const expanded = expandProducts(filtered)
+  const totalPages = Math.ceil(expanded.length / perPage)
+  const paginated = expanded.slice((page - 1) * perPage, page * perPage)
 
   const activeFilters = [
     ...selectedSizes.map(s => ({ label: `Size: ${s}`, remove: () => setSelectedSizes(p => p.filter(x => x !== s)) })),
@@ -326,18 +412,29 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
       {/* Breadcrumb */}
       <div className="max-container px-4 md:px-10 py-3 border-b border-gray-100">
         <div className="flex items-center gap-2 text-xs text-gray-400 tracking-wide">
-          <Link href="/" className="hover:text-[#1a1a1a] hover:underline">Home</Link>
-          <span>/</span>
-          <Link href="/collections" className="hover:text-[#1a1a1a] hover:underline">Women</Link>
-          <span>/</span>
-          <span className="text-[#1a1a1a]">All Clothing</span>
+        <Link href="/" className="hover:text-[#1a1a1a] hover:underline">Home</Link>
+<span>/</span>
+<Link href="/collections" className="hover:text-[#1a1a1a] hover:underline">Women</Link>
+<span>/</span>
+<span className="text-[#1a1a1a]">
+  {searchQuery
+    ? `Search: "${searchQuery}"`
+    : collectionName
+    ? collectionName
+    : activeCategory !== 'All'
+    ? activeCategory
+    : 'All Clothing'}
+</span>
         </div>
       </div>
 
       {/* Page header */}
       <div className="max-container px-4 md:px-10 pt-7 pb-5">
-        <h1 className="font-[family-name:var(--font-display)] text-4xl md:text-5xl font-light italic text-[#1a1a1a] tracking-tight">
-          {collectionName || (categoryParam ? categoryParam : "Women's Clothing")}
+             <h1 className="font-[family-name:var(--font-display)] text-4xl md:text-5xl font-light italic text-[#1a1a1a] tracking-tight">
+          {loading && slug
+            ? <span className="inline-block h-10 w-64 bg-gray-200 rounded animate-pulse" />
+            : collectionName || (searchQuery ? `Search results for "${searchQuery}"` : categoryParam ? categoryParam : "Clothing")
+          }
         </h1>
         <p className="text-sm text-gray-400 tracking-wide mt-1">
           {loading ? (
@@ -478,18 +575,18 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
         {/* Products — skeleton or real */}
         {loading ? (
           view === 'list' ? <SkeletonList /> : <SkeletonGrid />
-        ) : paginated.length === 0 ? (
+        ) : paginated.length === 0 && !loading ? (
           <div className="py-24 text-center font-[family-name:var(--font-display)] text-2xl text-gray-400 italic">
             No products match your filters
           </div>
-        ) : view === 'list' ? (
-          <div className="divide-y divide-gray-100 py-4">
-            {paginated.map(product => {
+      ) : view === 'list' ? (
+  <div key={`list-${view}`} className="divide-y divide-gray-100 py-4">
+    {paginated.map(product => {
               const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : null
               return (
                 <div key={product.id} className="flex gap-5 py-5">
-                  <Link href={`/products/${product.id}`} className="shrink-0 w-36 aspect-[3/4] overflow-hidden bg-[#f5f2ed] block relative">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                  <Link href={`/products/${product.id}`} className="shrink-0 w-36 aspect-[2.5/3.8] overflow-hidden bg-[#f5f2ed] block relative">
+                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                     {product.badge && (
                       <span className={`absolute top-2 left-2 ${BadgeColor(product.badge)} text-white text-[9px] font-semibold tracking-widest uppercase px-2 py-0.5`}>
                         {product.badge}
@@ -507,10 +604,10 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
                       {product.originalPrice && <span className="text-xs text-gray-400 line-through">${product.originalPrice}</span>}
                       {discount && <span className="text-xs text-red-600 font-semibold">{discount}% off</span>}
                     </div>
-                                      {product.colors?.length > 0 && (
+                    {product.colors?.length > 0 && (
                       <div className="flex gap-1.5 mt-2.5">
                         {product.colors.map((c: string) => (
-                           <button key={c} className="w-4 h-4 rounded-full border border-gray-200 hover:border-gray-700 transition-all cursor-pointer p-0" style={{ background: c.startsWith('#') ? c : colorNameToHex(c) }} />
+                          <button key={c} className="w-4 h-4 rounded-full border border-gray-200 hover:border-gray-700 transition-all cursor-pointer p-0" style={{ background: c.startsWith('#') ? c : colorNameToHex(c) }} />
                         ))}
                       </div>
                     )}
@@ -527,24 +624,32 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
             })}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-8 py-6">
-            {paginated.map((product, idx) => (
-              <React.Fragment key={product.id}>
-                {idx === 8 && (
-                  <div className="col-span-2 bg-[#1a1a1a] flex flex-col items-center justify-center text-center px-8 py-10 min-h-[180px]">
-                    <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-2">New Season</p>
-                    <h3 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-light italic text-white leading-snug mb-4">
-                      Spring Styling,<br />Your Way
-                    </h3>
-                    <Link href="/collections/new-arrivals" className="text-[11px] tracking-widest uppercase text-white border-b border-white/40 pb-0.5 no-underline hover:border-white transition-colors">
-                      Explore New Arrivals
-                    </Link>
-                  </div>
-                )}
-                <ProductCard product={product} />
-              </React.Fragment>
-            ))}
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-8 py-6" key={`grid-${view}`}>
+  {paginated.map((product, idx) => (
+    <React.Fragment key={product._expandedKey ?? product.id}>
+      {idx === 8 && (
+        <div className="col-span-2 flex flex-col items-center justify-center text-center px-8 py-10 min-h-[180px] relative overflow-hidden">
+          <img
+            src="https://d3o8u8o2i2q94t.cloudfront.net/products/1775596326214-s-linenwomen-dt-v1-1-.webp"
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-2">New Season</p>
+            <h3 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-light italic text-white leading-snug mb-4">
+              Spring Styling,<br />Your Way
+            </h3>
+            <Link href="/collections/new-arrivals" className="text-[11px] tracking-widest uppercase text-white border-b border-white/40 pb-0.5 no-underline hover:border-white transition-colors">
+              Explore New Arrivals
+            </Link>
           </div>
+        </div>
+      )}
+      <ProductCard product={product} />
+    </React.Fragment>
+  ))}
+</div>
         )}
 
         {/* Pagination */}

@@ -1,3 +1,6 @@
+import type { Metadata } from 'next'
+export const metadata: Metadata = { title: 'Accessibility', alternates: { canonical: 'https://solomonandsage.com/accessibility' } }
+
 // Save as: src/app/accessibility/page.tsx
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -14,7 +17,7 @@ export default function AccessibilityPage() {
         </div>
         <div className="max-container" style={{ padding: 'clamp(40px,6vw,80px) clamp(16px,4vw,60px)', maxWidth: '800px' }}>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--color-mid)', lineHeight: 1.9, marginBottom: '36px' }}>
-            Solomon Lawrence Group LLC is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying relevant accessibility standards.
+            Solomon & Sage Group LLC is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying relevant accessibility standards.
           </p>
           {[
             { title: 'Conformance Status', body: 'We aim to conform to the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. These guidelines explain how to make web content accessible to people with disabilities.' },

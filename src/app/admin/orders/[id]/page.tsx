@@ -1,5 +1,5 @@
-// Save as: src/app/admin/orders/[id]/page.tsx (NEW FILE — create folder first)
 'use client'
+// Save as: src/app/admin/orders/[id]/page.tsx (NEW FILE — create folder first)
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'

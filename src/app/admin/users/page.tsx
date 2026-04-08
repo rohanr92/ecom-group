@@ -1,5 +1,5 @@
-// Save as: src/app/admin/users/page.tsx (NEW FILE + NEW FOLDER)
 'use client'
+// Save as: src/app/admin/users/page.tsx (NEW FILE + NEW FOLDER)
 import { useState, useEffect } from 'react'
 import {
   Plus, X, Save, Trash2, Edit2, Shield, Eye, EyeOff,

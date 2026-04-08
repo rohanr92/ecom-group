@@ -1,13 +1,15 @@
 // Save as: src/app/cart/page.tsx
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useCart } from '@/components/CartContext'
 import { Trash2, Plus, Minus, ChevronDown, ChevronLeft, ChevronRight, ShoppingBag, Tag, Truck, RotateCcw, Shield, MessageCircle } from 'lucide-react'
 import CartCarousel from '@/components/CartCarousel'
+import { useCurrency } from '@/hooks/useCurrency'
+
 
 // ── Picked For You / You Might Also Like data ─────────────────────
 const pickedForYou = [
@@ -70,8 +72,42 @@ function ProductCarousel({ title, items }: { title: string; items: typeof picked
 }
 
 export default function CartPage() {
-  const { items, removeItem, updateQty, totalCount, totalPrice, clearCart } = useCart()
-  const [savedItems, setSavedItems] = useState<typeof items>([])
+  const { items, removeItem, updateQty, addItem, totalCount, totalPrice, clearCart } = useCart()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { convert } = useCurrency()
+
+
+
+  const [cartNewsletterEmail, setCartNewsletterEmail] = useState('')
+const [cartNewsletterStatus, setCartNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+const handleCartNewsletter = async () => {
+  if (!cartNewsletterEmail || !cartNewsletterEmail.includes('@')) return
+  setCartNewsletterStatus('loading')
+  try {
+    const res = await fetch('/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cartNewsletterEmail, source: 'cart' }),
+    })
+    const d = await res.json()
+    if (d.success) { setCartNewsletterStatus('success'); setCartNewsletterEmail('') }
+    else setCartNewsletterStatus('error')
+  } catch { setCartNewsletterStatus('error') }
+}
+
+useEffect(() => {
+  fetch('/api/auth/me').then(r => r.json()).then(d => {
+    setIsLoggedIn(!!d.user)
+  }).catch(() => setIsLoggedIn(false))
+}, [])
+  const [savedItems, setSavedItems] = useState<typeof items>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const stored = localStorage.getItem('sl_saved_for_later')
+      return stored ? JSON.parse(stored) : []
+    } catch { return [] }
+  })
   const [promoOpen, setPromoOpen] = useState(false)
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
@@ -90,14 +126,22 @@ export default function CartPage() {
     }
   }
 
-  const saveForLater = (item: typeof items[0]) => {
-    setSavedItems(prev => [...prev, item])
+ const saveForLater = (item: typeof items[0]) => {
+    setSavedItems(prev => {
+      const next = [...prev, item]
+      localStorage.setItem('sl_saved_for_later', JSON.stringify(next))
+      return next
+    })
     removeItem(item.id, item.size, item.color)
   }
 
-  const moveToCart = (item: typeof items[0]) => {
-    setSavedItems(prev => prev.filter(i => !(i.id === item.id && i.size === item.size && i.color === item.color)))
-    // Would call addItem here with CartContext
+ const moveToCart = (item: typeof items[0]) => {
+    setSavedItems(prev => {
+      const next = prev.filter(i => !(i.id === item.id && i.size === item.size && i.color === item.color))
+      localStorage.setItem('sl_saved_for_later', JSON.stringify(next))
+      return next
+    })
+    addItem(item)
   }
 
   return (
@@ -137,20 +181,22 @@ export default function CartPage() {
               {/* ── Left: Cart items ── */}
               <div className="lg:col-span-2">
 
-                {/* Sign in prompt */}
-                <div className="text-[12px] text-gray-500 tracking-wide mb-5 pb-4 border-b border-gray-100">
-                  Want to make checkout and order tracking easier?{' '}
-                  <Link href="/account" className="text-[#1a1a1a] underline hover:no-underline">Sign in or create an account</Link>
-                </div>
+                      {/* Sign in prompt */}
+                {!isLoggedIn && (
+                  <div className="text-[12px] text-gray-500 tracking-wide mb-5 pb-4 border-b border-gray-100">
+                    Want to make checkout and order tracking easier?{' '}
+                    <Link href="/account" className="text-[#1a1a1a] underline hover:no-underline">Sign in or create an account</Link>
+                  </div>
+                )}
 
                 {/* Shipping estimate */}
                 {items.length > 0 && (
                   <div className="flex items-center gap-2 text-[12px] text-gray-500 tracking-wide mb-5 pb-5 border-b border-gray-100">
-                    <Truck size={14} strokeWidth={1.5} className="text-[#c8a882] shrink-0" />
+                    <Truck size={14} strokeWidth={1.5} className="text-[#151515] shrink-0" />
                     <span>
                       {totalPrice >= 150
                         ? <span className="text-[#4a6741] font-medium">Free shipping on your order!</span>
-                        : <>Add <span className="text-[#1a1a1a] font-medium">${(150 - totalPrice).toFixed(2)}</span> more for free shipping</>
+                        : <>Add <span className="text-[#1a1a1a] font-medium">{convert(150 - totalPrice)}</span> more for free shipping</>
                       }
                     </span>
                   </div>
@@ -181,7 +227,7 @@ export default function CartPage() {
                           {/* Price right aligned */}
                           <div className="text-right shrink-0">
                             <p className="font-[family-name:var(--font-display)] text-lg font-light text-[#1a1a1a]">
-                              ${item.price.toFixed(2)}
+                              {convert(item.price)}
                             </p>
                           </div>
                         </div>
@@ -195,7 +241,7 @@ export default function CartPage() {
                         {/* Free returns badge */}
                         <div className="flex items-center gap-1.5 mt-2.5">
                           <RotateCcw size={11} strokeWidth={1.5} className="text-gray-400" />
-                          <span className="text-[11px] text-gray-400 tracking-wide">Free returns · Sold by Solomon Lawrence</span>
+                          <span className="text-[11px] text-gray-400 tracking-wide">Free returns · Sold by Solomon & Sage</span>
                         </div>
 
                         {/* Quantity + Actions */}
@@ -217,7 +263,7 @@ export default function CartPage() {
 
                           {/* Total for this item */}
                           <p className="text-[13px] text-[#1a1a1a] font-medium tracking-wide">
-                            Total: ${(item.price * item.quantity).toFixed(2)}
+                            Total: {convert(item.price * item.quantity)}
                           </p>
 
                           {/* Remove / Save for later */}
@@ -267,7 +313,11 @@ export default function CartPage() {
                                 className="text-[12px] text-[#1a1a1a] tracking-wide bg-transparent border-none cursor-pointer hover:text-gray-500 underline">
                                 Move to Bag
                               </button>
-                              <button onClick={() => setSavedItems(prev => prev.filter(i => !(i.id === item.id && i.size === item.size && i.color === item.color)))}
+                              <button onClick={() => setSavedItems(prev => {
+  const next = prev.filter(i => !(i.id === item.id && i.size === item.size && i.color === item.color))
+  localStorage.setItem('sl_saved_for_later', JSON.stringify(next))
+  return next
+})}
                                 className="text-[12px] text-gray-400 tracking-wide bg-transparent border-none cursor-pointer hover:text-red-500 underline">
                                 Remove
                               </button>
@@ -311,7 +361,7 @@ export default function CartPage() {
                     <div className="flex justify-between items-baseline font-semibold border-t border-gray-100 pt-3">
                       <span className="text-[13px] tracking-widest uppercase text-[#1a1a1a]">Total</span>
                       <span className="font-[family-name:var(--font-display)] text-xl font-light text-[#1a1a1a]">
-                        ${(orderTotal).toFixed(2)}
+                        {convert(orderTotal)}
                       </span>
                     </div>
                   </div>
@@ -348,11 +398,7 @@ export default function CartPage() {
                       Proceed to Checkout
                     </Link>
 
-                    {/* PayPal button */}
-                    <button className="flex items-center justify-center w-full h-12 border border-[#0070ba] bg-[#ffc439] text-[#003087] text-[13px] font-bold tracking-wide cursor-pointer hover:brightness-105 transition-all">
-                      <span className="font-black text-[#003087]">Pay</span><span className="font-black text-[#0070ba]">Pal</span>
-                    </button>
-
+                 
                     {/* Afterpay / Klarna note */}
                     <p className="text-center text-[10px] text-gray-400 tracking-wide leading-relaxed">
                       Or 4 interest-free installments of <span className="font-semibold text-gray-600">${(orderTotal / 4).toFixed(2)}</span> with <span className="font-bold text-gray-600">Klarna</span> or <span className="font-bold text-gray-600">Afterpay</span>
@@ -363,7 +409,7 @@ export default function CartPage() {
                   <div className="px-5 py-4 border-t border-gray-100 text-center">
                     <p className="text-[11px] text-gray-500 tracking-wide mb-2">Questions about your order?</p>
                     <button className="flex items-center justify-center gap-1.5 mx-auto text-[11px] text-[#1a1a1a] tracking-wide bg-transparent border-none cursor-pointer hover:underline">
-                      <MessageCircle size={12} strokeWidth={1.5} /> Chat with us
+                      <MessageCircle size={12} strokeWidth={1.5} /><Link href="/contact"> Talk to us</Link>
                     </button>
                   </div>
 
@@ -402,15 +448,35 @@ export default function CartPage() {
                 </p>
               </div>
               <div className="flex w-full md:w-auto gap-0 min-w-72">
-                <input type="email" placeholder="Email Address *"
-                  className="flex-1 px-4 py-3 text-[12px] border border-gray-300 border-r-0 outline-none focus:border-[#1a1a1a] transition-colors tracking-wide bg-white placeholder:text-gray-300" />
-                <button className="px-6 py-3 bg-[#1a1a1a] text-white text-[11px] tracking-widest uppercase border-none cursor-pointer hover:bg-gray-800 transition-colors shrink-0">
-                  Submit
-                </button>
+               {cartNewsletterStatus === 'success' ? (
+  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#4a6741', fontStyle: 'italic', padding: '10px 0' }}>
+    ✓ You're subscribed!
+  </p>
+) : (
+  <>
+    <input
+      type="email"
+      value={cartNewsletterEmail}
+      onChange={e => setCartNewsletterEmail(e.target.value)}
+      onKeyDown={e => e.key === 'Enter' && handleCartNewsletter()}
+      placeholder="Email Address *"
+      className="flex-1 px-4 py-3 text-[12px] border border-gray-300 border-r-0 outline-none focus:border-[#1a1a1a] transition-colors tracking-wide bg-white placeholder:text-gray-300"
+    />
+    <button
+      onClick={handleCartNewsletter}
+      disabled={cartNewsletterStatus === 'loading'}
+      className="px-6 py-3 bg-[#1a1a1a] text-white text-[11px] tracking-widest uppercase border-none cursor-pointer hover:bg-gray-800 transition-colors shrink-0 disabled:opacity-60">
+      {cartNewsletterStatus === 'loading' ? '...' : 'Submit'}
+    </button>
+  </>
+)}
+{cartNewsletterStatus === 'error' && (
+  <p className="text-red-500 text-[11px] mt-1 tracking-wide w-full">Something went wrong. Please try again.</p>
+)}
               </div>
             </div>
             <p className="text-[10px] text-gray-400 tracking-wide mt-4 leading-relaxed max-w-2xl">
-              By signing up, you will receive Solomon Lawrence offers, promotions and other commercial messages. See our Privacy Policy. You may unsubscribe at any time.
+              By signing up, you will receive Solomon & Sage offers, promotions and other commercial messages. See our Privacy Policy. You may unsubscribe at any time.
             </p>
           </div>
         </section>

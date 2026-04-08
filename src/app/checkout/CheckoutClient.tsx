@@ -692,7 +692,7 @@ const validateAddr = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            sourceId:   token.token,
+            sourceId:   (token as any).token,
             amount:     orderTotal,
             buyerEmail: addr.email,
             note:       `Solomon & Sage Order — ${addr.firstName} ${addr.lastName}`,

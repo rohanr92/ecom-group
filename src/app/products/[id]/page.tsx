@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   title: product.name,
   description: product.description?.slice(0, 160) ?? `Shop ${product.name} from Solomon & Sage. Premium ${product.category} starting at $${Number(product.price).toFixed(2)}.`,
   alternates: {
-    canonical: `https://solomonandsage.com/products/${product.slug ?? product.id}`,
+    canonical: `https://solomonandsage.com/products/${product.slug ?? (product as any).id}`,
   },
     openGraph: {
       title: `${product.name} | Solomon & Sage`,
@@ -68,7 +68,7 @@ export default async function ProductPage({ params }: Props) {
       price: Number(product.price).toFixed(2),
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
-      url: `https://solomonandsage.com/products/${product.slug ?? product.id}`,
+      url: `https://solomonandsage.com/products/${product.slug ?? (product as any).id}`,
     },
   } : null
 

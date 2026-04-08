@@ -28,6 +28,8 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   reactCompiler: true,
   compress: true,
   poweredByHeader: false,

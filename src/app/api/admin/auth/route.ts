@@ -1,4 +1,3 @@
-// Save as: src/app/api/admin/auth/login/route.ts (NEW FILE)
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminToken, setAdminCookie } from '@/lib/admin-auth'
 

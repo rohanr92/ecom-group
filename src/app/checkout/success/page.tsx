@@ -1,8 +1,7 @@
+'use client'
 import type { Metadata } from 'next'
 export const metadata: Metadata = { title: 'Order Confirmed - Thank You' }
 
-// Save as: src/app/checkout/success/page.tsx (NEW FILE)
-'use client'
 
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect } from 'react'

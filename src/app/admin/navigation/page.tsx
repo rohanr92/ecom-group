@@ -228,10 +228,10 @@ export default function NavigationPage() {
               item={item}
               expanded={expanded === item.id}
               onToggle={() => setExpanded(expanded === item.id ? null : item.id)}
-              onUpdateItem={(data) => updateItem(item.id, data)}
+              onUpdateItem={(data: any) => updateItem(item.id, data)}
               onUpdateSection={updateSection}
               onUpdateLink={updateLink}
-              onUpdateFeatured={(data) => updateFeatured(item.id, data)}
+              onUpdateFeatured={(data: any) => updateFeatured(item.id, data)}
               onDeleteItem={() => deleteItem(item.id)}
               onDeleteSection={deleteSection}
               onDeleteLink={deleteLink}

@@ -202,6 +202,7 @@ async function duplicateProduct(productId: string) {
           create: original.variants.map(v => ({
             size:     v.size,
             color:    v.color,
+            colorHex: v.colorHex ?? "#000000",
             sku:      v.sku ? v.sku + '-copy' : '',
             price:    v.price,
             stock:    v.stock,

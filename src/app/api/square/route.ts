@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Client, Environment } from 'square'
+import { SquareClient, SquareEnvironment } from 'square'
 import { randomUUID } from 'crypto'
 
 ;(BigInt.prototype as any).toJSON = function() { return this.toString() }
 
-const client = new Client({
+const client = new SquareClient({
   accessToken: process.env.SQUARE_ACCESS_TOKEN!,
-  environment: Environment.Production,
+  environment: SquareEnvironment.Production,
 })
 
 export async function POST(req: NextRequest) {

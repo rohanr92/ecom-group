@@ -429,12 +429,22 @@ useEffect(() => {
                   </div>
                 </div>
                 {/* Mobile dots */}
-                <div className="flex justify-center gap-1.5 mt-3 md:hidden">
-                  {product.images.map((_: any, i: number) => (
-                    <button key={i} onClick={() => setActiveImage(i)}
-                      className={`w-1.5 h-1.5 rounded-full border-none cursor-pointer transition-all
-                        ${activeImage === i ? 'bg-[#1a1a1a] w-4' : 'bg-gray-300'}`} />
-                  ))}
+                <div className="flex justify-center mt-3 md:hidden overflow-hidden">
+                  <div className="flex gap-1.5 items-center">
+                    {product.images.map((_: any, i: number) => {
+                      const total = product.images.length
+                      const diff = Math.abs(i - activeImage)
+                      if (total <= 8 || diff <= 2 || i === 0 || i === total - 1) {
+                        return (
+                          <button key={i} onClick={() => setActiveImage(i)}
+                            className={`rounded-full border-none cursor-pointer transition-all shrink-0
+                              ${activeImage === i ? 'bg-[#1a1a1a] w-4 h-1.5' : diff === 1 ? 'bg-gray-400 w-1.5 h-1.5' : diff === 2 ? 'bg-gray-300 w-1 h-1' : 'bg-gray-200 w-1 h-1'}`} />
+                        )
+                      }
+                      if (diff === 3) return <span key={i} className="text-gray-300 text-[8px] leading-none shrink-0">·</span>
+                      return null
+                    })}
+                  </div>
                 </div>
                 </div>
               </div>
@@ -581,7 +591,7 @@ useEffect(() => {
   </p>
 )}
 {sizeError && <p className="text-red-500 text-[11px] tracking-wide mt-2">Please select a size to continue</p>}
-                  {sizeError && <p className="text-red-500 text-[11px] tracking-wide mt-2">Please select a size to continue</p>}
+                  
                 </div>
               )}
 

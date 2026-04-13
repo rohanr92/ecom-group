@@ -26,10 +26,13 @@ interface ProductGridProps {
 function ProductCard({ product }: { product: Product }) {
   const [wished, setWished] = useState(false)
   const [hovered, setHovered] = useState(false)
+  const [activeColor, setActiveColor] = useState<any>(null)
   const colors = (product as any).colors ?? []
   const comparePrice = (product as any).comparePrice
   const onSale = comparePrice && comparePrice > product.price
   const { convert } = useCurrency()
+
+  const displayImage = activeColor?.images?.[0] ?? product.image
 
   return (
 <div
@@ -49,7 +52,7 @@ function ProductCard({ product }: { product: Product }) {
          background: '#f9f9f9', aspectRatio: '3/4',
         }}>
           <img
-            src={product.image}
+            src={displayImage}
             alt={product.name}
             style={{
               width: '100%', height: '100%', objectFit: 'cover', display: 'block',
@@ -110,13 +113,19 @@ function ProductCard({ product }: { product: Product }) {
       {colors.length > 0 && (
         <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap' }}>
           {colors.slice(0, 6).map((c: any) => (
-            <div key={c.hex} title={c.name} style={{
-              width: '14px', height: '14px', borderRadius: '50%',
-              background: c.hex,
-              border: c.hex === '#ffffff' || c.hex === '#fffff0' ? '1px solid #ddd' : '1px solid transparent',
-              boxShadow: '0 0 0 1px rgba(0,0,0,0.08)',
-              cursor: 'pointer',
-            }} />
+            <div
+              key={c.hex}
+              title={c.name}
+              onClick={e => { e.preventDefault(); setActiveColor(activeColor?.hex === c.hex ? null : c) }}
+              style={{
+                width: '14px', height: '14px', borderRadius: '50%',
+                background: c.hex,
+                border: activeColor?.hex === c.hex ? '2px solid #1a1a1a' : c.hex === '#ffffff' || c.hex === '#fffff0' ? '1px solid #ddd' : '1px solid transparent',
+                boxShadow: activeColor?.hex === c.hex ? '0 0 0 2px #fff, 0 0 0 3px #1a1a1a' : '0 0 0 1px rgba(0,0,0,0.08)',
+                cursor: 'pointer',
+                transition: 'box-shadow 0.15s',
+              }}
+            />
           ))}
           {colors.length > 6 && (
             <span style={{ fontSize: '10px', color: '#999', alignSelf: 'center' }}>+{colors.length - 6}</span>

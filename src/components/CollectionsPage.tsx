@@ -57,7 +57,9 @@ result.push({
   id: p.id,
   slug: p.slug,
   image: colorImages[0] ?? fallbackImage,
-  colors: [v.colorHex ?? v.color],
+  colors: p.variants
+    ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color, images: v.images ?? [] }])).values()]
+    : [],
   _colorLabel: v.color,
   _colorHex: v.colorHex,
   _expandedKey: `${p.id}-${v.color}`,
@@ -171,9 +173,11 @@ function colorNameToHex(name: string): string {
 
 function ProductCard({ product }: { product: typeof allProducts[0] & { id: string | number } }) {
   const [hovered, setHovered] = useState(false)
+  const [activeColor, setActiveColor] = useState<any>(null)
   const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : null
   const href = `/products/${(product as any).slug ?? product.id}`
-const { convert } = useCurrency()
+  const { convert } = useCurrency()
+  const displayImage = activeColor?.images?.[0] ?? product.image
   return (
     <div
       onMouseEnter={() => setHovered(true)}
@@ -190,7 +194,7 @@ const { convert } = useCurrency()
       <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
        <div style={{ position: 'relative', overflow: 'hidden', background: '#f9f9f9', aspectRatio: '3/4', width: '100%' }}>
 <img
-  src={product.image} alt={product.name}
+  src={displayImage} alt={product.name}
   loading="lazy"
   decoding="async"
   fetchPriority="low"
@@ -234,14 +238,24 @@ const { convert } = useCurrency()
       </Link>
       {product.colors?.length > 0 && (
         <div className="flex gap-1.5 mt-2">
-          {product.colors.slice(0, 6).map((c: string) => (
-            <div key={c} className="w-3.5 h-3.5 rounded-full cursor-pointer"
-              style={{
-                background: c.startsWith('#') ? c : colorNameToHex(c),
-                border: (c === '#ffffff' || c === '#fffff0') ? '1px solid #ddd' : '1px solid transparent',
-                boxShadow: '0 0 0 1px rgba(0,0,0,0.08)',
-              }} />
-          ))}
+          {product.colors.slice(0, 6).map((c: any) => {
+            const hex = typeof c === 'string' ? (c.startsWith('#') ? c : colorNameToHex(c)) : c.hex
+            const isActive = activeColor?.hex === hex
+            return (
+              <div
+                key={hex}
+                title={typeof c === 'object' ? c.name : c}
+                onClick={e => { e.preventDefault(); setActiveColor(isActive ? null : (typeof c === 'object' ? c : { hex, images: [] })) }}
+                className="w-3.5 h-3.5 rounded-full cursor-pointer"
+                style={{
+                  background: hex,
+                  border: isActive ? '2px solid #1a1a1a' : (hex === '#ffffff' || hex === '#fffff0') ? '1px solid #ddd' : '1px solid transparent',
+                  boxShadow: isActive ? '0 0 0 2px #fff, 0 0 0 3px #1a1a1a' : '0 0 0 1px rgba(0,0,0,0.08)',
+                  transition: 'box-shadow 0.15s',
+                }}
+              />
+            )
+          })}
           {product.colors.length > 6 && <span className="text-[10px] text-gray-400 self-center">+{product.colors.length - 6}</span>}
         </div>
       )}
@@ -324,7 +338,7 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
   image: p.images?.[0] ?? '',
   originalPrice: p.comparePrice ? Number(p.comparePrice) : null,
   colors: p.variants
-    ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, v.colorHex])).values()]
+    ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color, images: v.images ?? [] }])).values()]
     : [],
   reviews: p.reviewCount ?? 0,
 rating: p.avgRating ?? 0,
@@ -346,7 +360,7 @@ rating: p.avgRating ?? 0,
               image: p.images?.[0] ?? 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=80',
               originalPrice: p.comparePrice ? Number(p.comparePrice) : null,
               colors: p.variants
-                ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, v.colorHex])).values()]
+                ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color, images: v.images ?? [] }])).values()]
                 : [],
               reviews: p.reviewCount ?? 0,
               rating: p.avgRating ?? 0,
@@ -586,7 +600,7 @@ if (searchQuery.trim()) {
               return (
                 <div key={product.id} className="flex gap-5 py-5">
                   <Link href={`/products/${product.id}`} className="shrink-0 w-36 aspect-[2.5/3.8] overflow-hidden bg-[#f5f2ed] block relative">
-                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    <img src={displayImage} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                     {product.badge && (
                       <span className={`absolute top-2 left-2 ${BadgeColor(product.badge)} text-white text-[9px] font-semibold tracking-widest uppercase px-2 py-0.5`}>
                         {product.badge}

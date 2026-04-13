@@ -3,15 +3,15 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const DEFAULTS = {
-  leftImage:    'https://d3o8u8o2i2q94t.cloudfront.net/products/1775597572905-allsaints_0126_v05665a_001-1.jpeg',
+  leftImage:    'https://d3o8u8o2i2q94t.cloudfront.net/products/1776113264841-1775597572905-allsaints_0126_v05665a_001-1-1-.jpeg',
   leftTitle:    'Wear-to-work arrivals for spring',
   leftSubtitle: 'Slip into something a little more chic—these new season styles make every day a special occasion.',
   leftCta:      'Shop Now',
   leftCtaHref:  '/collections/workwear',
-  topImage:     'https://d3o8u8o2i2q94t.cloudfront.net/products/1775596326876-s-linenwomen-dt-v1.webp',
+  topImage:     'https://d3o8u8o2i2q94t.cloudfront.net/products/1776113268106-1775596326876-s-linenwomen-dt-v1-1-.webp',
   topLabel:     'Shop Shoes',
   topHref:      '/collections/shoes',
-  bottomImage:  'https://d3o8u8o2i2q94t.cloudfront.net/products/1775596331910-wmns_dres04f_0426_0085_altbgd_ext_8-5.jpeg',
+  bottomImage:  'https://d3o8u8o2i2q94t.cloudfront.net/products/1776113272845-1775596331910-wmns_dres04f_0426_0085_altbgd_ext_8-5-1-.jpeg',
   bottomLabel:  'Shop Accessories',
   bottomHref:   '/collections/accessories',
 }

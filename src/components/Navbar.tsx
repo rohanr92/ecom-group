@@ -182,7 +182,7 @@ const openMenu = (item: string) => {
        <div className="max-container" style={{ padding: '0 clamp(8px,3vw,20px)', display: 'flex', alignItems: 'center', minHeight: '64px', gap: 'clamp(4px,2vw,12px)' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0, marginRight: '8px' }}>
            <img
-  src="https://d3o8u8o2i2q94t.cloudfront.net/products/1775557455099-logo-01.png"
+  src="https://d3o8u8o2i2q94t.cloudfront.net/products/1776112843934-logo-01.png"
   alt="Solomon & Sage"
   className="site-logo"
   style={{ height: 'clamp(32px, 7vw, 66px)', width: 'auto', display: 'block', maxWidth: '100%' }}

@@ -19,8 +19,8 @@ const jsonLd = {
   name: 'Solomon & Sage',
   description: "Premium men's and women's clothing brand founded in 2013",
   url: 'https://solomonandsage.com',
-  logo: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775668915292-solomon-sage-1-.png',
-  image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1775596326876-s-linenwomen-dt-v1.webp',
+  logo: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776112843934-logo-01.png',
+  image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100767629-1775596326876-s-linenwomen-dt-v1.webp',
   foundingDate: '2013',
   address: {
     '@type': 'PostalAddress',
@@ -70,7 +70,7 @@ export default function HomePage() {
           subtitle="Curated for travel"
           ctaText="Shop Vacation"
           ctaHref="/collections/vacation"
-          image="https://d3o8u8o2i2q94t.cloudfront.net/products/1775596330514-wsp_swm01f_0426_1564_altbgd_ext_2-1.jpeg"
+          image="https://d3o8u8o2i2q94t.cloudfront.net/products/1776100764136-1775596330514-wsp_swm01f_0426_1564_altbgd_ext_2-1.jpeg"
           align="right"
           dark={true}
           cmsKey="editorial_1"
@@ -92,7 +92,7 @@ export default function HomePage() {
           subtitle="New season"
           ctaText="Shop Collection"
           ctaHref="/collections/shirts"
-          image="https://d3o8u8o2i2q94t.cloudfront.net/products/1775597587589-c2605093_slide_dt.webp"
+          image="http://d3o8u8o2i2q94t.cloudfront.net/products/1776100765391-1775597587589-c2605093_slide_dt.webp"
           align="center"
           dark={true}
           cmsKey="editorial_2"

@@ -119,9 +119,11 @@ const handleNewsletter = async () => {
           marginBottom: '40px',
         }}>
           <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 400, letterSpacing: '0.2em', color: '#fff', lineHeight: 1.1 }}>
-              Solomon & Sage
-            </div>
+            <img 
+              src="https://d3o8u8o2i2q94t.cloudfront.net/products/1776114678976-logo-02.png"
+              alt="Solomon & Sage"
+              style={{ height: 'clamp(32px, 4vw, 48px)', width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+            />
             {/* <div style={{ fontFamily: 'var(--font-body)', fontSize: '10px', letterSpacing: '0.3em', color: 'rgba(255,255,255,0.45)', marginTop: '4px', textTransform: 'uppercase' }}>
               GROUP
             </div> */}
@@ -207,7 +209,7 @@ const handleNewsletter = async () => {
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: '20px 0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em', margin: 0 }}>
-            © {new Date().getFullYear()} Solomon & Sage Group LLC. All rights reserved.
+            © {new Date().getFullYear()} Solomon & Sage. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
             {bottomLinks.map((link: any) => (

@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
 
   const where: any = {}
   if (status && status !== 'ALL') where.status = status
+else if (!status) where.status = { not: 'PENDING' }
   if (search) where.OR = [
     { orderNumber: { contains: search, mode: 'insensitive' } },
     { email:       { contains: search, mode: 'insensitive' } },

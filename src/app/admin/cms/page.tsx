@@ -82,11 +82,28 @@ export default function CmsAdminPage() {
     fetch('/api/admin/cms/pages').then(r => r.json()).then(d => setPages(d.pages ?? []))
     fetch('/api/admin/cms/settings').then(r => r.json()).then(d => {
       const s = d.settings ?? {}
-      if (s.header_nav) setNavItems(s.header_nav)
-      else setNavItems(defaultNav)
       if (s.footer_cols) setFooterCols(s.footer_cols)
       else setFooterCols(defaultFooterCols)
       if (s.footer_tagline) setFooterTagline(s.footer_tagline)
+    })
+    fetch('/api/admin/nav?tab=women').then(r => r.json()).then(d => {
+      const items = d.items ?? []
+      setNavItems(items.map((item: any) => ({
+        id: item.id,
+        label: item.label,
+        href: item.href,
+        isSale: item.isSale,
+        megaMenu: item.sections?.length ? {
+          sections: item.sections.map((s: any) => ({
+            id: s.id,
+            heading: s.heading,
+            links: s.links.map((l: any) => ({ id: l.id, label: l.label, href: l.href }))
+          })),
+          featuredImage: item.featured?.image ?? '',
+          featuredLabel: item.featured?.label ?? '',
+          featuredHref: item.featured?.href ?? '',
+        } : undefined
+      })))
     })
   }, [])
 
@@ -127,14 +144,36 @@ export default function CmsAdminPage() {
   const saveNav = async () => {
     setSaving(true)
     try {
-      const res = await fetch('/api/admin/cms/settings', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ key: 'header_nav', value: navItems }),
-      })
-      if (res.ok) showToast('Header navigation saved — live immediately', 'success')
-      else showToast('Failed to save navigation', 'error')
-    } finally { setSaving(false) }
+      for (const item of navItems) {
+        if (!(item as any).id) continue
+        await fetch('/api/admin/nav', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'item', id: (item as any).id, label: item.label, href: item.href })
+        })
+        if (item.megaMenu) {
+          await fetch('/api/admin/nav', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'featured', navItemId: (item as any).id, image: item.megaMenu.featuredImage ?? '', label: item.megaMenu.featuredLabel ?? '', href: item.megaMenu.featuredHref ?? '' })
+          })
+          for (const sec of item.megaMenu.sections ?? []) {
+            for (const lnk of (sec as any).links ?? []) {
+              if (!(lnk as any).id) continue
+              await fetch('/api/admin/nav', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'link', id: (lnk as any).id, label: lnk.label, href: lnk.href })
+              })
+            }
+          }
+        }
+      }
+      showToast('Navigation saved — live immediately', 'success')
+    } catch {
+      showToast('Failed to save navigation', 'error')
+    }
+    setSaving(false)
   }
 
   // ── Save footer ────────────────────────────────────────────────

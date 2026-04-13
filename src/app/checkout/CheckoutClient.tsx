@@ -685,24 +685,30 @@ const validateAddr = () => {
   <PaymentForm
     applicationId={process.env.NEXT_PUBLIC_SQUARE_APP_ID!}
     locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
-    cardTokenizeResponseReceived={async (token) => {
+cardTokenizeResponseReceived={async (token) => {
       setPaymentError('')
       try {
-        const res = await fetch('/api/square', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sourceId:   (token as any).token,
-            amount:     orderTotal,
-            buyerEmail: addr.email,
-            note:       `Solomon & Sage Order — ${addr.firstName} ${addr.lastName}`,
-          }),
-        })
-        const data = await res.json()
-        if (!res.ok) {
-          setPaymentError(data.error ?? 'Payment failed')
-          return
+        let squarePaymentId = 'FREE_ORDER'
+
+        if (orderTotal > 0) {
+          const res = await fetch('/api/square', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sourceId:   (token as any).token,
+              amount:     orderTotal,
+              buyerEmail: addr.email,
+              note:       `Solomon & Sage Order — ${addr.firstName} ${addr.lastName}`,
+            }),
+          })
+          const data = await res.json()
+          if (!res.ok) {
+            setPaymentError(data.error ?? 'Payment failed')
+            return
+          }
+          squarePaymentId = data.payment?.id ?? 'PAID'
         }
+
         // Payment succeeded — save order
         const orderRes = await fetch('/api/orders/create', {
           method:  'POST',
@@ -710,7 +716,7 @@ const validateAddr = () => {
           body:    JSON.stringify({
             ...buildOrderData(),
             paymentMethod:   'STRIPE',
-            stripePaymentId: data.payment.id,
+            stripePaymentId: squarePaymentId,
           }),
         })
         const orderJson = await orderRes.json()

@@ -57,9 +57,7 @@ result.push({
   id: p.id,
   slug: p.slug,
   image: colorImages[0] ?? fallbackImage,
-  colors: p.variants
-    ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color, images: v.images ?? [] }])).values()]
-    : [],
+  colors: v.colorHex ? [{ hex: v.colorHex, name: v.color, images: colorImages }] : [],
   _colorLabel: v.color,
   _colorHex: v.colorHex,
   _expandedKey: `${p.id}-${v.color}`,

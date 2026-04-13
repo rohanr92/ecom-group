@@ -48,13 +48,13 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Solomon & Sage | Premium Men's & Women's Clothing Brand",
-    description: "Premium men's and women's clothing brand founded in 2013. Based in Lancaster, CA with stores in Miami. Shop at Nordstrom, Macy's, Kohl's, and JCPenney.",
+    description: "Premium men's and women's clothing brand founded in 2013. Based in Lancaster, CA with stores in Miami. Shop at Nordstrom, JCPenney and others.",
     type: "website",
     url: "https://solomonandsage.com",
     siteName: "Solomon & Sage",
     locale: "en_US",
     images: [{
-      url: "https://d3o8u8o2i2q94t.cloudfront.net/products/1775596326876-s-linenwomen-dt-v1.webp",
+      url: "https://d3o8u8o2i2q94t.cloudfront.net/products/1776113268106-1775596326876-s-linenwomen-dt-v1-1-.webp",
       width: 1200,
       height: 630,
       alt: "Solomon & Sage Premium Clothing Brand",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Solomon & Sage | Premium Men's & Women's Clothing Brand",
     description: "Premium men's and women's clothing brand founded in 2013. Based in Lancaster, CA. Shop at Nordstrom, Macy's, Kohl's, and JCPenney.",
-    images: ["https://d3o8u8o2i2q94t.cloudfront.net/products/1775596326876-s-linenwomen-dt-v1.webp"],
+    images: ["https://d3o8u8o2i2q94t.cloudfront.net/products/1776113268106-1775596326876-s-linenwomen-dt-v1-1-.webp"],
     creator: "@solomonandsage",
   },
   robots: {

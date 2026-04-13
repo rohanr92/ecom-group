@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && submit()}
-                  placeholder="admin@solomonlawrence.com"
+                  placeholder="admin@solomonandsage.com"
                   className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-[13px] outline-none focus:border-[#1a1a1a] transition-colors bg-white"
                   autoComplete="username"
                 />

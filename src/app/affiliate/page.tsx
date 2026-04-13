@@ -37,7 +37,7 @@ export default function AffiliatePage() {
           <div style={{ background: 'var(--color-cream)', padding: '36px', textAlign: 'center' }}>
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontStyle: 'italic', fontWeight: 400, marginBottom: '12px' }}>Ready to Join?</h3>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-mid)', marginBottom: '20px', lineHeight: 1.7 }}>Apply through our affiliate network or email us directly to get started.</p>
-            <a href="mailto:affiliates@solomonlawrence.com" className="btn-solid" style={{ fontSize: '11px' }}>Apply Now</a>
+            <a href="mailto:affiliates@solomonandsage.com" className="btn-solid" style={{ fontSize: '11px' }}>Apply Now</a>
           </div>
         </div>
       </main>

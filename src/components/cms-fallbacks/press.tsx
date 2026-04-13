@@ -23,7 +23,7 @@ export default function PressFallback() {
       <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px solid #e8e4de' }}>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-charcoal)', marginBottom: '8px' }}>Press Contact</p>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-mid)' }}>
-          <a href="mailto:press@solomonlawrence.com" style={{ color: 'var(--color-charcoal)', textDecoration: 'underline' }}>press@solomonlawrence.com</a>
+          <a href="mailto:press@solomonandsage.com" style={{ color: 'var(--color-charcoal)', textDecoration: 'underline' }}>press@solomonandsage.com</a>
         </p>
       </div>
     </div>

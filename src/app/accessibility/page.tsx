@@ -23,7 +23,7 @@ export default function AccessibilityPage() {
             { title: 'Conformance Status', body: 'We aim to conform to the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. These guidelines explain how to make web content accessible to people with disabilities.' },
             { title: 'Measures We Take', body: 'We include accessibility as part of our mission. Our team regularly audits our website, trains staff on accessibility requirements, and uses assistive technologies to evaluate our digital content.' },
             { title: 'Known Limitations', body: 'While we strive for full accessibility, some legacy content and third-party integrations may not yet meet all standards. We are actively working to address these areas.' },
-            { title: 'Contact Us', body: 'If you experience any accessibility barriers on our website, please contact us at accessibility@solomonlawrence.com. We\'ll respond within 2 business days and work to provide the information you need in an accessible format.' },
+            { title: 'Contact Us', body: 'If you experience any accessibility barriers on our website, please contact us at accessibility@solomonandsage.com. We\'ll respond within 2 business days and work to provide the information you need in an accessible format.' },
           ].map((s, i) => (
             <div key={i} style={{ marginBottom: '32px' }}>
               <h2 style={{ fontFamily: 'var(--font-body)', fontSize: '15px', fontWeight: 700, marginBottom: '10px' }}>{s.title}</h2>

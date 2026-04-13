@@ -41,7 +41,7 @@ export default function ShippingFallback() {
 
       <div style={{ borderTop: '1px solid #e8e4de', paddingTop: '32px' }}>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-mid)', lineHeight: 1.8 }}>
-          Questions about your shipment? Email <a href="mailto:support@solomonlawrence.com" style={{ color: 'var(--color-charcoal)', textDecoration: 'underline' }}>support@solomonlawrence.com</a> or visit our <a href="/contact" style={{ color: 'var(--color-charcoal)', textDecoration: 'underline' }}>Contact Us</a> page.
+          Questions about your shipment? Email <a href="mailto:support@solomonandsage.com" style={{ color: 'var(--color-charcoal)', textDecoration: 'underline' }}>support@solomonandsage.com</a> or visit our <a href="/contact" style={{ color: 'var(--color-charcoal)', textDecoration: 'underline' }}>Contact Us</a> page.
         </p>
       </div>
     </div>

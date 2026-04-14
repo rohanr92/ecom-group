@@ -18,12 +18,12 @@ export async function POST(req: NextRequest) {
       stripePaymentId, paypalOrderId, promoCode, notes,
     } = body
 
-    if (!email || !items?.length || !address || !total) {
+    if (!email || !items?.length || !address || total === undefined || total === null) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
    // ── SQUARE: verify payment not already used ───────────────────
-if (paymentMethod === 'STRIPE' && stripePaymentId) {
+if (paymentMethod === 'SQUARE' && stripePaymentId && stripePaymentId !== 'FREE_ORDER') {
   // Check this Square payment hasn't already been used
   const existing = await prisma.order.findFirst({
     where: { stripePaymentId },

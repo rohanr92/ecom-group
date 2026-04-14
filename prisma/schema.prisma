@@ -30,7 +30,9 @@ enum AddressType {
 
 enum PaymentMethod {
   STRIPE
+  SQUARE
   PAYPAL
+  FREE
 }
 
 enum PromoType {

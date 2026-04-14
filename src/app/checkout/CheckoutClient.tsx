@@ -139,37 +139,7 @@ const selectAddress = (item: any) => {
   const donationAmt = donation ?? 0
   const orderTotal  = totalPrice - discount + delivery.price + tax + donationAmt
 
-  // ── Auto-checkout for $0 orders ─────────────────────────────────
-  const [autoPlacing, setAutoPlacing] = useState(false)
-  useEffect(() => {
-    if (step !== 'payment' || orderTotal > 0 || autoPlacing || orderPlaced) return
-    setAutoPlacing(true)
-    const place = async () => {
-      try {
-        const orderRes = await fetch('/api/orders/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...buildOrderData(),
-            paymentMethod: 'FREE',
-            stripePaymentId: 'FREE_ORDER',
-          }),
-        })
-        const orderJson = await orderRes.json()
-        if (orderRes.ok) {
-          clearCart()
-          setOrderNumber(orderJson.orderNumber)
-          setOrderPlaced(true)
-        } else {
-          setPaymentError(orderJson.error ?? 'Order failed')
-        }
-      } catch (err: any) {
-        setPaymentError(err.message ?? 'Something went wrong')
-      }
-      setAutoPlacing(false)
-    }
-    place()
-  }, [step, orderTotal])
+ 
 
  
 
@@ -659,7 +629,7 @@ const validateAddr = () => {
                     </div>
 
                     {/* Payment method tabs */}
-                    <div className="flex mb-4 border border-gray-300">
+                    {orderTotal > 0 && <div className="flex mb-4 border border-gray-300">
   <button onClick={() => setPayMethod('stripe')}
     className={`flex-1 py-2.5 text-[11px] tracking-widest uppercase border-none cursor-pointer transition-colors flex items-center justify-center gap-1.5
       ${payMethod === 'stripe' ? 'bg-[#1a1a1a] text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
@@ -670,17 +640,17 @@ const validateAddr = () => {
       ${payMethod === 'paypal' ? 'bg-[#1a1a1a] text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
     <span className="font-black">Pay</span><span className="font-black">Pal</span>
   </button>
-</div>
+</div>}
 
                     {/* Payment error */}
-                    {paymentError && (
+                    {paymentError && orderTotal > 0 && (
                       <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-600 text-[12px] tracking-wide">
                         {paymentError}
                       </div>
                     )}
 
 
-                    <div className="flex justify-between items-center gap-2 mb-3">
+                    {orderTotal > 0 && <div className="flex justify-between items-center gap-2 mb-3">
   <span className="text-[11px] text-gray-400 tracking-wide">We Accept</span>
   <div className="flex gap-1.5">
     {/* Visa */}
@@ -710,53 +680,77 @@ const validateAddr = () => {
       <span className="text-[#F76F20] text-[9px] font-bold tracking-wider">DISCOVER</span>
     </div>
   </div>
-</div>
+</div>}
 
-                   {/* ── Square ── */}
-{payMethod === 'stripe' && (
-  
-  <PaymentForm
-    applicationId={process.env.NEXT_PUBLIC_SQUARE_APP_ID!}
-    locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
-cardTokenizeResponseReceived={async (token) => {
-      setPaymentError('')
-      try {
-        let squarePaymentId = 'FREE_ORDER'
-
-        if (orderTotal > 0) {
-          const res = await fetch('/api/square', {
+{/* ── Free order ── */}
+{payMethod === 'stripe' && orderTotal <= 0 && (
+  <div className="py-4 text-center space-y-4">
+    <p className="text-[13px] text-[#4a6741] font-medium tracking-wide">🎉 Your order is completely free!</p>
+    <button
+      onClick={async () => {
+        setPaymentError('')
+        try {
+          const orderRes = await fetch('/api/orders/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              sourceId:   (token as any).token,
-              amount:     orderTotal,
-              buyerEmail: addr.email,
-              note:       `Solomon & Sage Order — ${addr.firstName} ${addr.lastName}`,
+              ...buildOrderData(),
+              paymentMethod: 'FREE',
+              stripePaymentId: 'FREE_ORDER',
             }),
           })
-          const data = await res.json()
-          if (!res.ok) {
-            setPaymentError(data.error ?? 'Payment failed')
-            return
+          const orderJson = await orderRes.json()
+          if (orderRes.ok) {
+            clearCart()
+            setOrderNumber(orderJson.orderNumber)
+            setOrderPlaced(true)
+          } else {
+            setPaymentError(orderJson.error ?? 'Order failed')
           }
-          squarePaymentId = data.payment?.id ?? 'PAID'
+        } catch (err: any) {
+          setPaymentError(err.message ?? 'Something went wrong')
         }
+      }}
+      className="w-full h-12 bg-[#1a1a1a] text-white text-[11px] font-semibold tracking-widest uppercase border-none cursor-pointer hover:bg-gray-800 transition-colors">
+      Place Order — Free
+    </button>
+    <p className="text-[10px] text-gray-400 tracking-wide">🔒 Your order is secured and encrypted</p>
+  </div>
+)}
 
-        // Payment succeeded — save order
-        const orderRes = await fetch('/api/orders/create', {
-          method:  'POST',
+
+                   {/* ── Square ── */}
+{payMethod === 'stripe' && orderTotal > 0 && (
+  <PaymentForm
+    key="square-form"
+    applicationId={process.env.NEXT_PUBLIC_SQUARE_APP_ID!}
+    locationId={process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID!}
+    cardTokenizeResponseReceived={async (token) => {
+      setPaymentError('')
+      try {
+        const res = await fetch('/api/square', {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({
+          body: JSON.stringify({
+            sourceId: (token as any).token,
+            amount: orderTotal,
+            buyerEmail: addr.email,
+            note: `Solomon & Sage Order — ${addr.firstName} ${addr.lastName}`,
+          }),
+        })
+        const data = await res.json()
+        if (!res.ok) { setPaymentError(data.error ?? 'Payment failed'); return }
+        const orderRes = await fetch('/api/orders/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
             ...buildOrderData(),
-            paymentMethod:   'STRIPE',
-            stripePaymentId: squarePaymentId,
+            paymentMethod: 'STRIPE',
+            stripePaymentId: data.payment?.id ?? 'PAID',
           }),
         })
         const orderJson = await orderRes.json()
-        if (!orderRes.ok) {
-          setPaymentError(orderJson.error ?? 'Order failed to save')
-          return
-        }
+        if (!orderRes.ok) { setPaymentError(orderJson.error ?? 'Order failed'); return }
         clearCart()
         setOrderNumber(orderJson.orderNumber)
         setOrderPlaced(true)
@@ -767,26 +761,18 @@ cardTokenizeResponseReceived={async (token) => {
     <CreditCard
       buttonProps={{
         css: {
-          backgroundColor: '#1a1a1a',
-          color:           '#fff',
-          fontSize:        '11px',
-          fontWeight:      '600',
-          letterSpacing:   '0.2em',
-          padding:         '14px',
-          width:           '100%',
-          border:          'none',
-          cursor:          'pointer',
-          textTransform:   'uppercase',
+          backgroundColor: '#1a1a1a', color: '#fff', fontSize: '11px',
+          fontWeight: '600', letterSpacing: '0.2em', padding: '14px',
+          width: '100%', border: 'none', cursor: 'pointer', textTransform: 'uppercase',
         },
       }}>
-     Pay {convert(orderTotal)}
+      Pay {convert(orderTotal)}
     </CreditCard>
     <p className="text-center text-[10px] text-gray-400 tracking-wide mt-2">
       🔒 Secured by Square — your card details are encrypted
     </p>
   </PaymentForm>
 )}
-
                     {/* ── PayPal ── */}
                     {payMethod === 'paypal' && (
                       <div className="space-y-3">

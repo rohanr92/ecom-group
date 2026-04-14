@@ -18,7 +18,7 @@ const DEFAULTS = {
 
 export default function HeroBanner() {
   const [cms, setCms] = useState(DEFAULTS)
-  const [loaded, setLoaded] = useState(false)
+  const [loaded, setLoaded] = useState(true)
 
   useEffect(() => {
     fetch('/api/cms/settings')
@@ -28,7 +28,6 @@ export default function HeroBanner() {
         if (h) setCms({ ...DEFAULTS, ...h })
       })
       .catch(() => {})
-      .finally(() => setLoaded(true))
   }, [])
 
   const gridStyle: React.CSSProperties = {

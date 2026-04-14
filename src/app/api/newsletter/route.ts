@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#fff;">
           <div style="background:#1a1a1a;padding:32px 40px;">
             <div style="color:#fff;font-size:20px;font-weight:700;letter-spacing:4px;">Solomon & Sage</div>
-            <div style="color:#c8a882;font-size:11px;letter-spacing:3px;margin-top:4px;font-style:italic;">California Women's Fashion</div>
+            <div style="color:#c8a882;font-size:11px;letter-spacing:3px;margin-top:4px;font-style:italic;">Women's & Men's Clothing Brand</div>
           </div>
           <div style="padding:40px;">
             <h2 style="font-size:26px;font-weight:400;font-style:italic;color:#1a1a1a;margin:0 0 8px;">You're on the list.</h2>

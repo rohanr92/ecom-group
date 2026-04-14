@@ -33,6 +33,11 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   compress: true,
   poweredByHeader: false,
+  output: 'standalone',
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  },
   async headers() {
     return [
       {
@@ -52,6 +57,7 @@ const nextConfig: NextConfig = {
     ]
   },
   images: {
+    
     remotePatterns: [
       {
         protocol: 'https',
@@ -78,6 +84,7 @@ const nextConfig: NextConfig = {
         hostname: 'images.unsplash.com',
         pathname: '/**',
       },
+      
     ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],

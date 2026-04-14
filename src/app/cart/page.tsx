@@ -108,23 +108,48 @@ useEffect(() => {
       return stored ? JSON.parse(stored) : []
     } catch { return [] }
   })
+  
+
   const [promoOpen, setPromoOpen] = useState(false)
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
   const [promoError, setPromoError] = useState('')
+  const [promoResult, setPromoResult] = useState<{ discount: number; code: string } | null>(null)
+  const [promoLoading, setPromoLoading] = useState(false)
 
   const shipping = totalPrice >= 150 ? 0 : 'TBD'
-  const tax = 0 // shown as TBD before checkout
-  const discount = promoApplied ? totalPrice * 0.1 : 0
+  const tax = 0
+  const discount = promoResult?.discount ?? 0
   const orderTotal = totalPrice - discount
 
-  const applyPromo = () => {
-    if (promoCode.toUpperCase() === 'SOLOMON10') {
-      setPromoApplied(true); setPromoError('')
-    } else {
-      setPromoError('Invalid promo code'); setPromoApplied(false)
+  const applyPromo = async () => {
+    if (!promoCode.trim()) return
+    setPromoLoading(true)
+    setPromoError('')
+    try {
+      const res = await fetch('/api/promo/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode, orderTotal: totalPrice }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setPromoResult({ discount: data.discount, code: data.code })
+        setPromoApplied(true)
+        setPromoError('')
+      } else {
+        setPromoError(data.error ?? 'Invalid promo code')
+        setPromoApplied(false)
+        setPromoResult(null)
+      }
+    } catch {
+      setPromoError('Failed to validate promo code')
+    } finally {
+      setPromoLoading(false)
     }
   }
+
+
 
  const saveForLater = (item: typeof items[0]) => {
     setSavedItems(prev => {
@@ -379,14 +404,13 @@ useEffect(() => {
                           <input value={promoCode} onChange={e => { setPromoCode(e.target.value); setPromoError('') }}
                             placeholder="Enter promo code"
                             className="flex-1 px-3 py-2 text-[12px] border border-gray-300 border-r-0 outline-none focus:border-[#1a1a1a] transition-colors tracking-wide placeholder:text-gray-300" />
-                          <button onClick={applyPromo}
-                            className="px-4 py-2 bg-[#1a1a1a] text-white text-[11px] tracking-widest uppercase border-none cursor-pointer hover:bg-gray-800 transition-colors shrink-0">
-                            Apply
+                          <button onClick={applyPromo} disabled={promoLoading || promoApplied}
+                            className="px-4 py-2 bg-[#1a1a1a] text-white text-[11px] tracking-widest uppercase border-none cursor-pointer hover:bg-gray-800 transition-colors shrink-0 disabled:opacity-50">
+                            {promoLoading ? '...' : 'Apply'}
                           </button>
                         </div>
                         {promoError && <p className="text-red-500 text-[11px] mt-1 tracking-wide">{promoError}</p>}
-                        {promoApplied && <p className="text-[#4a6741] text-[11px] mt-1 tracking-wide">✓ 10% discount applied!</p>}
-                        <p className="text-[10px] text-gray-400 mt-1.5 tracking-wide">Try: SOLOMON10</p>
+                        {promoApplied && <p className="text-[#4a6741] text-[11px] mt-1 tracking-wide">✓ {promoResult?.code} applied! -{promoResult?.discount ? `$${promoResult.discount.toFixed(2)}` : ''}</p>}
                       </div>
                     )}
                   </div>

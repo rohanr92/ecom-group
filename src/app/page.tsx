@@ -39,6 +39,12 @@ const jsonLd = {
 export default function HomePage() {
   return (
     <>
+      <link
+        rel="preload"
+        as="image"
+        href="https://d3o8u8o2i2q94t.cloudfront.net/products/1776113264841-1775597572905-allsaints_0126_v05665a_001-1-1-.jpeg"
+        fetchPriority="high"
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

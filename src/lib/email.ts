@@ -49,7 +49,7 @@ function wrap(content: string, previewText = ''): string {
   <!-- Header -->
   <div style="${s.header}">
     <div style="${s.logo}">Solomon & Sage</div>
-    <div style="${s.tagline}">California Women's Fashion</div>
+    <div style="${s.tagline}">Women's & Men's Clothing Brand</div>
   </div>
 
   <!-- Content -->

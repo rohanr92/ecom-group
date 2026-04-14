@@ -174,9 +174,14 @@ export default function OrdersPage() {
                       <td className="px-4 py-3 text-[12px] text-gray-500">{fmtDate(o.createdAt)}</td>
                       <td className="px-4 py-3 text-[13px] font-semibold text-[#1a1a1a]">${Number(o.total).toFixed(2)}</td>
                       <td className="px-4 py-3">
-                        <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${ORDER_STATUS_COLORS[o.status] ?? ''}`}>
-                          {o.status}
-                        </span>
+                       <div className="flex flex-col gap-0.5">
+                          <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${ORDER_STATUS_COLORS[o.status] ?? ''}`}>
+                            {o.status === 'PENDING' ? 'Payment Pending' : o.status}
+                          </span>
+                          {o.status === 'PENDING' && (
+                            <span className="text-[9px] text-amber-600 px-2">Payment not confirmed</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-[12px] text-gray-400">
                         {o.trackingNumber && <span className="font-mono text-[10px]">{o.trackingNumber}</span>}

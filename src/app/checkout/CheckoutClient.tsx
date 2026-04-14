@@ -133,10 +133,43 @@ const selectAddress = (item: any) => {
 }
 
   // ── Computed totals ─────────────────────────────────────────────
+// ── Computed totals ─────────────────────────────────────────────
   const discount    = promoResult?.discount ?? 0
   const tax         = (totalPrice - discount) * 0.08
   const donationAmt = donation ?? 0
   const orderTotal  = totalPrice - discount + delivery.price + tax + donationAmt
+
+  // ── Auto-checkout for $0 orders ─────────────────────────────────
+  const [autoPlacing, setAutoPlacing] = useState(false)
+  useEffect(() => {
+    if (step !== 'payment' || orderTotal > 0 || autoPlacing || orderPlaced) return
+    setAutoPlacing(true)
+    const place = async () => {
+      try {
+        const orderRes = await fetch('/api/orders/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...buildOrderData(),
+            paymentMethod: 'FREE',
+            stripePaymentId: 'FREE_ORDER',
+          }),
+        })
+        const orderJson = await orderRes.json()
+        if (orderRes.ok) {
+          clearCart()
+          setOrderNumber(orderJson.orderNumber)
+          setOrderPlaced(true)
+        } else {
+          setPaymentError(orderJson.error ?? 'Order failed')
+        }
+      } catch (err: any) {
+        setPaymentError(err.message ?? 'Something went wrong')
+      }
+      setAutoPlacing(false)
+    }
+    place()
+  }, [step, orderTotal])
 
  
 

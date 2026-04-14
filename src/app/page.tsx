@@ -98,7 +98,7 @@ export default function HomePage() {
           subtitle="New season"
           ctaText="Shop Collection"
           ctaHref="/collections/shirts"
-          image="http://d3o8u8o2i2q94t.cloudfront.net/products/1776100765391-1775597587589-c2605093_slide_dt.webp"
+          image="https://d3o8u8o2i2q94t.cloudfront.net/products/1776100765391-1775597587589-c2605093_slide_dt.webp"
           align="center"
           dark={true}
           cmsKey="editorial_2"

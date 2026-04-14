@@ -243,11 +243,11 @@ const openMenu = (item: string) => {
          {/* Icons */}
 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
   {/* Sign In — mobile only */}
-  <Link href="/account" className="icon-link mobile-only" style={{ padding: '8px', display: 'none', alignItems: 'center', color: 'var(--color-charcoal)' }}>
+  <Link href="/account" aria-label="Account" className="icon-link mobile-only" style={{ padding: '8px', display: 'none', alignItems: 'center', color: 'var(--color-charcoal)' }}>
   <User size={20} strokeWidth={1.5} />
 </Link>
-  <Link href="/account/wishlist" className="icon-link" style={{ padding: '8px', display: 'flex', alignItems: 'center', color: 'var(--color-charcoal)' }}><Heart size={20} strokeWidth={1.5} /></Link>
-  <Link href="/cart" className="icon-link" style={{ padding: '8px', display: 'flex', alignItems: 'center', color: 'var(--color-charcoal)', position: 'relative' }}>
+  <Link href="/account/wishlist" aria-label="Wishlist" className="icon-link" style={{ padding: '8px', display: 'flex', alignItems: 'center', color: 'var(--color-charcoal)' }}><Heart size={20} strokeWidth={1.5} /></Link>
+  <Link href="/cart" aria-label="Shopping cart" className="icon-link" style={{ padding: '8px', display: 'flex', alignItems: 'center', color: 'var(--color-charcoal)', position: 'relative' }}>
     <ShoppingBag size={20} strokeWidth={1.5} />
    <span suppressHydrationWarning style={{ position: 'absolute', top: '4px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-charcoal)', color: '#fff', fontSize: '9px', fontWeight: 600, display: totalCount > 0 ? 'flex' : 'none', alignItems: 'center', justifyContent: 'center' }}>
   {totalCount > 99 ? '99+' : totalCount}

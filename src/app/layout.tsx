@@ -6,14 +6,14 @@ import FontApplier from '@/components/FontApplier'
 import { prisma } from '@/lib/prisma'
 import DataLayer from '@/components/DataLayer'
 
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--google-playfair', display: 'swap' })
-const lora = Lora({ subsets: ['latin'], variable: '--google-lora', display: 'swap' })
-const merriweather = Merriweather({ subsets: ['latin'], weight: ['300','400','700'], variable: '--google-merriweather', display: 'swap' })
-const crimson = Crimson_Text({ subsets: ['latin'], weight: ['400','600'], variable: '--google-crimson', display: 'swap' })
-const garamond = EB_Garamond({ subsets: ['latin'], variable: '--google-garamond', display: 'swap' })
-const nunito = Nunito({ subsets: ['latin'], variable: '--google-nunito', display: 'swap' })
-const raleway = Raleway({ subsets: ['latin'], variable: '--google-raleway', display: 'swap' })
-const josefin = Josefin_Sans({ subsets: ['latin'], variable: '--google-josefin', display: 'swap' })
+const playfair = Playfair_Display({ subsets: ['latin'], variable: '--google-playfair', display: 'swap', preload: false })
+const lora = Lora({ subsets: ['latin'], variable: '--google-lora', display: 'swap', preload: false })
+const merriweather = Merriweather({ subsets: ['latin'], weight: ['300','400','700'], variable: '--google-merriweather', display: 'swap', preload: false })
+const crimson = Crimson_Text({ subsets: ['latin'], weight: ['400','600'], variable: '--google-crimson', display: 'swap', preload: false })
+const garamond = EB_Garamond({ subsets: ['latin'], variable: '--google-garamond', display: 'swap', preload: false })
+const nunito = Nunito({ subsets: ['latin'], variable: '--google-nunito', display: 'swap', preload: false })
+const raleway = Raleway({ subsets: ['latin'], variable: '--google-raleway', display: 'swap', preload: false })
+const josefin = Josefin_Sans({ subsets: ['latin'], variable: '--google-josefin', display: 'swap', preload: false })
 
 export const metadata: Metadata = {
   title: {

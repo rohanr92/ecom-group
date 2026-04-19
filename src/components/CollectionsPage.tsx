@@ -643,7 +643,7 @@ if (searchQuery.trim()) {
       {idx === 8 && (
         <div className="col-span-2 flex flex-col items-center justify-center text-center px-8 py-10 min-h-[180px] relative overflow-hidden">
           <img
-            src="https://d3o8u8o2i2q94t.cloudfront.net/products/1775596326214-s-linenwomen-dt-v1-1-.webp"
+            src="https://d3o8u8o2i2q94t.cloudfront.net/products/1776100767629-1775596326876-s-linenwomen-dt-v1.webp"
             alt=""
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />

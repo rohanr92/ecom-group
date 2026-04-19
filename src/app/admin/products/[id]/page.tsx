@@ -303,19 +303,39 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
                     {/* Expanded image assignment */}
                     {expandedColor === group.color && (
                       <div className="p-4 space-y-3 border-t border-gray-200">
-                        {/* Assigned images */}
+                        {/* Assigned images — draggable to reorder */}
                         {group.images.length > 0 && (
-                          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                            {group.images.map((img: string, i: number) => (
-                              <div key={i} className="relative aspect-square group">
-                                <img src={img} alt="" className="w-full h-full object-cover border border-gray-200" />
-                                <button
-                                  onClick={() => updateColorImages(group.color, group.images.filter((_: string, idx: number) => idx !== i))}
-                                  className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white flex items-center justify-center border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <X size={8} />
-                                </button>
-                              </div>
-                            ))}
+                          <div>
+                            <p className="text-[10px] text-gray-400 mb-1.5 tracking-wide">Drag to reorder. First image shows in product grid.</p>
+                            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                              {group.images.map((img: string, i: number) => (
+                                <div key={img}
+                                  draggable
+                                  onDragStart={e => e.dataTransfer.setData('text/plain', String(i))}
+                                  onDragOver={e => e.preventDefault()}
+                                  onDrop={e => {
+                                    e.preventDefault()
+                                    const from = parseInt(e.dataTransfer.getData('text/plain'))
+                                    const to = i
+                                    if (from === to) return
+                                    const newImgs = [...group.images]
+                                    const [moved] = newImgs.splice(from, 1)
+                                    newImgs.splice(to, 0, moved)
+                                    updateColorImages(group.color, newImgs)
+                                  }}
+                                  className="relative aspect-square group cursor-grab active:cursor-grabbing">
+                                  {i === 0 && (
+                                    <div className="absolute top-0.5 left-0.5 bg-[#4a6741] text-white text-[8px] px-1 z-10 leading-4">1st</div>
+                                  )}
+                                  <img src={img} alt="" className="w-full h-full object-cover border border-gray-200" />
+                                  <button
+                                    onClick={() => updateColorImages(group.color, group.images.filter((_: string, idx: number) => idx !== i))}
+                                    className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white flex items-center justify-center border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <X size={8} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
 

@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
             colorHex:  v.colorHex,
             sku:       v.sku,
             inventory: v.inventory,
+            images:    v.images ?? [],
           },
         })
         results.push(updated)

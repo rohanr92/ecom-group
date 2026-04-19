@@ -48,15 +48,16 @@ function expandProducts(products: any[]) {
       const colors = [...new Map(p.variants.map((v: any) => [v.color, v])).values()]
       for (const v of colors) {
        const colorImages = v.images?.length ? v.images : []
-const fallbackImage = p.images?.find((img: string) => {
-  const colorSlug = v.color.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-  return img.toLowerCase().includes(colorSlug)
-}) ?? p.images?.[0] ?? p.image
+const colorSlug = v.color.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+const fallbackImage = p.images?.find((img: string) => img.toLowerCase().includes(colorSlug))
+  ?? p.images?.[0] 
+  ?? p.image
+const displayImage = colorImages[0] ?? fallbackImage
 result.push({
   ...p,
   id: p.id,
   slug: p.slug,
-  image: colorImages[0] ?? fallbackImage,
+  image: displayImage,
   colors: v.colorHex ? [{ hex: v.colorHex, name: v.color, images: colorImages }] : [],
   _colorLabel: v.color,
   _colorHex: v.colorHex,

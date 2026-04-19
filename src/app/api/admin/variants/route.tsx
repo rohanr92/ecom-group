@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
           // Update if exists
           const updated = await prisma.productVariant.update({
             where: { sku: v.sku },
-            data: { size: v.size, color: v.color, colorHex: v.colorHex, inventory: v.inventory },
+            data: { size: v.size, color: v.color, colorHex: v.colorHex, inventory: v.inventory, images: v.images ?? [] },
           })
           results.push(updated)
         } else {
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
               colorHex:  v.colorHex,
               sku:       v.sku,
               inventory: v.inventory,
+              images:    v.images ?? [],
             },
           })
           results.push(created)

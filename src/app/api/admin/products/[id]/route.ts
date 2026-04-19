@@ -14,7 +14,7 @@ export async function GET(
     const { id } = await params
     const product = await prisma.product.findUnique({
       where:   { id },
-      include: { variants: true },
+      include: { variants: { orderBy: { createdAt: 'asc' } } },
     })
     if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     return NextResponse.json({ product })

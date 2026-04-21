@@ -135,7 +135,7 @@ const openMenu = (item: string) => {
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', flex: 1 }}>
             <span style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(12px,1.8vw,22px)', fontWeight: 700, color: '#1a1a1a', lineHeight: 1 }}>FREE SHIPPING</span>
             <span style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(10px,1.2vw,14px)', color: '#2a2a2a', letterSpacing: '0.06em', textTransform: 'uppercase' }} className="promo-mid-text">FOR YOUR EVERY PURCHASE</span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(12px,1.8vw,22px)', fontWeight: 700, color: '#1a1a1a' }}>WHEN YOU SPEND $150</span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(12px,1.8vw,22px)', fontWeight: 700, color: '#1a1a1a' }}>WHEN YOU BUY ANY ITEM</span>
           </div>
           <Link href="/collections/new-arrivals" className="promo-btn" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>SHOP NEW ARRIVALS</Link>
         </div>

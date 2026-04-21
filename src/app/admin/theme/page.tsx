@@ -46,7 +46,7 @@ export default function ThemePage() {
 
   // Promo bar
   const [promoText,    setPromoText]    = useState('Spring is here!')
-  const [promoMiddle,  setPromoMiddle]  = useState('FREE SHIPPING FOR YOUR EVERY PURCHASE WHEN YOU SPEND $150')
+  const [promoMiddle,  setPromoMiddle]  = useState('FREE SHIPPING FOR YOUR EVERY PURCHASE WHEN YOU BUY AN ITEM')
   const [promoCta,     setPromoCta]     = useState('SHOP NEW ARRIVALS')
   const [promoCtaHref, setPromoCtaHref] = useState('/collections/new-arrivals')
   const [promoActive,  setPromoActive]  = useState(true)

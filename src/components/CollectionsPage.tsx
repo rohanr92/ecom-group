@@ -577,7 +577,7 @@ if (searchQuery.trim()) {
               return (
                 <div key={product._expandedKey ?? product.id} className="flex gap-5 py-5">
                   <Link href={`/products/${product.id}`} className="shrink-0 w-36 aspect-[2.5/3.8] overflow-hidden bg-[#f5f2ed] block relative">
-                    <img src={displayImage} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    <img src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                     {product.badge && (
                       <span className={`absolute top-2 left-2 ${BadgeColor(product.badge)} text-white text-[9px] font-semibold tracking-widest uppercase px-2 py-0.5`}>
                         {product.badge}

@@ -575,7 +575,7 @@ if (searchQuery.trim()) {
     {paginated.map(product => {
               const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : null
               return (
-                <div key={product.id} className="flex gap-5 py-5">
+                <div key={product._expandedKey ?? product.id} className="flex gap-5 py-5">
                   <Link href={`/products/${product.id}`} className="shrink-0 w-36 aspect-[2.5/3.8] overflow-hidden bg-[#f5f2ed] block relative">
                     <img src={displayImage} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                     {product.badge && (

@@ -11,7 +11,7 @@ const womenCategories = [
   { label: "Men's T-Shirts",     image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100756337-1775600787242-c2601577_103_9_4x5.webp', href: '/collections/mens-tshirts' },
   { label: "Women's Sweatshirts",    image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100754548-1775600957901-35458740_fpx.jpg', href: '/collections/womens-sweatshirts' },
   { label: "Women's Shorts",               image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100753497-1775601251870-36309272_fpx.webp', href: '/collections/womens-shorts' },
-  { label: "Women's Shoes", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100752565-1775601371018-wmns_adc02f_0126_op_0696.jpeg', href: '/collections/womens-shoes' },
+  { label: "Women's Dresses", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776788246307-desw_app01f_0326_1696.jpeg', href: '/collections/womens-dresses' },
   { label: "Handbags", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100750353-1775600565396-wmns_core01f_0226_041.jpeg', href: '/collections/womens-handbags' },
 ]
 

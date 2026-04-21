@@ -10,6 +10,15 @@ useEffect(() => {
       if (!f) return
       const root = document.documentElement
       if (f.displayFont)     root.style.setProperty('--font-display', f.displayFont)
+        // Dynamically load the font stylesheet
+      const existingLink = document.getElementById('dynamic-font-link')
+      if (!existingLink) {
+        const link = document.createElement('link')
+        link.id = 'dynamic-font-link'
+        link.rel = 'stylesheet'
+        link.href = `https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap`
+        document.head.appendChild(link)
+      }
       if (f.displaySizeBase) root.style.setProperty('--font-display-size', `${f.displaySizeBase}px`)
       if (f.displayWeight)   root.style.setProperty('--font-display-weight', f.displayWeight)
       if (f.displayStyle)    root.style.setProperty('--font-display-style', f.displayStyle)

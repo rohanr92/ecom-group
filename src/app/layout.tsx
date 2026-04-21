@@ -109,8 +109,10 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${playfair.variable} ${lora.variable} ${merriweather.variable} ${crimson.variable} ${garamond.variable} ${nunito.variable} ${raleway.variable} ${josefin.variable}`}>
-      <head>
-        {/* Preconnect for performance */}
+    <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
         <link rel="preconnect" href="https://d3o8u8o2i2q94t.cloudfront.net" />
         <link rel="dns-prefetch" href="https://d3o8u8o2i2q94t.cloudfront.net" />
 

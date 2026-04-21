@@ -8,33 +8,11 @@ import { useSearchParams } from 'next/navigation'
 import { useCurrency } from '@/hooks/useCurrency'
 
 
-const allProducts = [
-  { id: 1, name: 'Linen Wide-Leg Trousers', brand: 'Solomon & Sage', price: 128, originalPrice: null, rating: 4.5, reviews: 23, badge: 'New', colors: ['#1a1a1a', '#d4cfc8', '#4a6741'], category: 'Pants', image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80' },
-  { id: 2, name: 'Silk Wrap Midi Dress', brand: 'Solomon & Sage', price: 218, originalPrice: null, rating: 4.8, reviews: 41, badge: 'Best Seller', colors: ['#c8a882', '#1a1a1a', '#8b6f5e'], category: 'Dresses', image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=80' },
-  { id: 3, name: 'Structured Blazer', brand: 'Solomon & Sage', price: 248, originalPrice: null, rating: 4.6, reviews: 18, badge: null, colors: ['#1a1a1a', '#c4bfb5', '#6b5d4f'], category: 'Jackets', image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&auto=format&fit=crop&q=80' },
-  { id: 4, name: 'Ruffle Wrap Set', brand: 'Solomon & Sage', price: 148, originalPrice: null, rating: 4.3, reviews: 56, badge: 'New', colors: ['#e8d5c4', '#1a1a1a'], category: 'Sets', image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&auto=format&fit=crop&q=80' },
-  { id: 5, name: 'Barrel Leg Crop Jeans', brand: 'Solomon & Sage', price: 138, originalPrice: null, rating: 4.7, reviews: 92, badge: 'Best Seller', colors: ['#4a5568', '#2d3748', '#c4bfb5'], category: 'Denim', image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=80' },
-  { id: 6, name: 'Cashmere Crew Sweater', brand: 'Solomon & Sage', price: 188, originalPrice: 248, rating: 4.9, reviews: 134, badge: 'Sale', colors: ['#c8a882', '#1a1a1a', '#e8d5c4'], category: 'Tops', image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&auto=format&fit=crop&q=80' },
-  { id: 7, name: 'Strappy Heel Sandal', brand: 'Solomon & Sage', price: 118, originalPrice: null, rating: 4.2, reviews: 29, badge: null, colors: ['#c8a882', '#1a1a1a'], category: 'Shoes', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&auto=format&fit=crop&q=80' },
-  { id: 8, name: 'Plissé Midi Skirt', brand: 'Solomon & Sage', price: 158, originalPrice: null, rating: 4.5, reviews: 37, badge: 'New', colors: ['#e8d5c4', '#1a1a1a', '#4a6741'], category: 'Skirts', image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=500&auto=format&fit=crop&q=80' },
-  { id: 9, name: 'Linen Shirt Dress', brand: 'Solomon & Sage', price: 178, originalPrice: 228, rating: 4.6, reviews: 61, badge: 'Sale', colors: ['#fff', '#c4bfb5', '#1a1a1a'], category: 'Dresses', image: 'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=500&auto=format&fit=crop&q=80' },
-  { id: 10, name: 'Wide Brim Sun Hat', brand: 'Solomon & Sage', price: 68, originalPrice: null, rating: 4.4, reviews: 48, badge: null, colors: ['#c8a882', '#1a1a1a'], category: 'Accessories', image: 'https://images.unsplash.com/photo-1587467512961-120760940315?w=500&auto=format&fit=crop&q=80' },
-  { id: 11, name: 'Cropped Trench Coat', brand: 'Solomon & Sage', price: 328, originalPrice: null, rating: 4.8, reviews: 22, badge: 'New', colors: ['#c8a882', '#1a1a1a', '#8b6f5e'], category: 'Jackets', image: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=500&auto=format&fit=crop&q=80' },
-  { id: 12, name: 'Petal Print Cami Top', brand: 'Solomon & Sage', price: 88, originalPrice: null, rating: 4.3, reviews: 73, badge: null, colors: ['#e8d5c4', '#c0392b', '#1a1a1a'], category: 'Tops', image: 'https://images.unsplash.com/photo-1551803091-e20673f15770?w=500&auto=format&fit=crop&q=80' },
-  { id: 13, name: 'Tailored Bermuda Shorts', brand: 'Solomon & Sage', price: 108, originalPrice: null, rating: 4.1, reviews: 15, badge: 'New', colors: ['#1a1a1a', '#c4bfb5'], category: 'Pants', image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b5b2a?w=500&auto=format&fit=crop&q=80' },
-  { id: 14, name: 'Leather Belt Bag', brand: 'Solomon & Sage', price: 148, originalPrice: null, rating: 4.7, reviews: 88, badge: 'Best Seller', colors: ['#c8a882', '#1a1a1a', '#8b6f5e'], category: 'Accessories', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&auto=format&fit=crop&q=80' },
-  { id: 15, name: 'Smocked Maxi Dress', brand: 'Solomon & Sage', price: 198, originalPrice: 248, rating: 4.5, reviews: 44, badge: 'Sale', colors: ['#e8d5c4', '#4a6741', '#c0392b'], category: 'Dresses', image: 'https://images.unsplash.com/photo-1570464197285-9949814674a7?w=500&auto=format&fit=crop&q=80' },
-  { id: 16, name: 'Ribbed Tank Top', brand: 'Solomon & Sage', price: 58, originalPrice: null, rating: 4.2, reviews: 106, badge: null, colors: ['#1a1a1a', '#fff', '#c8a882'], category: 'Tops', image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80' },
-  { id: 17, name: 'Slip-On Leather Loafers', brand: 'Solomon & Sage', price: 178, originalPrice: null, rating: 4.6, reviews: 33, badge: 'New', colors: ['#1a1a1a', '#c8a882', '#8b6f5e'], category: 'Shoes', image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=500&auto=format&fit=crop&q=80' },
-  { id: 18, name: 'Broderie Blouse', brand: 'Solomon & Sage', price: 128, originalPrice: null, rating: 4.4, reviews: 27, badge: null, colors: ['#fff', '#e8d5c4'], category: 'Tops', image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&auto=format&fit=crop&q=80' },
-  { id: 19, name: 'High-Rise Flare Jeans', brand: 'Solomon & Sage', price: 148, originalPrice: 188, rating: 4.8, reviews: 159, badge: 'Sale', colors: ['#4a5568', '#1a1a1a'], category: 'Denim', image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=80' },
-  { id: 20, name: 'Gold Hoop Earring Set', brand: 'Solomon & Sage', price: 48, originalPrice: null, rating: 4.9, reviews: 201, badge: 'Best Seller', colors: ['#c8a882'], category: 'Accessories', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80' },
-]
 
 
 
 // Then use: const productsToShow = dbProducts.length ? dbProducts : allProducts
-const categories = ['All', 'Tops', 'Dresses', 'Pants', 'Skirts', 'Jackets', 'Denim', 'Shoes', 'Accessories', 'Sets']
+const categories = ['All', 'Tops', 'Dresses', 'Pants', 'Skirts', 'Jackets', 'Denim', 'Accessories', 'Sets']
 const sortOptions = ['Featured', 'New Arrivals', 'Price: Low to High', 'Price: High to Low', 'Top Rated', 'Most Reviewed']
 const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 const priceRanges = ['Under $75', '$75 – $150', '$150 – $250', '$250+']

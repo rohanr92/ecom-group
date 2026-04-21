@@ -29,11 +29,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const admin = await getAdminFromRequest(req)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   try {
     const body = await req.json()
-    const { label, href, tab, isSale, position } = body
-
+    const { type, label, href, tab, isSale, position, sectionId } = body
+    if (type === 'link') {
+      const link = await prisma.navLink.create({
+        data: { label, href, sectionId },
+      })
+      return NextResponse.json({ link })
+    }
     const item = await prisma.navItem.create({
       data: { label, href, tab: tab ?? 'women', isSale: isSale ?? false, position: position ?? 0 },
     })

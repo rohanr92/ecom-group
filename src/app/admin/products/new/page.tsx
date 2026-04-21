@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import ImageUpload from '@/components/ImageUpload'
 
-const CATEGORIES = ['Dresses','Tops','Pants','Jeans','Jackets','Sets','Accessories','Shoes']
+const CATEGORIES = ['Dresses','Tops','Pants','Jeans','Jackets','Sets','Accessories']
 const SIZES      = ['XS','S','M','L','XL','XXL','One Size','25','26','27','28','29','30','31','32']
 const COLORS_PRE = [
   { name: 'Onyx',    hex: '#1a1a1a' },

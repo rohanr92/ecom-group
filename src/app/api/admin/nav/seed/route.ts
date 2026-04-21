@@ -6,7 +6,7 @@ const SEED_DATA = {
     {
       label: 'New', href: '/collections/new-arrivals', isSale: false,
       sections: [
-        { heading: 'Shop By Category', links: ['New Arrivals','New Clothing','New Shoes','New Accessories','New Beauty'] },
+        { heading: 'Shop By Category', links: ['New Arrivals','New Clothing', 'New Accessories','New Beauty'] },
         { heading: 'Shop By Collection', links: ['Spring Edit','Resort Collection','Vacation Ready','Workwear'] },
       ],
       featured: { image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&auto=format&fit=crop&q=80', label: 'Shop New Arrivals', href: '/collections/new-arrivals' },
@@ -54,14 +54,6 @@ const SEED_DATA = {
       featured: { image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&auto=format&fit=crop&q=80', label: 'Shop Statement Jeans', href: '/collections/jeans' },
     },
     {
-      label: 'Shoes', href: '/collections?category=Shoes', isSale: false,
-      sections: [
-        { heading: 'Shop By Category', links: ['Shop All Shoes','Sandals','Heels','Sneakers','Boots','Loafers','Flats','Wedges'] },
-        { heading: 'Shop By Collection', links: ['Spring Shoes','Vacation Shoes','Work Shoes'] },
-      ],
-      featured: { image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400&auto=format&fit=crop&q=80', label: 'Shop New Shoes', href: '/collections/shoes' },
-    },
-    {
       label: 'Accessories', href: '/collections?category=Accessories', isSale: false,
       sections: [
         { heading: 'Shop By Category', links: ['Shop All Accessories','Bags & Handbags','Jewelry','Sunglasses','Hats','Scarves','Belts'] },
@@ -72,7 +64,7 @@ const SEED_DATA = {
     {
       label: 'Sale', href: '/collections/sale', isSale: true,
       sections: [
-        { heading: 'Shop Sale', links: ['All Sale','Sale Clothing','Sale Shoes','Sale Accessories','Under $50','Under $100'] },
+        { heading: 'Shop Sale', links: ['All Sale','Sale Clothing', 'Sale Accessories','Under $50','Under $100'] },
       ],
       featured: { image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&auto=format&fit=crop&q=80', label: 'Shop All Sale', href: '/collections/sale' },
     },
@@ -84,7 +76,7 @@ const SEED_DATA = {
     { label: 'Tops', href: '/collections?category=Tops', isSale: false, sections: [], featured: null },
     { label: 'Bottoms', href: '/collections?category=Bottoms', isSale: false, sections: [], featured: null },
     { label: 'Outerwear', href: '/collections?category=Outerwear', isSale: false, sections: [], featured: null },
-    { label: 'Shoes', href: '/collections?category=Shoes', isSale: false, sections: [], featured: null },
+  
     { label: 'Accessories', href: '/collections?category=Accessories', isSale: false, sections: [], featured: null },
     { label: 'Sale', href: '/collections/sale', isSale: true, sections: [], featured: null },
   ],

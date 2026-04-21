@@ -159,12 +159,21 @@ export default function CmsAdminPage() {
           })
           for (const sec of item.megaMenu.sections ?? []) {
             for (const lnk of (sec as any).links ?? []) {
-              if (!(lnk as any).id) continue
-              await fetch('/api/admin/nav', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'link', id: (lnk as any).id, label: lnk.label, href: lnk.href })
-              })
+              if ((lnk as any).id) {
+                // Update existing link
+                await fetch('/api/admin/nav', {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ type: 'link', id: (lnk as any).id, label: lnk.label, href: lnk.href })
+                })
+              } else {
+                // Create new link
+                await fetch('/api/admin/nav', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ type: 'link', sectionId: (sec as any).id, label: lnk.label, href: lnk.href })
+                })
+              }
             }
           }
         }
@@ -713,7 +722,16 @@ export default function CmsAdminPage() {
                             <input value={sec.heading}
                               onChange={e => { const n = [...navItems]; n[idx].megaMenu!.sections[si].heading = e.target.value; setNavItems(n) }}
                               className="text-[13px] font-semibold border border-gray-200 px-2 py-1 outline-none focus:border-[#1a1a1a]" placeholder="Section Heading" />
-                            <button onClick={() => { const n = [...navItems]; n[idx].megaMenu!.sections.splice(si, 1); setNavItems(n) }}
+                            <button onClick={async () => {
+                              if ((sec as any).id) {
+                                await fetch('/api/admin/nav', {
+                                  method: 'DELETE',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ type: 'section', id: (sec as any).id })
+                                })
+                              }
+                              const n = [...navItems]; n[idx].megaMenu!.sections.splice(si, 1); setNavItems(n)
+                            }}
                               className="border-none bg-transparent cursor-pointer text-red-400 hover:text-red-600"><Trash2 size={13} /></button>
                           </div>
                           <div className="space-y-2">
@@ -725,7 +743,16 @@ export default function CmsAdminPage() {
                                 <input value={link.href}
                                   onChange={e => { const n = [...navItems]; n[idx].megaMenu!.sections[si].links[li].href = e.target.value; setNavItems(n) }}
                                   className="text-[12px] border border-gray-200 px-2 py-1 outline-none focus:border-[#1a1a1a] flex-1 font-mono text-gray-500" placeholder="/collections/..." />
-                                <button onClick={() => { const n = [...navItems]; n[idx].megaMenu!.sections[si].links.splice(li, 1); setNavItems(n) }}
+                                <button onClick={async () => {
+                                  if ((link as any).id) {
+                                    await fetch('/api/admin/nav', {
+                                      method: 'DELETE',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ type: 'link', id: (link as any).id })
+                                    })
+                                  }
+                                  const n = [...navItems]; n[idx].megaMenu!.sections[si].links.splice(li, 1); setNavItems(n)
+                                }}
                                   className="border-none bg-transparent cursor-pointer text-gray-300 hover:text-red-400"><Trash2 size={12} /></button>
                               </div>
                             ))}
@@ -839,7 +866,6 @@ const defaultNav: NavItem[] = [
   { label: 'Dresses',      href: '/collections/dresses' },
   { label: 'Tops',         href: '/collections/tops' },
   { label: 'Jeans',        href: '/collections/jeans' },
-  { label: 'Shoes',        href: '/collections/shoes' },
   { label: 'Accessories',  href: '/collections/accessories' },
   { label: 'Sale',         href: '/collections/sale' },
 ]

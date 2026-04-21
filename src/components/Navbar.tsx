@@ -6,8 +6,8 @@ import { Search, Heart, ShoppingBag, X, Menu, MapPin, Mail, CreditCard, User, Ch
 import { useCart } from '@/components/CartContext'
 import { useRouter } from 'next/navigation'
 
-const FALLBACK_WOMEN = ['New', 'Best Sellers', 'Clothing', 'Dresses', 'Tops', 'Jeans', 'Shoes', 'Accessories', 'Sale']
-const FALLBACK_MEN   = ['New', 'Best Sellers', 'Clothing', 'Tops', 'Bottoms', 'Outerwear', 'Shoes', 'Accessories', 'Sale']
+const FALLBACK_WOMEN = ['New', 'Best Sellers', 'Clothing', 'Dresses', 'Tops', 'Jeans', 'Accessories', 'Sale']
+const FALLBACK_MEN   = ['New', 'Best Sellers', 'Clothing', 'Tops', 'Bottoms', 'Outerwear', 'Accessories', 'Sale']
 
 const CURRENCIES = [
   { code: 'USD', symbol: '$',   label: 'US Dollar' },
@@ -108,14 +108,14 @@ const [itemOffset, setItemOffset] = useState(0)
     return `/collections?category=${label}`
   }
 
-const rightItems = ['Jeans', 'Shoes', 'Accessories', 'Mens']
+const rightItems = ['Jeans', 'Accessories', 'Mens']
 const openMenu = (item: string) => {
   if (timer.current) clearTimeout(timer.current)
   setActiveMenu(item)
   if (containerRef.current) {
     const cr = containerRef.current.getBoundingClientRect()
-    if (item === 'Sale' && navItemRefs.current['Shoes']) {
-      setItemOffset(navItemRefs.current['Shoes']!.getBoundingClientRect().left - cr.left)
+    if (item === 'Sale' && navItemRefs.current['Jeans']) {
+      setItemOffset(navItemRefs.current['Jeans']!.getBoundingClientRect().left - cr.left)
     } else if (rightItems.includes(item) && navItemRefs.current['Dresses']) {
       setItemOffset(navItemRefs.current['Dresses']!.getBoundingClientRect().left - cr.left)
     } else setItemOffset(0)

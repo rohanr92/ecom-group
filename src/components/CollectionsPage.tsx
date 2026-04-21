@@ -598,7 +598,7 @@ if (searchQuery.trim()) {
                     {product.colors?.length > 0 && (
                       <div className="flex gap-1.5 mt-2.5">
                         {product.colors.map((c: string) => (
-                          <button key={c} className="w-4 h-4 rounded-full border border-gray-200 hover:border-gray-700 transition-all cursor-pointer p-0" style={{ background: c.startsWith('#') ? c : colorNameToHex(c) }} />
+                          <button key={c} className="w-4 h-4 rounded-full border border-gray-200 hover:border-gray-700 transition-all cursor-pointer p-0" style={{ background: typeof c === 'object' ? c.hex : (c.startsWith('#') ? c : colorNameToHex(c)) }} />
                         ))}
                       </div>
                     )}

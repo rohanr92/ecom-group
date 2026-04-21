@@ -52,6 +52,25 @@ return NextResponse.json({ products: productsWithStats, total, page, limit })
   }
 }
 
+
+async function syncSaleCollection(productId: string, comparePrice: number | null) {
+  try {
+    const saleCollection = await prisma.collection.findUnique({ where: { slug: 'sale' } })
+    if (!saleCollection) return
+    if (comparePrice) {
+      await prisma.collectionProduct.upsert({
+        where: { collectionId_productId: { collectionId: saleCollection.id, productId } },
+        update: {},
+        create: { collectionId: saleCollection.id, productId }
+      })
+    } else {
+      await prisma.collectionProduct.deleteMany({
+        where: { collectionId: saleCollection.id, productId }
+      })
+    }
+  } catch {}
+}
+
 // ── POST — create product ───────────────────────────────────────
 export async function POST(req: NextRequest) {
   const admin = await getAdminFromRequest(req)
@@ -95,6 +114,7 @@ export async function POST(req: NextRequest) {
       },
       include: { variants: true },
     })
+    await syncSaleCollection(product.id, comparePrice ? parseFloat(comparePrice) : null)
     return NextResponse.json({ success: true, product })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -144,6 +164,7 @@ fields.forEach(f => { if (body[f] !== undefined) data[f] = body[f] })
       data,
       include: { variants: true },
     })
+    await syncSaleCollection(product.id, data.comparePrice ?? null)
     return NextResponse.json({ success: true, product })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })

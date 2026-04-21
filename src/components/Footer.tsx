@@ -22,8 +22,6 @@ const DEFAULTS = {
         { id: '6', label: 'Contact Us', href: '/contact' },
         { id: '7', label: 'About Us', href: '/about' },
         { id: '8', label: 'Job Opportunities', href: '/jobs' },
-        { id: '9', label: 'Affiliate Program', href: '/affiliate' },
-        { id: '10', label: 'Gift Cards', href: '/gift-cards' },
       ]
     },
     {
@@ -31,7 +29,6 @@ const DEFAULTS = {
       links: [
         { id: '11', label: 'Our Story', href: '/about' },
         { id: '12', label: 'Sustainability', href: '/sustainability' },
-        { id: '13', label: 'Press', href: '/press' },
         { id: '14', label: 'Influencers', href: '/influencers' },
       ]
     },
@@ -42,7 +39,6 @@ const DEFAULTS = {
         { id: '16', label: "Macy's", href: 'https://www.macys.com', openInNewTab: true },
         { id: '17', label: "Kohl's", href: 'https://www.kohls.com', openInNewTab: true },
         { id: '18', label: 'JCPenney', href: 'https://www.jcpenney.com', openInNewTab: true },
-        { id: '19', label: 'Find a Store', href: '/stores' },
       ]
     },
   ],

@@ -89,6 +89,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
+async function getFontSettings() {
+  try {
+    const setting = await prisma.cmsSetting.findUnique({ where: { key: 'font_settings' } })
+    return (setting?.value as any) ?? {}
+  } catch { return {} }
+}
 async function getTrackingTags() {
   try {
     const setting = await prisma.cmsSetting.findUnique({
@@ -106,9 +112,21 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const tags = await getTrackingTags()
+  const fonts = await getFontSettings()
 
   return (
-    <html lang="en" className={`${playfair.variable} ${lora.variable} ${merriweather.variable} ${crimson.variable} ${garamond.variable} ${nunito.variable} ${raleway.variable} ${josefin.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${lora.variable} ${merriweather.variable} ${crimson.variable} ${garamond.variable} ${nunito.variable} ${raleway.variable} ${josefin.variable}`} style={{
+      '--font-display': fonts.displayFont || 'Cormorant Garamond, serif',
+      '--font-display-size': `${fonts.displaySizeBase || 32}px`,
+      '--font-display-weight': fonts.displayWeight || '300',
+      '--font-display-style': fonts.displayStyle || 'italic',
+      '--font-body': fonts.bodyFont || 'Jost, sans-serif',
+      '--font-body-size': `${fonts.bodySizeBase || 14}px`,
+      '--font-body-weight': fonts.bodyWeight || '400',
+      '--font-body-tracking': `${fonts.bodyTracking || 0.02}em`,
+      '--font-nav-size': `${fonts.navSize || 13}px`,
+      '--font-nav-tracking': `${fonts.navTracking || 0.04}em`,
+    } as React.CSSProperties}>
     <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

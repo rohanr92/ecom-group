@@ -117,7 +117,7 @@ useEffect(() => {
   const [promoResult, setPromoResult] = useState<{ discount: number; code: string } | null>(null)
   const [promoLoading, setPromoLoading] = useState(false)
 
-  const shipping = totalPrice >= 150 ? 0 : 'TBD'
+  const shipping = 0
   const tax = 0
   const discount = promoResult?.discount ?? 0
   const orderTotal = totalPrice - discount
@@ -219,10 +219,7 @@ useEffect(() => {
                   <div className="flex items-center gap-2 text-[12px] text-gray-500 tracking-wide mb-5 pb-5 border-b border-gray-100">
                     <Truck size={14} strokeWidth={1.5} className="text-[#151515] shrink-0" />
                     <span>
-                      {totalPrice >= 150
-                        ? <span className="text-[#4a6741] font-medium">Free shipping on your order!</span>
-                        : <>Add <span className="text-[#1a1a1a] font-medium">{convert(150 - totalPrice)}</span> more for free shipping</>
-                      }
+                      {<span className="text-[#4a6741] font-medium">Free shipping on your order!</span>}
                     </span>
                   </div>
                 )}

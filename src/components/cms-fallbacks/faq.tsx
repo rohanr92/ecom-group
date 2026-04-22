@@ -7,8 +7,8 @@ const FAQS = [
   ]},
   { section: 'Shipping', items: [
     { q: 'How long does shipping take?', a: 'Standard shipping takes 5–7 business days. Express takes 2–3 business days. Overnight delivers the next business day for orders placed before 12pm PST.' },
-    { q: 'Is there free shipping?', a: 'Yes — free standard shipping on all US orders over $150.' },
-    { q: 'Do you ship internationally?', a: 'Yes, we ship to over 50 countries. International rates are calculated at checkout.' },
+    { q: 'Is there free shipping?', a: 'Yes — free standard shipping on all orders in the USA .' },
+    { q: 'Do you ship internationally?', a: 'Yes, we ship to over 50 countries. ' },
   ]},
   { section: 'Returns', items: [
     { q: 'What is your return policy?', a: 'Free returns within 30 days of delivery on unworn, unwashed items with original tags.' },

@@ -2,6 +2,7 @@
 // Renders the two product grids on the product detail page
 // Products come from admin-assigned slots in the Collections panel
 'use client'
+import React from 'react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import WishlistButton from '@/components/WishlistButton'

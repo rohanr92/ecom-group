@@ -609,7 +609,7 @@ useEffect(() => {
               {/* Shipping badges */}
               <div className="grid grid-cols-3 gap-3 mt-5 py-4 border-t border-b border-gray-100">
                 {[
-                  { icon: <Truck size={15} strokeWidth={1.5} />, label: 'Free Shipping', sub: 'Orders over $150' },
+                  { icon: <Truck size={15} strokeWidth={1.5} />, label: 'Free Shipping', sub: 'On all orders' },
                   { icon: <RefreshCw size={15} strokeWidth={1.5} />, label: 'Free Returns', sub: '30-day returns' },
                   { icon: <ShieldCheck size={15} strokeWidth={1.5} />, label: 'Secure Pay', sub: 'SSL encrypted' },
                 ].map(b => (
@@ -639,7 +639,7 @@ useEffect(() => {
                 )}
                 <Accordion title="Shipping & Returns">
                   <div className="space-y-2 text-[13px] text-gray-500 tracking-wide leading-relaxed">
-                    <p>Free standard shipping on orders over $150. Express shipping available at checkout.</p>
+                    <p>Free standard shipping on all orders in the USA . Express shipping available at checkout.</p>
                     <p>Returns accepted within 30 days of delivery. Items must be unworn and in original condition with tags attached.</p>
                   </div>
                 </Accordion>

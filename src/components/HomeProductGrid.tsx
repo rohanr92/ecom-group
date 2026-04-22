@@ -79,6 +79,7 @@ export default function HomeProductGrid({
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (products.length > 0) return
     setLoading(true)
     fetch(`/api/collections/slot?slot=${slot}&limit=${limit}`)
       .then(r => r.json())
@@ -152,7 +153,7 @@ export default function HomeProductGrid({
                       <Link href={`/products/${product.slug}`}
                         className="block aspect-[3/4] overflow-hidden bg-[#f9f9f9] relative no-underline">
                         {product.image
-                          ? <img src={product.image} alt={product.name}
+                          ? <img src={product.image} alt={product.name} loading="eager" decoding="async"
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                           : <div className="w-full h-full flex items-center justify-center">
                               <span className="text-[10px] text-gray-300 tracking-widests">No Image</span>

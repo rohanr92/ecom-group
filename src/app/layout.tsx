@@ -4,6 +4,7 @@ import './globals.css'
 import { CartProvider } from '@/components/CartContext'
 import FontApplier from '@/components/FontApplier'
 import { prisma } from '@/lib/prisma'
+import { unstable_noStore as noStore } from 'next/cache'
 import DataLayer from '@/components/DataLayer'
 
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--google-playfair', display: 'swap', preload: false })
@@ -96,6 +97,7 @@ async function getFontSettings() {
   } catch { return {} }
 }
 async function getTrackingTags() {
+  noStore()
   try {
     const setting = await prisma.cmsSetting.findUnique({
       where: { key: 'tracking_tags' }

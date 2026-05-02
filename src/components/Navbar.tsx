@@ -69,7 +69,7 @@ const [itemOffset, setItemOffset] = useState(0)
     if (!searchVal.trim()) { setSearchResults([]); setSearchOpen(false); return }
     setSearchLoading(true)
     const t = setTimeout(() => {
-      fetch(`/api/admin/products?search=${encodeURIComponent(searchVal)}&limit=6`)
+      fetch(`/api/products/search?q=${encodeURIComponent(searchVal)}&limit=6`)
         .then(r => r.json())
         .then(d => { setSearchResults(d.products ?? []); setSearchOpen(true) })
         .catch(() => setSearchResults([]))

@@ -44,7 +44,7 @@ export default function ProductDetailPage() {
   const [newDetail, setNewDetail] = useState('')
   const [addingVariant, setAddingVariant] = useState(false)
   const [savingVariants, setSavingVariants] = useState(false)
-  const [newVariant, setNewVariant] = useState({ size: 'S', color: '', colorHex: '#1a1a1a', sku: '', inventory: 0 })
+  const [newVariant, setNewVariant] = useState({ size: 'S', color: '', colorHex: '#1a1a1a', sku: '', upc: '', inventory: 0 })
   const [expandedColor, setExpandedColor] = useState<string | null>(null)
   const [isGrouped, setIsGrouped] = useState(true)
 const [tags, setTags] = useState<string[]>([])
@@ -417,7 +417,7 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
                 <table className="w-full text-[12px]">
                   <thead>
                     <tr className="border-b border-gray-100">
-                      {['Color', 'Size', 'SKU', 'Inventory', ''].map(h => (
+                      {['Color', 'Size', 'SKU', 'UPC', 'Inventory', ''].map(h => (
                         <th key={h} className="text-left py-2 pr-4 text-[11px] font-semibold tracking-widest uppercase text-gray-400">{h}</th>
                       ))}
                     </tr>
@@ -443,6 +443,10 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
                         <td className="py-2.5 pr-4">
                           <input value={v.sku || ''} onChange={e => setVariants(prev => prev.map((x, j) => j === i ? { ...x, sku: e.target.value } : x))}
                             className="w-28 px-2 py-1 border border-gray-200 text-[12px] font-mono outline-none focus:border-[#1a1a1a]" />
+                        </td>
+                        <td className="py-2.5 pr-4">
+                          <input value={v.upc || ''} onChange={e => setVariants(prev => prev.map((x, j) => j === i ? { ...x, upc: e.target.value } : x))}
+                            className="w-32 px-2 py-1 border border-gray-200 text-[12px] font-mono outline-none focus:border-[#1a1a1a]" placeholder="UPC" />
                         </td>
                         <td className="py-2.5 pr-4">
                           <div className="flex items-center gap-1">
@@ -492,6 +496,11 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
                       placeholder="e.g. PROD-S-BLK" className="w-full px-3 py-2 border border-gray-300 text-[13px] font-mono outline-none focus:border-[#1a1a1a]" />
                   </div>
                   <div>
+                    <label className="block text-[11px] text-gray-400 mb-1">UPC</label>
+                    <input value={newVariant.upc || ''} onChange={e => setNewVariant(p => ({ ...p, upc: e.target.value }))}
+                      placeholder="e.g. 012345678901" className="w-full px-3 py-2 border border-gray-300 text-[13px] font-mono outline-none focus:border-[#1a1a1a]" />
+                  </div>
+                  <div>
                     <label className="block text-[11px] text-gray-400 mb-1">Inventory</label>
                     <input type="number" value={newVariant.inventory} onChange={e => setNewVariant(p => ({ ...p, inventory: parseInt(e.target.value) || 0 }))}
                       className="w-full px-3 py-2 border border-gray-300 text-[13px] outline-none focus:border-[#1a1a1a]" />
@@ -503,7 +512,7 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
                   <button onClick={() => {
                     if (!newVariant.sku.trim()) { alert('SKU is required'); return }
                     setVariants(prev => [...prev, { ...newVariant, images: [] }])
-                    setNewVariant({ size: 'S', color: '', colorHex: '#1a1a1a', sku: '', inventory: 0 })
+                    setNewVariant({ size: 'S', color: '', colorHex: '#1a1a1a', sku: '', upc: '', inventory: 0 })
                     setAddingVariant(false)
                   }} className="px-4 py-2 text-[12px] bg-[#1a1a1a] text-white border-none cursor-pointer hover:bg-gray-800">Add Variant</button>
                 </div>

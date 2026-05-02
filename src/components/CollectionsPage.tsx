@@ -327,7 +327,7 @@ rating: p.avgRating ?? 0,
         .finally(() => setLoading(false))
     } else {
       // fetch all products for /collections page
-      fetch('/api/admin/products?limit=100')
+      fetch('/api/products/search?q=&limit=200')
         .then(r => r.json())
         .then(data => {
           

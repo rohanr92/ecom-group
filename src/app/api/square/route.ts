@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { SquareClient, SquareEnvironment } from 'square'
 import { randomUUID } from 'crypto'
 
-;(BigInt.prototype as any).toJSON = function() { return this.toString() }
 
 const client = new SquareClient({
   token: process.env.SQUARE_ACCESS_TOKEN!,
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
       sourceId,
       idempotencyKey: randomUUID(),
       amountMoney: {
-        amount: BigInt(Math.round(parseFloat((amount * 100).toFixed(10)))),
+        amount: BigInt(Math.round(Number(amount) * 100)),
         currency,
       },
       note,

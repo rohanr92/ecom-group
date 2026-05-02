@@ -6,7 +6,7 @@ import { Save, Store, DollarSign, Truck, Mail, Shield, Code, Tag } from 'lucide-
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
     storeName:       'Solomon & Sage',
-    storeEmail:      'orders@solomonandsage.com',
+    storeEmail:      'support@solomonlawrencegroup.com',
     currency:        'USD',
     taxRate:         8,
     freeShippingMin: 150,

@@ -9,7 +9,7 @@ export default function TermsFallback() {
         { t: '4. Orders & Payment', b: 'All orders are subject to availability and acceptance. Payment must be received in full before an order ships.' },
         { t: '5. Intellectual Property', b: 'All content on this website — text, images, logos, and software — is the property of Solomon & Sage Group LLC and is protected by copyright and trademark law.' },
         { t: '6. Governing Law', b: 'These terms are governed by the laws of the State of California, without regard to conflict of law provisions.' },
-        { t: '7. Contact', b: 'For questions about these terms, email legal@solomonandsage.com.' },
+        { t: '7. Contact', b: 'For questions about these terms, email support@solomonlawrencegroup.com.' },
       ].map((s, i, arr) => (
         <div key={i} style={{ paddingBottom: '28px', marginBottom: '28px', borderBottom: i < arr.length - 1 ? '1px solid #f0ece6' : 'none' }}>
           <h2 style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '10px' }}>{s.t}</h2>

@@ -2,7 +2,7 @@
 const FAQS = [
   { section: 'Orders & Payment', items: [
     { q: 'How do I track my order?', a: "You'll receive a shipping confirmation email with a tracking link once your order ships. You can also track your order at any time from the Track Order page." },
-    { q: 'Can I modify or cancel my order?', a: 'Orders can be modified or cancelled within 1 hour of placement. Contact us immediately at support@solomonandsage.com — after 1 hour your order enters fulfillment and cannot be changed.' },
+    { q: 'Can I modify or cancel my order?', a: 'Orders can be modified or cancelled within 1 hour of placement. Contact us immediately at support@solomonlawrencegroup.com — after 1 hour your order enters fulfillment and cannot be changed.' },
     { q: 'What payment methods do you accept?', a: 'Visa, Mastercard, American Express, PayPal, and Afterpay. All payments are SSL encrypted.' },
   ]},
   { section: 'Shipping', items: [

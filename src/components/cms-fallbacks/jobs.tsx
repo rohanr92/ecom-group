@@ -19,12 +19,12 @@ export default function JobsFallback() {
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '4px' }}>{job.title}</p>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--color-mid)' }}>{job.dept} · {job.location} · {job.type}</p>
           </div>
-          <a href={`mailto:careers@solomonandsage.com?subject=Application: ${job.title}`} className="btn-outline" style={{ fontSize: '10px', padding: '8px 18px', flexShrink: 0 }}>Apply</a>
+          <a href={`mailto:support@solomonlawrencegroup.com?subject=Application: ${job.title}`} className="btn-outline" style={{ fontSize: '10px', padding: '8px 18px', flexShrink: 0 }}>Apply</a>
         </div>
       ))}
       <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px solid #e8e4de' }}>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--color-mid)', lineHeight: 1.8 }}>
-          Don't see your role? Send your resume to <a href="mailto:careers@solomonandsage.com" style={{ color: 'var(--color-charcoal)', textDecoration: 'underline' }}>careers@solomonandsage.com</a>
+          Don't see your role? Send your resume to <a href="mailto:support@solomonlawrencegroup.com" style={{ color: 'var(--color-charcoal)', textDecoration: 'underline' }}>careerssupport@solomonlawrencegroup.com</a>
         </p>
       </div>
     </div>

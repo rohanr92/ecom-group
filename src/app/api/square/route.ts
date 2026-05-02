@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       sourceId,
       idempotencyKey: randomUUID(),
       amountMoney: {
-        amount: BigInt(Math.round(amount * 100)),
+        amount: BigInt(Math.round(parseFloat((amount * 100).toFixed(10)))),
         currency,
       },
       note,

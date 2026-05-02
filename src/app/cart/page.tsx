@@ -1,5 +1,6 @@
 // Save as: src/app/cart/page.tsx
 'use client'
+import React from 'react'
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
@@ -71,8 +72,28 @@ function ProductCarousel({ title, items }: { title: string; items: typeof picked
   )
 }
 
+
+function CheckoutButton() {
+  const [loading, setLoading] = React.useState(false)
+  return (
+    <a href="/checkout"
+      onClick={() => setLoading(true)}
+      className="flex items-center justify-center gap-2 w-full h-12 bg-[#1a1a1a] text-white text-[12px] font-semibold tracking-widest uppercase no-underline hover:bg-gray-800 transition-colors cursor-pointer">
+      {loading ? (
+        <>
+          <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          Loading...
+        </>
+      ) : 'Proceed to Checkout'}
+    </a>
+  )
+}
+
 export default function CartPage() {
-  const { items, removeItem, updateQty, addItem, totalCount, totalPrice, clearCart } = useCart()
+  const { items, removeItem, updateQty, addItem, totalCount, totalPrice, clearCart, cartLoaded } = useCart()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const { convert } = useCurrency()
 
@@ -186,7 +207,11 @@ useEffect(() => {
           )}
         </div>
 
-        {items.length === 0 && savedItems.length === 0 ? (
+        {!cartLoaded ? (
+          <div className="max-container px-4 md:px-10 py-24 flex flex-col items-center text-center">
+            <div className="w-8 h-8 border-2 border-gray-200 border-t-[#1a1a1a] rounded-full animate-spin" />
+          </div>
+        ) : items.length === 0 && savedItems.length === 0 ? (
           /* ── Empty state ── */
           <div className="max-container px-4 md:px-10 py-24 flex flex-col items-center text-center">
             <ShoppingBag size={52} strokeWidth={1} className="text-gray-200 mb-5" />
@@ -414,10 +439,7 @@ useEffect(() => {
 
                   {/* CTAs */}
                   <div className="px-5 pb-5 space-y-2.5">
-                    <Link href="/checkout"
-                      className="flex items-center justify-center w-full h-12 bg-[#1a1a1a] text-white text-[12px] font-semibold tracking-widest uppercase no-underline hover:bg-gray-800 transition-colors">
-                      Proceed to Checkout
-                    </Link>
+                    <CheckoutButton />
 
                  
                     {/* Afterpay / Klarna note */}

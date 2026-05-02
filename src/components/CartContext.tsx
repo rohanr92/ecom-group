@@ -1,6 +1,5 @@
 'use client'
-
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 
 export type CartItem = {
   id: number | string
@@ -21,30 +20,33 @@ type CartContextType = {
   clearCart: () => void
   totalCount: number
   totalPrice: number
+  cartLoaded: boolean
 }
 
 const CartContext = createContext<CartContextType | null>(null)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
-  const [hydrated, setHydrated] = useState(false)
+  const loaded = useRef(false)
+  const [cartLoaded, setCartLoaded] = useState(false)
 
-  // Load from localStorage only after mount — fixes SSR mismatch
+  // Load from localStorage once on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem('sl_cart')
       if (saved) setItems(JSON.parse(saved))
     } catch {}
-    setHydrated(true)
+    loaded.current = true
+    setCartLoaded(true)
   }, [])
 
-  // Save to localStorage whenever items change — only after hydration
+  // Save to localStorage only after initial load is complete
   useEffect(() => {
-    if (!hydrated) return
+    if (!loaded.current) return
     try {
       localStorage.setItem('sl_cart', JSON.stringify(items))
     } catch {}
-  }, [items, hydrated])
+  }, [items])
 
   const addItem = (newItem: CartItem) => {
     setItems(prev => {
@@ -79,13 +81,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     ))
   }
 
-  const clearCart = () => setItems([])
+  const clearCart = () => {
+    setItems([])
+    try { localStorage.removeItem('sl_cart') } catch {}
+  }
 
   const totalCount = items.reduce((sum, i) => sum + i.quantity, 0)
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, totalCount, totalPrice }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, totalCount, totalPrice, cartLoaded }}>
       {children}
     </CartContext.Provider>
   )

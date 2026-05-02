@@ -127,6 +127,7 @@ model ProductVariant {
   color     String
   colorHex  String   @map("color_hex")
   sku       String   @unique
+  upc       String?
   inventory Int      @default(0)
   images    String[] @default([])
 

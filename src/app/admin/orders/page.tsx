@@ -165,7 +165,203 @@ export default function OrdersPage() {
                       onClick={() => router.push(`/admin/orders/${o.id}`)}
                       className="cursor-pointer hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3">
-                        <p className="text-[13px] font-semibold text-[#1a1a1a]">{o.orderNumber}</p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <div className="flex items-center gap-1.5 flex-wrap">
+  <p className="text-[13px] font-semibold text-[#1a1a1a]">{o.orderNumber}</p>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
+  {o.miraklOrderId && (
+    <span
+      className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide ${
+        o.miraklStatus === 'NEEDS_REVIEW'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-purple-100 text-purple-700'
+      }`}
+      title={o.miraklChannel ? `From ${o.miraklChannel}` : 'Mirakl order'}
+    >
+      {o.miraklStatus === 'NEEDS_REVIEW' ? 'Mirakl ⚠' : 'Mirakl'}
+    </span>
+  )}
+</div>
                         <p className="text-[10px] text-gray-400 mt-0.5">{o.items?.length} items</p>
                       </td>
                       <td className="px-4 py-3">

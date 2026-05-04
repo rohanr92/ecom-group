@@ -51,6 +51,15 @@ export async function POST(req: NextRequest) {
       items,
     }))
 
+    // Admin notification: return requested
+    const { notifyAdminReturnRequested } = await import('@/lib/admin-notifications')
+    sendEmail(() => notifyAdminReturnRequested({
+      returnId: returnReq.id,
+      orderNumber: returnReq.orderNumber,
+      email: user.email,
+      reason: details ? `${reason} — ${details}` : reason,
+    }))
+
     return NextResponse.json({ success: true, return: returnReq })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })

@@ -171,12 +171,12 @@ function ShareModal({ onClose, productName }: { onClose: () => void; productName
 }
 
 // ── Main Component ────────────────────────────────────────────────
-export default function ProductPage({ id }: { id: string }) {
+export default function ProductPage({ id, initialProduct }: { id: string; initialProduct?: any }) {
   const productId = id
   const { convert } = useCurrency()
 
-  const [product, setProduct] = useState<any>(null)
-  const [loading, setLoading]  = useState(true)
+  const [product, setProduct] = useState<any>(initialProduct ?? null)
+  const [loading, setLoading]  = useState(!initialProduct)
   const [selectedColor, setSelectedColor] = useState<any>(null)
   const [selectedSize,  setSelectedSize]  = useState<string | null>(null)
   const [activeImage,   setActiveImage]   = useState(0)
@@ -191,6 +191,7 @@ const [lightboxIndex, setLightboxIndex] = useState(0)
   // ── Fetch product from DB ──────────────────────────────────────
   useEffect(() => {
     if (!productId) return
+    if (initialProduct) return
     setLoading(true)
     fetch(`/api/products/${productId}`)
       .then(r => r.json())

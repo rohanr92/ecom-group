@@ -154,9 +154,9 @@ export function YouMayAlsoLikeGrid() {
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px,3vw,30px)', fontWeight: 300, fontStyle: 'italic', color: '#1a1a1a', marginBottom: '24px' }}>
           You May Also Like
         </h2>
-     <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
-          {products.map((p, i) => (
-            <div key={p.id} className={i >= 3 ? 'hidden md:block' : ''}>
+    <div className="grid grid-cols-3 md:grid-cols-8 gap-3 md:gap-4">
+  {products.slice(0, 8).map((p, i) => (
+    <div key={p.id} className={i >= 3 ? 'hidden md:block' : ''}>
               <ProductMiniCard product={p} />
             </div>
           ))}

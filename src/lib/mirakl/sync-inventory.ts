@@ -32,16 +32,30 @@ interface InventorySyncReport {
 async function pushToMirakl(
   updates: InventoryUpdate[],
 ): Promise<{ ok: boolean; error?: string }> {
+  // Mirakl Connect catalog endpoint: POST /products
+  // This upserts products with quantity + price.
+  // Docs: https://developer.mirakl.com/content/product/connect/rest/connect/openapi3/catalog/upsertproducts
   const payload = {
-    offers: updates.map((u) => ({
-      shop_sku: u.sku,
-      quantity: u.inventory,
-      price: u.price,
+    products: updates.map((u) => ({
+      id: u.sku,
+      quantities: [
+        {
+          available_quantity: u.inventory,
+        },
+      ],
+      standard_prices: [
+        {
+          price: {
+            amount: u.price,
+            currency: 'USD',
+          },
+        },
+      ],
     })),
   };
 
   try {
-    await callMiraklApi('/v2/offers', {
+    await callMiraklApi('/products', {
       method: 'POST',
       body: JSON.stringify(payload),
     });

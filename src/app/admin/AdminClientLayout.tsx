@@ -114,7 +114,7 @@ export default function AdminClientLayout({
       <aside className={`
         fixed inset-y-0 left-0 z-50 w-[240px] bg-[#1a1a1a] flex flex-col transition-transform duration-200
         ${open ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:flex
+        lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:flex
       `}>
         {/* Logo */}
         <div className="px-5 py-5 border-b border-white/10">

@@ -4,6 +4,7 @@
 
 import { NextResponse } from 'next/server';
 import { syncOrders } from '@/lib/mirakl/sync-orders';
+import { maybeAlertOnSyncFailure } from '@/lib/mirakl/alert';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -18,6 +19,7 @@ export async function GET(req: Request) {
 
   try {
     const result = await syncOrders();
+    await maybeAlertOnSyncFailure('orders');
     return NextResponse.json({
       ok: true,
       dry_run: process.env.MIRAKL_DRY_RUN !== 'false',

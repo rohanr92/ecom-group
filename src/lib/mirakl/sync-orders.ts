@@ -116,6 +116,47 @@ async function acceptOrderOnMirakl(
   });
 }
 
+
+
+
+/**
+ * Notify Mirakl that an order has shipped, with carrier + tracking info.
+ * Called by /api/admin/orders PATCH when a Mirakl-linked order is marked SHIPPED.
+ */
+export async function shipOrderOnMirakl(params: {
+  miraklOrderId: string;
+  trackingNumber: string;
+  carrier: string;
+  trackingUrl?: string | null;
+  items: Array<{ orderLineId?: string | null; sku: string; quantity: number }>;
+}): Promise<{ ok: boolean; actionId?: string; error?: string }> {
+  try {
+    const body: Record<string, unknown> = {
+      carrier: params.carrier,
+      tracking_number: params.trackingNumber,
+      items: params.items.map((i) => ({
+        ...(i.orderLineId ? { order_line_id: i.orderLineId } : { id: i.sku }),
+        quantity: i.quantity,
+      })),
+    };
+    if (params.trackingUrl) body.tracking_url = params.trackingUrl;
+
+    const res = await callMiraklApi<{ action_id?: string }>(
+      `/v2/orders/${params.miraklOrderId}/shipments`,
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+      },
+    );
+    return { ok: true, actionId: res.action_id };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
 /**
  * Process one Mirakl order: match variants, decide auto-accept eligibility,
  * write to DB (or log decisions in dry-run), accept on Mirakl, save packing slip.

@@ -494,6 +494,7 @@ model MiraklSyncLog {
   wasDryRun      Boolean   @default(false) @map("was_dry_run")
   startedAt      DateTime  @default(now()) @map("started_at")
   completedAt    DateTime? @map("completed_at")
+  alertSent  Boolean  @default(false) @map("alert_sent")
 
   @@index([startedAt(sort: Desc)])
   @@index([syncType])

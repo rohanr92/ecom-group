@@ -1,4 +1,4 @@
-// Save as: src/app/api/admin/orders/route.ts
+// src/app/api/admin/orders/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAdminFromRequest } from '@/lib/admin-auth'
@@ -60,6 +60,7 @@ export async function PATCH(req: NextRequest) {
       },
     })
 
+    // ── Customer email: order shipped ─────────────────────────────
     if (status === 'SHIPPED' && trackingNumber) {
       sendEmail(() => sendOrderShipped({
         email: order.email,
@@ -70,8 +71,20 @@ export async function PATCH(req: NextRequest) {
         items: order.items,
         address: order.addresses?.[0] ?? null,
       }))
+
+      // Admin notification: order shipped
+      const { notifyAdminOrderShipped } = await import('@/lib/admin-notifications')
+      sendEmail(() => notifyAdminOrderShipped({
+        orderNumber: order.orderNumber,
+        orderId: order.id,
+        email: order.email,
+        trackingNumber,
+        courier: courier || null,
+        isMirakl: !!order.miraklOrderId,
+      }))
     }
 
+    // ── Mirakl: push tracking back to Mirakl Connect ──────────────
     if (status === 'SHIPPED' && trackingNumber && order.miraklOrderId) {
       try {
         const { shipOrderOnMirakl } = await import('@/lib/mirakl/sync-orders')
@@ -123,6 +136,7 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    // ── Customer email: order delivered ───────────────────────────
     if (status === 'DELIVERED') {
       sendEmail(() => sendOrderDelivered({
         email: order.email,
@@ -133,6 +147,7 @@ export async function PATCH(req: NextRequest) {
       }))
     }
 
+    // ── Order cancelled: customer email + restore inventory + admin email
     if (status === 'CANCELLED') {
       sendEmail(() => sendOrderCancelled({
         email: order.email,
@@ -152,6 +167,15 @@ export async function PATCH(req: NextRequest) {
           })
         }
       }
+
+      // Admin notification: order cancelled
+      const { notifyAdminOrderCancelled } = await import('@/lib/admin-notifications')
+      sendEmail(() => notifyAdminOrderCancelled({
+        orderNumber: order.orderNumber,
+        orderId: order.id,
+        email: order.email,
+        total: Number(order.total),
+      }))
     }
 
     return NextResponse.json({ order })

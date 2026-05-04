@@ -156,6 +156,18 @@ await sendEmail(() => sendOrderConfirmation({
   paymentMethod: paymentMethod ?? 'STRIPE',
 }))
 
+// Admin notification: new order
+const { notifyAdminNewOrder } = await import('@/lib/admin-notifications')
+sendEmail(() => notifyAdminNewOrder({
+  orderNumber: order.orderNumber,
+  orderId: order.id,
+  email: order.email,
+  total: Number(order.total),
+  itemCount: order.items?.length ?? 0,
+  isMirakl: false,
+}))
+
+
 return NextResponse.json({
   success:     true,
   orderId:     order.id,

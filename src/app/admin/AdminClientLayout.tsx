@@ -12,7 +12,8 @@ import {
   FolderOpen,
   Monitor,
   Layout,
-  Mail
+  Mail,
+  Plug
 } from 'lucide-react'
 import { Type } from 'lucide-react'
 
@@ -33,7 +34,8 @@ const nav = [
    { href: '/admin/footer', icon: Layout, label: 'Footer' },
   { href: '/admin/reviews', label: 'Reviews', icon: MessageSquare },
   { href: '/admin/theme', icon: Monitor, label: 'Theme' },
-  { href: '/admin/fonts', icon: Type, label: 'Fonts' }
+  { href: '/admin/fonts', icon: Type, label: 'Fonts' },
+  { href: '/admin/mirakl-connect', label: 'Mirakl Connect', icon: Plug }
 ]
 
 export default function AdminClientLayout({

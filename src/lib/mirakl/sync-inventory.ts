@@ -2,9 +2,7 @@
 // Pushes inventory + price changes from our DB to Mirakl Connect.
 // Only pushes variants where the values have changed since last sync.
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 const DRY_RUN = process.env.MIRAKL_DRY_RUN !== 'false';
 const AUTH_URL = process.env.MIRAKL_AUTH_URL || 'https://auth.mirakl.net/oauth/token';

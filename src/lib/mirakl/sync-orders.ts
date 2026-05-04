@@ -2,15 +2,14 @@
 // Pulls orders from Mirakl Connect → creates them in our DB.
 // Auto-accepts orders that pass all safety guards (stock + clean SKU match).
 
-import { PrismaClient, OrderStatus } from '@prisma/client';
+import { OrderStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import {
   listOrders,
   listOrderDocuments,
   MiraklError,
 } from './client';
 import type { MiraklOrder, MiraklOrderLine } from './types';
-
-const prisma = new PrismaClient();
 
 const DRY_RUN = process.env.MIRAKL_DRY_RUN !== 'false';
 const AUTH_URL = process.env.MIRAKL_AUTH_URL || 'https://auth.mirakl.net/oauth/token';

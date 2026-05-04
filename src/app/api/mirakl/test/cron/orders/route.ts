@@ -1,0 +1,35 @@
+// src/app/api/mirakl/cron/orders/route.ts
+// GET /api/mirakl/cron/orders
+// Triggered by cron every 5 min. Pulls Mirakl orders → DB.
+
+import { NextResponse } from 'next/server';
+import { syncOrders } from '@/lib/mirakl/sync-orders';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const maxDuration = 300; // 5 min hard cap
+
+export async function GET(req: Request) {
+  const auth = req.headers.get('authorization') || '';
+  const expected = `Bearer ${process.env.MIRAKL_CRON_SECRET}`;
+  if (!process.env.MIRAKL_CRON_SECRET || auth !== expected) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const result = await syncOrders();
+    return NextResponse.json({
+      ok: true,
+      dry_run: process.env.MIRAKL_DRY_RUN !== 'false',
+      ...result,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+      },
+      { status: 500 },
+    );
+  }
+}

@@ -66,6 +66,7 @@ async function getAccessToken(): Promise<string> {
 async function apiRequest<T>(
   path: string,
   init: RequestInit = {},
+  isRetry: boolean = false,
 ): Promise<T> {
   const token = await getAccessToken();
   const url = path.startsWith('http') ? path : `${BASE_URL}${path}`;
@@ -80,6 +81,12 @@ async function apiRequest<T>(
     },
   });
 
+  // Auto-retry on 401: token might be stale, clear cache and try once more
+  if (res.status === 401 && !isRetry) {
+    cachedToken = null;
+    return apiRequest<T>(path, init, true);
+  }
+
   const text = await res.text();
   if (!res.ok) {
     throw new MiraklError(
@@ -92,7 +99,6 @@ async function apiRequest<T>(
   if (!text) return {} as T;
   return JSON.parse(text) as T;
 }
-
 // =====================================================================
 // Public API methods
 // =====================================================================
@@ -163,4 +169,13 @@ export async function listOrderDocuments(params: {
 
 export function resetTokenCache() {
   cachedToken = null;
+}
+
+// Generic helper for other modules (e.g. sync-orders) to make Mirakl API calls
+// with the same auth + retry logic.
+export async function callMiraklApi<T>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
+  return apiRequest<T>(path, init);
 }

@@ -3,10 +3,9 @@
 // Only pushes variants where the values have changed since last sync.
 
 import { prisma } from '@/lib/prisma';
+import { callMiraklApi } from './client';
 
 const DRY_RUN = process.env.MIRAKL_DRY_RUN !== 'false';
-const AUTH_URL = process.env.MIRAKL_AUTH_URL || 'https://auth.mirakl.net/oauth/token';
-const BASE_URL = process.env.MIRAKL_CONNECT_BASE_URL || 'https://miraklconnect.com/api';
 
 interface InventoryUpdate {
   sku: string;
@@ -26,36 +25,13 @@ interface InventorySyncReport {
   error?: string;
 }
 
-async function getMiraklToken(): Promise<string> {
-  const res = await fetch(AUTH_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: process.env.MIRAKL_CONNECT_CLIENT_ID!,
-      client_secret: process.env.MIRAKL_CONNECT_CLIENT_SECRET!,
-    }).toString(),
-  });
-  if (!res.ok) throw new Error(`Auth failed: ${res.status}`);
-  const { access_token } = await res.json();
-  return access_token;
-}
-
 /**
  * Push inventory updates to Mirakl Connect.
- *
- * NOTE: The exact endpoint/payload for inventory push depends on your
- * Mirakl Connect setup (offers vs catalog endpoint). We start with a
- * conservative approach that just logs the intent in dry-run, and uses
- * a placeholder endpoint in real mode that you can confirm with Mirakl.
+ * Uses callMiraklApi which handles auth + auto-retry on 401.
  */
 async function pushToMirakl(
-  token: string,
   updates: InventoryUpdate[],
 ): Promise<{ ok: boolean; error?: string }> {
-  // TODO: Confirm correct endpoint with Mirakl support. The Connect API
-  // for inventory updates may use offers endpoint or a dedicated stock endpoint.
-  // For now, this builds the payload and sends; we'll adjust based on first real test.
   const payload = {
     offers: updates.map((u) => ({
       shop_sku: u.sku,
@@ -65,21 +41,16 @@ async function pushToMirakl(
   };
 
   try {
-    const res = await fetch(`${BASE_URL}/v2/offers`, {
+    await callMiraklApi('/v2/offers', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) {
-      const body = await res.text();
-      return { ok: false, error: `${res.status}: ${body.slice(0, 300)}` };
-    }
     return { ok: true };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
   }
 }
 
@@ -94,7 +65,6 @@ export async function syncInventory(): Promise<{
   const startedAt = Date.now();
   const reports: InventorySyncReport[] = [];
 
-  // Fetch all active variants with their product price
   const variants = await prisma.productVariant.findMany({
     include: {
       product: { select: { price: true, isActive: true } },
@@ -157,11 +127,10 @@ export async function syncInventory(): Promise<{
       }
     } else {
       // Push in batches of 100
-      const token = await getMiraklToken();
       const BATCH = 100;
       for (let i = 0; i < toPush.length; i += BATCH) {
         const batch = toPush.slice(i, i + BATCH);
-        const result = await pushToMirakl(token, batch);
+        const result = await pushToMirakl(batch);
 
         for (const u of batch) {
           if (result.ok) {

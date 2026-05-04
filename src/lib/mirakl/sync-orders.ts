@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import {
   listOrders,
   listOrderDocuments,
+  callMiraklApi,
   MiraklError,
 } from './client';
 import type { MiraklOrder, MiraklOrderLine } from './types';
@@ -107,37 +108,12 @@ async function acceptOrderOnMirakl(
   miraklOrderId: string,
   lineIds: string[],
 ): Promise<void> {
-  // Get a fresh JWT
-  const tokenRes = await fetch(AUTH_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: process.env.MIRAKL_CONNECT_CLIENT_ID!,
-      client_secret: process.env.MIRAKL_CONNECT_CLIENT_SECRET!,
-    }).toString(),
-  });
-  if (!tokenRes.ok) throw new Error(`Auth failed: ${tokenRes.status}`);
-  const { access_token } = await tokenRes.json();
-
-  const res = await fetch(`${BASE_URL}/v2/orders/${miraklOrderId}/accept`, {
+  await callMiraklApi(`/v2/orders/${miraklOrderId}/accept`, {
     method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       order_lines: lineIds.map((id) => ({ id, accepted: true })),
     }),
   });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new MiraklError(
-      `Accept failed: ${res.status}`,
-      res.status,
-      body,
-    );
-  }
 }
 
 /**

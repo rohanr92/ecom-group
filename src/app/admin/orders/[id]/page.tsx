@@ -340,8 +340,20 @@ const downloadPackingSlip = async () => {
                     }
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{item.name}</p>
+                    <Link
+                      href={`/admin/products/${item.productId}`}
+                      className="text-[13px] font-medium text-[#1a1a1a] truncate hover:text-[#c8a882] hover:underline cursor-pointer no-underline block"
+                    >
+                      {item.name}
+                    </Link>
                     <p className="text-[11px] text-gray-400 mt-0.5">{item.size} · {item.color} × {item.quantity}</p>
+                    {(item.variant?.sku || item.variant?.upc) && (
+                      <p className="text-[10px] text-gray-400 mt-0.5 font-mono">
+                        {item.variant?.sku && <>SKU: {item.variant.sku}</>}
+                        {item.variant?.sku && item.variant?.upc && ' · '}
+                        {item.variant?.upc && <>UPC: {item.variant.upc}</>}
+                      </p>
+                    )}
                   </div>
                   <p className="text-[14px] font-semibold text-[#1a1a1a] shrink-0">
                     ${(Number(item.price) * item.quantity).toFixed(2)}

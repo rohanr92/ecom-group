@@ -59,11 +59,13 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
       }
       JsBarcode(previewRef.current, previewItem.upc, {
         format: 'UPC',
-        width: 2,
-        height: 50,
+        width: 1.6,
+        height: 38,
         displayValue: true,
-        fontSize: 12,
-        margin: 3,
+        fontSize: 11,
+        font: 'monospace',
+        textMargin: 2,
+        margin: 4,
         background: '#ffffff',
         lineColor: '#000000',
       })
@@ -135,22 +137,25 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
           pdf.setTextColor(0, 0, 0)
           return
         }
+        // High-res barcode: render at 4x scale, scale down in PDF = crisp print
         JsBarcode(canvas, item.upc, {
           format: 'UPC',
-          width: 2,
-          height: 50,
+          width: 4,           // 4x bar width
+          height: 120,        // 4x height
           displayValue: true,
-          fontSize: 12,
-          margin: 2,
+          fontSize: 36,       // 3x font for crisp digits
+          font: 'monospace',
+          textMargin: 4,
+          margin: 8,
           background: '#ffffff',
           lineColor: '#000000',
         })
-        const dataUrl = canvas.toDataURL('image/png')
+        const dataUrl = canvas.toDataURL('image/png', 1.0) // PNG quality 1.0
         const bcWidth = 55
         const bcHeight = 13
         const bcX = (LABEL_WIDTH_MM - bcWidth) / 2
         const bcY = line2 ? line1BottomY + 3 : line1BottomY + 1
-        pdf.addImage(dataUrl, 'PNG', bcX, bcY, bcWidth, bcHeight)
+        pdf.addImage(dataUrl, 'PNG', bcX, bcY, bcWidth, bcHeight, undefined, 'FAST')
       } catch (err) {
         console.error('Barcode render error for', item.upc, err)
       }

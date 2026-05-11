@@ -50,9 +50,15 @@ interface SyncReport {
  * Mirakl might use shop_sku, offer_sku, or product_sku — try all.
  */
 async function findVariant(line: MiraklOrderLine): Promise<VariantMatch | null> {
-  const candidateSkus = [line.shop_sku, line.offer_sku, line.product_sku].filter(
-    Boolean,
-  ) as string[];
+  // Mirakl Connect v2 puts the seller SKU in line.product.id
+  // (Legacy MMP used line.shop_sku / offer_sku / product_sku — kept as fallback)
+  const lineAny = line as any;
+  const candidateSkus = [
+    lineAny.product?.id,
+    lineAny.shop_sku,
+    lineAny.offer_sku,
+    lineAny.product_sku,
+  ].filter(Boolean) as string[];
 
   // Try SKU match first
   for (const sku of candidateSkus) {
@@ -75,7 +81,7 @@ async function findVariant(line: MiraklOrderLine): Promise<VariantMatch | null> 
     }
   }
 
-  // Fallback: try UPC if any SKU candidate looks like a UPC (12+ digits)
+  // Fallback: try UPC if any candidate looks like a UPC (12+ digits)
   for (const candidate of candidateSkus) {
     if (/^\d{12,14}$/.test(candidate)) {
       const v = await prisma.productVariant.findFirst({
@@ -248,28 +254,40 @@ async function processOrder(order: MiraklOrder): Promise<SyncReport> {
   }
 
   // ===== REAL MODE =====
+// ===== REAL MODE =====
   const orderNumber = `MIR-${miraklOrderId.slice(0, 12).toUpperCase()}`;
-  const ship = order.shipping_address || order.customer?.shipping_address;
-  const bill = order.billing_address || order.customer?.billing_address;
-  const customer = order.customer;
 
-  const subtotal = matched.reduce(
-    (s, m) => s + (m.line.price ?? 0) * m.line.quantity,
-    0,
-  );
-  const shippingCost = order.shipping_price ?? 0;
-  const tax = order.total_taxes ?? 0;
-  const total = order.total_price ?? subtotal + shippingCost + tax;
+  // Mirakl Connect v2 field paths (verified from real API responses)
+  const orderAny = order as any;
+  const ship = orderAny.shipping_info?.address;
+  const bill = orderAny.billing_info?.address;
+  const channelName = orderAny.origin?.channel_name || channel;
 
-  // Safety guard: skip if Mirakl hasn't revealed full data yet
-  // (e.g. order still in AWAITING_FRAUD_CHECK despite filter, or partial response)
-  if (!customer?.email || total <= 0) {
+  // Compute totals from order_lines (Mirakl Connect v2 doesn't send total_price)
+  let subtotal = 0;
+  let tax = 0;
+  let shippingCost = 0;
+  for (const line of lines) {
+    const lineAny = line as any;
+    const linePrice = (lineAny.price?.amount ?? 0) * (line.quantity ?? 1);
+    subtotal += linePrice;
+    shippingCost += lineAny.total_shipping_price?.amount ?? 0;
+    for (const t of (lineAny.taxes ?? [])) {
+      tax += t.amount?.amount ?? 0;
+    }
+  }
+  const total = subtotal + tax + shippingCost;
+
+  // Safety guard: skip if shipping address isn't yet revealed
+  // (Mirakl hides PII during AWAITING_FRAUD_CHECK)
+  // Note: Mirakl NEVER sends customer email — that's by design (Nordstrom owns the customer).
+  if (!ship?.street || total <= 0) {
     return {
       miraklOrderId,
       miraklStatus: order.status,
-      channel,
+      channel: channelName,
       decision: 'no_match',
-      reason: 'Order data not yet available (likely in fraud check); will retry next sync',
+      reason: 'Order data not yet available (PII hidden); will retry next sync',
       matched: [],
       unmatched: [],
     };
@@ -280,12 +298,15 @@ async function processOrder(order: MiraklOrder): Promise<SyncReport> {
   const ourStatus: OrderStatus = canAutoAccept ? 'CONFIRMED' : 'PENDING';
   const miraklStatusLabel = canAutoAccept ? order.status : 'NEEDS_REVIEW';
 
+  // Mirakl doesn't share customer email — use placeholder so DB is consistent
+  const placeholderEmail = `mirakl-${miraklOrderId.toLowerCase()}@solomonandsage.com`;
+
   await prisma.$transaction(async (tx) => {
     // 1. Create order
     const created = await tx.order.create({
       data: {
         orderNumber,
-        email: customer?.email || 'unknown@mirakl.local',
+        email: placeholderEmail,
         status: ourStatus,
         subtotal,
         shippingCost,
@@ -294,7 +315,7 @@ async function processOrder(order: MiraklOrder): Promise<SyncReport> {
         total,
         paymentMethod: 'STRIPE', // placeholder — Mirakl handles payment
         miraklOrderId,
-        miraklChannel: channel,
+        miraklChannel: channelName,
         miraklStatus: miraklStatusLabel,
         miraklSyncedAt: new Date(),
         miraklRawData: order as object,
@@ -303,6 +324,7 @@ async function processOrder(order: MiraklOrder): Promise<SyncReport> {
 
     // 2. Create order items for matched lines
     for (const m of matched) {
+      const lineAny = m.line as any;
       await tx.orderItem.create({
         data: {
           orderId: created.id,
@@ -312,7 +334,7 @@ async function processOrder(order: MiraklOrder): Promise<SyncReport> {
           size: m.variant.size,
           color: m.variant.color,
           image: m.variant.image,
-          price: m.line.price ?? 0,
+          price: lineAny.price?.amount ?? 0,
           quantity: m.line.quantity,
         },
       });
@@ -327,37 +349,39 @@ async function processOrder(order: MiraklOrder): Promise<SyncReport> {
       }
     }
 
-    // 4. Create shipping address if provided
+    // 4. Create shipping address (Mirakl Connect v2 field names)
     if (ship) {
       await tx.address.create({
         data: {
           orderId: created.id,
           type: 'SHIPPING',
-          firstName: ship.first_name || customer?.first_name || '',
-          lastName: ship.last_name || customer?.last_name || '',
-          street: ship.street_1 || '',
-          street2: ship.street_2 || null,
+          firstName: ship.first_name || '',
+          lastName: ship.last_name || '',
+          street: ship.street || '',
+          street2: ship.street_additional_info || null,
           city: ship.city || '',
           state: ship.state || '',
           zip: ship.zip_code || '',
-          country: ship.country || 'United States',
+          country: ship.country || 'USA',
           phone: ship.phone || null,
         },
       });
     }
-    if (bill && (bill.street_1 !== ship?.street_1 || bill.zip_code !== ship?.zip_code)) {
+
+    // 5. Create billing address if different from shipping
+    if (bill && bill.street && bill.street !== ship?.street) {
       await tx.address.create({
         data: {
           orderId: created.id,
           type: 'BILLING',
-          firstName: bill.first_name || customer?.first_name || '',
-          lastName: bill.last_name || customer?.last_name || '',
-          street: bill.street_1 || '',
-          street2: bill.street_2 || null,
+          firstName: bill.first_name || '',
+          lastName: bill.last_name || '',
+          street: bill.street || '',
+          street2: bill.street_additional_info || null,
           city: bill.city || '',
           state: bill.state || '',
           zip: bill.zip_code || '',
-          country: bill.country || 'United States',
+          country: bill.country || 'USA',
           phone: bill.phone || null,
         },
       });

@@ -8,7 +8,7 @@ import { X, Printer, Download, Plus, Minus } from 'lucide-react'
 interface LabelItem {
   upc: string
   productName: string
-  variantInfo?: string  // e.g. "S · White"
+  variantInfo?: string
   sku?: string
   price?: number
   quantity: number
@@ -17,18 +17,13 @@ interface LabelItem {
 interface BarcodeLabelModalProps {
   open: boolean
   onClose: () => void
-  items: LabelItem[]  // one entry per variant
+  items: LabelItem[]
 }
 
-// Label dimensions: 79mm × 26mm
 const LABEL_WIDTH_MM = 79
 const LABEL_HEIGHT_MM = 26
 
-// Convert mm to pt (PDF uses points, 1mm = 2.83465pt)
-const mmToPt = (mm: number) => mm * 2.83465
-
 function validateUPC(upc: string): boolean {
-  // UPC-A is 12 digits with valid checksum
   const cleaned = upc.replace(/\D/g, '')
   if (cleaned.length !== 12) return false
   let sum = 0
@@ -51,27 +46,24 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
   const previewRef = useRef<SVGSVGElement>(null)
   const previewItem = items[0]
 
-  // Update qty when items change
   useEffect(() => {
     setPerItemQty(items.reduce((acc, it) => ({ ...acc, [it.upc]: it.quantity }), {} as Record<string, number>))
   }, [items])
 
-  // Render live preview barcode
   useEffect(() => {
     if (!open || !previewRef.current || !previewItem?.upc) return
     try {
       if (!validateUPC(previewItem.upc)) {
-        // Render an error barcode placeholder
         previewRef.current.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="red">Invalid UPC</text>'
         return
       }
       JsBarcode(previewRef.current, previewItem.upc, {
         format: 'UPC',
         width: 2,
-        height: 60,
+        height: 50,
         displayValue: true,
-        fontSize: 14,
-        margin: 5,
+        fontSize: 12,
+        margin: 3,
         background: '#ffffff',
         lineColor: '#000000',
       })
@@ -92,7 +84,6 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
     return item.variantInfo || ''
   }
 
-  // Generate full PDF: one label per page, one page per unit
   const generatePDF = (autoPrint = false) => {
     const pdf = new jsPDF({
       orientation: 'landscape',
@@ -114,20 +105,28 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
       const line1 = getLine1(item)
       const line2 = getLine2(item)
 
-      // Line 1 (product name) - centered top
-      pdf.setFontSize(8)
+      // Auto-fit Line 1: shrink font until fits in 2 lines
+      let line1FontSize = 8
       pdf.setFont('helvetica', 'bold')
-      const line1Lines = pdf.splitTextToSize(line1, LABEL_WIDTH_MM - 4)
-      pdf.text(line1Lines[0] || '', LABEL_WIDTH_MM / 2, 4, { align: 'center' })
+      pdf.setFontSize(line1FontSize)
+      let line1Lines = pdf.splitTextToSize(line1, LABEL_WIDTH_MM - 4) as string[]
+      while (line1Lines.length > 2 && line1FontSize > 5) {
+        line1FontSize -= 0.5
+        pdf.setFontSize(line1FontSize)
+        line1Lines = pdf.splitTextToSize(line1, LABEL_WIDTH_MM - 4) as string[]
+      }
+      const linesToPrint = line1Lines.slice(0, 2)
+      linesToPrint.forEach((ln, idx) => {
+        pdf.text(ln, LABEL_WIDTH_MM / 2, 3.5 + idx * (line1FontSize * 0.45), { align: 'center' })
+      })
 
-      // Line 2 (variant info or sku) - centered below line 1
+      const line1BottomY = 3.5 + linesToPrint.length * (line1FontSize * 0.45)
       if (line2) {
         pdf.setFontSize(7)
         pdf.setFont('helvetica', 'normal')
-        pdf.text(line2, LABEL_WIDTH_MM / 2, 7.5, { align: 'center' })
+        pdf.text(line2, LABEL_WIDTH_MM / 2, line1BottomY + 1.5, { align: 'center' })
       }
 
-      // Generate barcode SVG, convert to data URL via canvas
       const canvas = document.createElement('canvas')
       try {
         if (!validateUPC(item.upc)) {
@@ -147,17 +146,13 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
           lineColor: '#000000',
         })
         const dataUrl = canvas.toDataURL('image/png')
-        // Barcode: roughly 60mm wide, 14mm tall, centered horizontally, below text
-        const bcWidth = 60
-        const bcHeight = 14
+        const bcWidth = 55
+        const bcHeight = 13
         const bcX = (LABEL_WIDTH_MM - bcWidth) / 2
-        const bcY = line2 ? 9 : 6
+        const bcY = line2 ? line1BottomY + 3 : line1BottomY + 1
         pdf.addImage(dataUrl, 'PNG', bcX, bcY, bcWidth, bcHeight)
       } catch (err) {
         console.error('Barcode render error for', item.upc, err)
-        pdf.setTextColor(255, 0, 0)
-        pdf.text(`Error: ${item.upc}`, LABEL_WIDTH_MM / 2, 15, { align: 'center' })
-        pdf.setTextColor(0, 0, 0)
       }
     })
 
@@ -175,7 +170,6 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
           <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Create Barcode Labels</h2>
           <button
@@ -187,33 +181,40 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
         </div>
 
         <div className="px-6 py-5 space-y-5">
-          {/* Preview */}
           <div>
             <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-2">
               Label Preview
             </label>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex justify-center">
               <div
-                className="bg-white border border-gray-300 rounded-sm shadow-sm flex flex-col items-center justify-center p-2 text-center"
+                className="bg-white border border-gray-300 rounded-sm shadow-sm flex flex-col items-center justify-center p-1.5 text-center"
                 style={{
                   width: `${LABEL_WIDTH_MM * 4}px`,
                   height: `${LABEL_HEIGHT_MM * 4}px`,
                 }}
               >
-                <p className="text-[10px] font-bold text-[#1a1a1a] leading-tight truncate w-full px-1">
+                <p
+                  className="text-[9px] font-bold text-[#1a1a1a] leading-tight w-full px-1 text-center"
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    wordBreak: 'break-word',
+                  }}
+                >
                   {previewItem ? getLine1(previewItem) : ''}
                 </p>
                 {previewItem && getLine2(previewItem) && (
-                  <p className="text-[9px] text-gray-600 leading-tight">
+                  <p className="text-[8px] text-gray-600 leading-tight mt-0.5">
                     {getLine2(previewItem)}
                   </p>
                 )}
-                <svg ref={previewRef} className="mt-1" />
+                <svg ref={previewRef} className="mt-0.5" />
               </div>
             </div>
           </div>
 
-          {/* Line 1 selector */}
           <div>
             <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-2">
               Line 1 (required)
@@ -247,7 +248,6 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
             </div>
           </div>
 
-          {/* Line 2 selector */}
           <div>
             <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-2">
               Line 2 (optional)
@@ -283,7 +283,6 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
             </div>
           </div>
 
-          {/* Quantity per item */}
           <div>
             <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-2">
               Labels per item
@@ -339,7 +338,6 @@ export default function BarcodeLabelModal({ open, onClose, items }: BarcodeLabel
           </div>
         </div>
 
-        {/* Footer */}
         <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-2">
           <button
             onClick={onClose}

@@ -124,17 +124,23 @@ async function acceptOrderOnMirakl(
  * Called by /api/admin/orders PATCH when a Mirakl-linked order is marked SHIPPED.
  */
 // Map admin courier codes (lowercase) → Mirakl carrier_code (uppercase, registered carriers)
-const CARRIER_CODE_MAP: Record<string, string> = {
+// Map admin courier codes (lowercase) → Mirakl Connect carrier name string
+const CARRIER_NAME_MAP: Record<string, string> = {
   ups: 'UPS',
-  fedex: 'FEDEX',
+  fedex: 'FedEx',
   usps: 'USPS',
   dhl: 'DHL',
-  ontrac: 'ONTRAC',
-  lasership: 'LASERSHIP',
-  amazon: 'AMAZON',
-  other: 'OTHER',
+  ontrac: 'OnTrac',
+  lasership: 'LaserShip',
+  amazon: 'Amazon Logistics',
+  other: 'Other',
 };
 
+/**
+ * Notify Mirakl Connect that an order has shipped (POST /v2/orders/{id}/shipments).
+ * Spec: https://developer.mirakl.com/content/product/connect/rest/connect/openapi3/shipments/v2-createshipment.md
+ * Returns asynchronously — Mirakl processes the action and updates order status.
+ */
 export async function shipOrderOnMirakl(params: {
   miraklOrderId: string;
   trackingNumber: string;
@@ -144,26 +150,17 @@ export async function shipOrderOnMirakl(params: {
 }): Promise<{ ok: boolean; actionId?: string; error?: string }> {
   try {
     const carrierKey = (params.carrier || 'other').toLowerCase();
-    const carrierCode = CARRIER_CODE_MAP[carrierKey] || 'OTHER';
-    const carrierName = carrierKey === 'other'
-      ? 'Other'
-      : carrierKey.toUpperCase();
-
-    const tracking: Record<string, unknown> = {
-      carrier_code: carrierCode,
-      carrier_name: carrierName,
-      carrier_standard_code: carrierCode,
-      tracking_number: params.trackingNumber,
-    };
-    if (params.trackingUrl) tracking.tracking_url = params.trackingUrl;
+    const carrierName = CARRIER_NAME_MAP[carrierKey] || params.carrier || 'Other';
 
     const body: Record<string, unknown> = {
-      tracking,
+      carrier: carrierName,
+      tracking_number: params.trackingNumber,
       items: params.items.map((i) => ({
         ...(i.orderLineId ? { order_line_id: i.orderLineId } : { id: i.sku }),
         quantity: i.quantity,
       })),
     };
+    if (params.trackingUrl) body.tracking_url = params.trackingUrl;
 
     const res = await callMiraklApi<{ action_id?: string }>(
       `/v2/orders/${params.miraklOrderId}/shipments`,

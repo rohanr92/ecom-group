@@ -240,6 +240,20 @@ async function processOrder(order: MiraklOrder): Promise<SyncReport> {
   const tax = order.total_taxes ?? 0;
   const total = order.total_price ?? subtotal + shippingCost + tax;
 
+  // Safety guard: skip if Mirakl hasn't revealed full data yet
+  // (e.g. order still in AWAITING_FRAUD_CHECK despite filter, or partial response)
+  if (!customer?.email || total <= 0) {
+    return {
+      miraklOrderId,
+      miraklStatus: order.status,
+      channel,
+      decision: 'no_match',
+      reason: 'Order data not yet available (likely in fraud check); will retry next sync',
+      matched: [],
+      unmatched: [],
+    };
+  }
+
   // Status: NEEDS_REVIEW concept doesn't exist in your enum, so we use PENDING
   // and surface "needs review" via the mirakl_status field.
   const ourStatus: OrderStatus = canAutoAccept ? 'CONFIRMED' : 'PENDING';
@@ -419,6 +433,14 @@ export async function syncOrders(): Promise<{
         updated_from: updatedFrom,
         limit: 50,
         page_token: pageToken,
+        status: [
+          'AWAITING_ACCEPTANCE',
+          'AWAITING_PAYMENT',
+          'AWAITING_SHIPMENT',
+          'SHIPPED',
+          'DELIVERED',
+          'CLOSED',
+        ],
       });
 
       for (const order of page.data) {

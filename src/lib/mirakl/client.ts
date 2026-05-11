@@ -142,7 +142,7 @@ export async function listOrders(params: {
   if (params.limit) query.set('limit', String(params.limit));
   if (params.page_token) query.set('page_token', params.page_token);
   if (params.channel_type) query.set('channel_type', params.channel_type);
-  if (params.status) params.status.forEach((s) => query.append('status', s));
+  if (params.status) params.status.forEach((s) => query.append('statuses', s));
 
   const qs = query.toString();
   return apiRequest<MiraklOrdersResponse>(`/v2/orders${qs ? `?${qs}` : ''}`);

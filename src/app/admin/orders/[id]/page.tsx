@@ -375,8 +375,10 @@ const downloadPackingSlip = async () => {
               <div className="text-[13px] text-gray-600 leading-relaxed">
                 <p className="font-medium text-[#1a1a1a]">{order.addresses[0].firstName} {order.addresses[0].lastName}</p>
                 <p>{order.addresses[0].street}</p>
+                {order.addresses[0].street2 && <p>{order.addresses[0].street2}</p>}
                 <p>{order.addresses[0].city}, {order.addresses[0].state} {order.addresses[0].zip}</p>
                 <p>{order.addresses[0].country}</p>
+                {order.addresses[0].phone && <p className="text-gray-500 mt-1">Phone: {order.addresses[0].phone}</p>}
               </div>
             </div>
           )}

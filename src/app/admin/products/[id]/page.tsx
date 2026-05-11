@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Save, Trash2, ArrowLeft, Plus, X, Eye, EyeOff,
+  Save, Trash2, ArrowLeft, Plus, X, Tag, Eye, EyeOff,
   Copy, Package, AlertCircle, CheckCircle2, FileText, Image
 } from 'lucide-react'
 import ImageUpload from '@/components/ImageUpload'
+import BarcodeLabelModal from '@/components/admin/BarcodeLabelModal'
 
 function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
   return (
@@ -41,6 +42,8 @@ export default function ProductDetailPage() {
   const [details, setDetails] = useState<string[]>([])
   const [isActive, setIsActive] = useState(true)
   const [variants, setVariants] = useState<any[]>([])
+  const [barcodeOpen, setBarcodeOpen] = useState(false)
+  const [barcodeVariant, setBarcodeVariant] = useState<any>(null)
   const [newDetail, setNewDetail] = useState('')
   const [addingVariant, setAddingVariant] = useState(false)
   const [savingVariants, setSavingVariants] = useState(false)
@@ -459,10 +462,28 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
                           </div>
                         </td>
                         <td className="py-2.5">
-                          <button onClick={() => setVariants(prev => prev.filter((_, j) => j !== i))}
-                            className="text-gray-300 hover:text-red-400 bg-transparent border-none cursor-pointer">
-                            <X size={13} />
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                if (!v.upc || v.upc.length < 12) {
+                                  showToast('Add a valid 12-digit UPC first', 'error')
+                                  return
+                                }
+                                setBarcodeVariant(v)
+                                setBarcodeOpen(true)
+                              }}
+                              title="Print barcode label"
+                              className="text-gray-400 hover:text-[#c8a882] bg-transparent border-none cursor-pointer p-1"
+                            >
+                              <Tag size={13} />
+                            </button>
+                            <button
+                              onClick={() => setVariants(prev => prev.filter((_, j) => j !== i))}
+                              className="text-gray-300 hover:text-red-400 bg-transparent border-none cursor-pointer"
+                            >
+                              <X size={13} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -646,4 +667,20 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
       </div>
     </div>
   )
+
+{barcodeOpen && barcodeVariant && (
+        <BarcodeLabelModal
+          open={barcodeOpen}
+          onClose={() => { setBarcodeOpen(false); setBarcodeVariant(null) }}
+          items={[{
+            upc: barcodeVariant.upc,
+            productName: name,
+            variantInfo: `${barcodeVariant.size || ''} · ${barcodeVariant.color || ''}`,
+            sku: barcodeVariant.sku,
+            quantity: 1,
+          }]}
+        />
+      )}
+
+
 }

@@ -6,8 +6,9 @@ import Link from 'next/link'
 import {
   ArrowLeft, Check, Truck, Package, Mail, MapPin,
   CreditCard, ExternalLink, AlertCircle, CheckCircle2,
-  FileText, Loader2
+  FileText, Loader2, Tag
 } from 'lucide-react'
+import BarcodeLabelModal from '@/components/admin/BarcodeLabelModal'
 
 // ── US couriers with tracking URL templates ──────────────────────
 const COURIERS = [
@@ -52,6 +53,7 @@ export default function OrderDetailPage() {
   const [loading,  setLoading]  = useState(true)
   const [updating, setUpdating] = useState(false)
   const [downloadingSlip, setDownloadingSlip] = useState(false)
+  const [barcodeOpen, setBarcodeOpen] = useState(false)
   const [toast,    setToast]    = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
 
   // Shipping fields
@@ -327,9 +329,19 @@ const downloadPackingSlip = async () => {
 
           {/* Items */}
           <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <h2 className="text-[13px] font-semibold text-[#1a1a1a] mb-4 flex items-center gap-2">
-              <Package size={14} strokeWidth={1.5} className="text-[#c8a882]" /> Items ({order.items?.length})
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[13px] font-semibold text-[#1a1a1a] flex items-center gap-2">
+                <Package size={14} strokeWidth={1.5} className="text-[#c8a882]" /> Items ({order.items?.length})
+              </h2>
+              {order.items?.some((it: any) => it.variant?.upc) && (
+                <button
+                  onClick={() => setBarcodeOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#1a1a1a] border border-gray-200 rounded-lg bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <Tag size={12} /> Print Labels
+                </button>
+              )}
+            </div>
             <div className="space-y-3">
               {order.items?.map((item: any) => (
                 <div key={item.id} className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
@@ -421,4 +433,22 @@ const downloadPackingSlip = async () => {
       </div>
     </div>
   )
+
+
+
+  {barcodeOpen && (
+        <BarcodeLabelModal
+          open={barcodeOpen}
+          onClose={() => setBarcodeOpen(false)}
+          items={(order.items || [])
+            .filter((it: any) => it.variant?.upc)
+            .map((it: any) => ({
+              upc: it.variant.upc,
+              productName: it.name,
+              variantInfo: `${it.size || ''} · ${it.color || ''}`,
+              sku: it.variant.sku,
+              quantity: it.quantity || 1,
+            }))}
+        />
+      )}
 }

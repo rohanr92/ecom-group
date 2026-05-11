@@ -123,6 +123,18 @@ async function acceptOrderOnMirakl(
  * Notify Mirakl that an order has shipped, with carrier + tracking info.
  * Called by /api/admin/orders PATCH when a Mirakl-linked order is marked SHIPPED.
  */
+// Map admin courier codes (lowercase) → Mirakl carrier_code (uppercase, registered carriers)
+const CARRIER_CODE_MAP: Record<string, string> = {
+  ups: 'UPS',
+  fedex: 'FEDEX',
+  usps: 'USPS',
+  dhl: 'DHL',
+  ontrac: 'ONTRAC',
+  lasership: 'LASERSHIP',
+  amazon: 'AMAZON',
+  other: 'OTHER',
+};
+
 export async function shipOrderOnMirakl(params: {
   miraklOrderId: string;
   trackingNumber: string;
@@ -131,15 +143,27 @@ export async function shipOrderOnMirakl(params: {
   items: Array<{ orderLineId?: string | null; sku: string; quantity: number }>;
 }): Promise<{ ok: boolean; actionId?: string; error?: string }> {
   try {
-    const body: Record<string, unknown> = {
-      carrier: params.carrier,
+    const carrierKey = (params.carrier || 'other').toLowerCase();
+    const carrierCode = CARRIER_CODE_MAP[carrierKey] || 'OTHER';
+    const carrierName = carrierKey === 'other'
+      ? 'Other'
+      : carrierKey.toUpperCase();
+
+    const tracking: Record<string, unknown> = {
+      carrier_code: carrierCode,
+      carrier_name: carrierName,
+      carrier_standard_code: carrierCode,
       tracking_number: params.trackingNumber,
+    };
+    if (params.trackingUrl) tracking.tracking_url = params.trackingUrl;
+
+    const body: Record<string, unknown> = {
+      tracking,
       items: params.items.map((i) => ({
         ...(i.orderLineId ? { order_line_id: i.orderLineId } : { id: i.sku }),
         quantity: i.quantity,
       })),
     };
-    if (params.trackingUrl) body.tracking_url = params.trackingUrl;
 
     const res = await callMiraklApi<{ action_id?: string }>(
       `/v2/orders/${params.miraklOrderId}/shipments`,

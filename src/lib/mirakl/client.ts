@@ -179,3 +179,36 @@ export async function callMiraklApi<T>(
 ): Promise<T> {
   return apiRequest<T>(path, init);
 }
+
+
+// =====================================================================
+// Binary download helper (for packing slips / documents)
+// =====================================================================
+export async function fetchMiraklBinary(path: string): Promise<{
+  buffer: ArrayBuffer
+  contentType: string
+  contentDisposition: string | null
+}> {
+  const token = await getAccessToken()
+  const url = path.startsWith('http') ? path : `${BASE_URL}${path}`
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: '*/*',
+    },
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    throw new MiraklError(
+      `Mirakl binary fetch ${res.status} ${res.statusText} on ${path}`,
+      res.status,
+      text,
+    )
+  }
+  const buffer = await res.arrayBuffer()
+  return {
+    buffer,
+    contentType: res.headers.get('content-type') || 'application/octet-stream',
+    contentDisposition: res.headers.get('content-disposition'),
+  }
+}

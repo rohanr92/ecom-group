@@ -431,10 +431,6 @@ const downloadPackingSlip = async () => {
           </div>
         </div>
       </div>
-    </div>
-  )
-
-
 
   {barcodeOpen && (
         <BarcodeLabelModal
@@ -451,4 +447,12 @@ const downloadPackingSlip = async () => {
             }))}
         />
       )}
+
+
+    </div>
+  )
+
+
+
+
 }

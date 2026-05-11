@@ -665,10 +665,9 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
           </div>
         </div>
       </div>
-    </div>
-  )
 
-{barcodeOpen && barcodeVariant && (
+
+      {barcodeOpen && barcodeVariant && (
         <BarcodeLabelModal
           open={barcodeOpen}
           onClose={() => { setBarcodeOpen(false); setBarcodeVariant(null) }}
@@ -681,6 +680,10 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
           }]}
         />
       )}
+    </div>
+  )
+
+
 
 
 }

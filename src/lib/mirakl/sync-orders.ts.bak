@@ -255,7 +255,7 @@ async function processOrder(order: MiraklOrder): Promise<SyncReport> {
 
   // ===== REAL MODE =====
 // ===== REAL MODE =====
-  const orderNumber = `MIR-${miraklOrderId.toUpperCase()}`;
+  const orderNumber = `MIR-${miraklOrderId.slice(0, 12).toUpperCase()}`;
 
   // Mirakl Connect v2 field paths (verified from real API responses)
   const orderAny = order as any;

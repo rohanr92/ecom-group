@@ -145,15 +145,20 @@ export async function sendOrderConfirmation(data: {
 // 2. Order Shipped
 export async function sendOrderShipped(data: {
   email: string; name: string; orderNumber: string; orderId: string;
-  trackingNumber: string; items: any[]; address: any;
+  trackingNumber: string; trackingUrl?: string; carrier?: string;
+  items: any[]; address: any;
 }) {
   const html = wrap(`
     <h1 style="${s.h1}">Your order is on its way.</h1>
     <p style="${s.subtitle}">Order ${data.orderNumber} · Shipped</p>
 
     <div style="${s.infoBoxGreen}">
-      <p style="${s.label}">Tracking Number</p>
-      <p style="margin:4px 0 0;font-size:18px;color:#1a1a1a;font-weight:600;letter-spacing:2px;">${data.trackingNumber}</p>
+      <p style="${s.label}">Tracking Number${data.carrier ? ` · ${data.carrier}` : ''}</p>
+      ${data.trackingUrl
+        ? `<p style="margin:4px 0 0;font-size:18px;font-weight:600;letter-spacing:2px;"><a href="${data.trackingUrl}" target="_blank" style="color:#1a1a1a;text-decoration:underline;">${data.trackingNumber}</a></p>
+           <p style="margin:8px 0 0;font-size:12px;color:#666;">Click the number above to track on the carrier's website.</p>`
+        : `<p style="margin:4px 0 0;font-size:18px;color:#1a1a1a;font-weight:600;letter-spacing:2px;">${data.trackingNumber}</p>`
+      }
     </div>
 
     <hr style="${s.divider}"/>

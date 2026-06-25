@@ -68,6 +68,8 @@ export async function PATCH(req: NextRequest) {
         orderNumber: order.orderNumber,
         orderId: order.id,
         trackingNumber,
+        trackingUrl: trackingUrl || undefined,
+        carrier: courier || undefined,
         items: order.items,
         address: order.addresses?.[0] ?? null,
       }))

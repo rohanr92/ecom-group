@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react'
 
 import ProductPageSkeleton from '@/components/ProductPageSkeleton'
 import Link from 'next/link'
-import { Heart, Share2, ChevronDown, ChevronUp, Star, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, ShieldCheck, Copy, X } from 'lucide-react'
+import { Heart, Share2, ChevronDown, ChevronUp, Star, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, ShieldCheck, Copy, X, Plus, Minus } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useCart } from '@/components/CartContext'
@@ -179,6 +179,10 @@ export default function ProductPage({ id }: { id: string }) {
   const [loading, setLoading]  = useState(true)
   const [selectedColor, setSelectedColor] = useState<any>(null)
   const [selectedSize,  setSelectedSize]  = useState<string | null>(null)
+  const [quantity,      setQuantity]      = useState(1)
+
+  // Reset quantity when size changes (so stale qty doesn't exceed new size's stock)
+  useEffect(() => { setQuantity(1) }, [selectedSize])
   const [activeImage,   setActiveImage]   = useState(0)
   const [added,         setAdded]         = useState(false)
   const [sizeError,     setSizeError]     = useState(false)
@@ -302,7 +306,7 @@ useEffect(() => {
       image:    product.images[0],
       size:     selectedSize ?? '',
       color:    selectedColor?.name ?? '',
-      quantity: 1,
+      quantity,
     }
     addItem(item)
     setModalItem(item)
@@ -594,6 +598,53 @@ useEffect(() => {
                   
                 </div>
               )}
+
+              {/* Quantity */}
+              {selectedSize && (() => {
+                const maxStock = product.sizeInventory[selectedSize] ?? 0
+                const atMax = quantity >= maxStock
+                return (
+                  <div className="mt-5">
+                    <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-500 mb-2">Quantity</p>
+                    <div className="flex items-center gap-3">
+                      <div className="inline-flex items-center border border-gray-300">
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                          disabled={quantity <= 1}
+                          className="w-10 h-10 flex items-center justify-center hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus size={13} strokeWidth={1.5} />
+                        </button>
+                        <input
+                          type="number"
+                          min={1}
+                          max={maxStock}
+                          value={quantity}
+                          onChange={e => {
+                            const v = parseInt(e.target.value) || 1
+                            setQuantity(Math.max(1, Math.min(maxStock, v)))
+                          }}
+                          className="w-12 h-10 text-center text-[13px] border-x border-gray-300 outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(q => Math.min(maxStock, q + 1))}
+                          disabled={atMax}
+                          className="w-10 h-10 flex items-center justify-center hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          aria-label="Increase quantity"
+                        >
+                          <Plus size={13} strokeWidth={1.5} />
+                        </button>
+                      </div>
+                      {atMax && (
+                        <p className="text-[11px] text-amber-600 tracking-wide">Max stock reached</p>
+                      )}
+                    </div>
+                  </div>
+                )
+              })()}
 
               {/* Add to Cart */}
               <div className="flex gap-2.5 mt-6">

@@ -90,16 +90,29 @@ const downloadPackingSlip = async () => {
         showToast(err.error || 'Failed to download packing slip', 'error')
         return
       }
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `packing-slip-${order?.orderNumber || orderId}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      showToast('Packing slip downloaded', 'success')
+      const contentType = res.headers.get('content-type') || ''
+      if (contentType.includes('application/pdf')) {
+        const blob = await res.blob()
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `packing-slip-${order?.orderNumber || orderId}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        showToast('Packing slip downloaded', 'success')
+      } else {
+        const html = await res.text()
+        const printWindow = window.open('', '_blank', 'width=900,height=1100')
+        if (printWindow) {
+          printWindow.document.write(html)
+          printWindow.document.close()
+          showToast('Packing slip opened — use Print dialog', 'success')
+        } else {
+          showToast('Pop-up blocked — allow pop-ups for this site', 'error')
+        }
+      }
     } catch (err) {
       showToast('Failed to download packing slip', 'error')
     } finally {
@@ -283,17 +296,15 @@ const downloadPackingSlip = async () => {
                   className="px-4 py-2 bg-white border border-gray-300 text-[12px] text-gray-700 rounded-lg cursor-pointer hover:border-[#1a1a1a] disabled:opacity-40 transition-colors">
                   Save
                 </button>
-                {order.miraklOrderId && (
-                  <button
-                    onClick={downloadPackingSlip}
-                    disabled={downloadingSlip}
-                    className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-[#1a1a1a] border border-gray-200 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 cursor-pointer transition-colors mb-2"
-                  >
-                    {downloadingSlip
-                      ? <><Loader2 size={13} className="animate-spin" /> Downloading...</>
-                      : <><FileText size={13} /> Download Packing Slip</>}
-                  </button>
-                )}
+                <button
+                  onClick={downloadPackingSlip}
+                  disabled={downloadingSlip}
+                  className="flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-[#1a1a1a] border border-gray-200 rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 cursor-pointer transition-colors mb-2"
+                >
+                  {downloadingSlip
+                    ? <><Loader2 size={13} className="animate-spin" /> Loading...</>
+                    : <><FileText size={13} /> {order.miraklOrderId ? 'Download Packing Slip' : 'Print Packing Slip'}</>}
+                </button>
                 <button onClick={() => updateStatus('SHIPPED')} disabled={updating || !tracking}
                   className="flex items-center gap-1.5 px-4 py-2 bg-[#4a6741] text-white text-[12px] font-medium rounded-lg border-none cursor-pointer hover:bg-green-800 disabled:opacity-40 transition-colors whitespace-nowrap">
                   <Truck size={13} /> Mark Shipped

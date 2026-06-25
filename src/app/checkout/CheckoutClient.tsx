@@ -2,6 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import { useCart } from '@/components/CartContext'
@@ -43,6 +44,12 @@ const autocompleteRef = useRef<any>(null)
 
   // Steps
   const [step, setStep] = useState<'address' | 'payment'>('address')
+
+  const router = useRouter()
+
+
+  
+
 
   // Order success
   const [orderPlaced, setOrderPlaced]   = useState(false)
@@ -702,8 +709,7 @@ const validateAddr = () => {
           const orderJson = await orderRes.json()
           if (orderRes.ok) {
             clearCart()
-            setOrderNumber(orderJson.orderNumber)
-            setOrderPlaced(true)
+            router.push(`/checkout/success?order=${encodeURIComponent(orderJson.orderNumber)}&method=card`)
           } else {
             setPaymentError(orderJson.error ?? 'Order failed')
           }
@@ -752,8 +758,7 @@ const validateAddr = () => {
         const orderJson = await orderRes.json()
         if (!orderRes.ok) { setPaymentError(orderJson.error ?? 'Order failed'); return }
         clearCart()
-        setOrderNumber(orderJson.orderNumber)
-        setOrderPlaced(true)
+        router.push(`/checkout/success?order=${encodeURIComponent(orderJson.orderNumber)}&method=card`)
       } catch (err: any) {
         setPaymentError(err.message ?? 'Something went wrong')
       }

@@ -745,7 +745,7 @@ const validateAddr = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...buildOrderData(),
-            paymentMethod: 'CARD',
+            paymentMethod: 'SQUARE',
             stripePaymentId: data.payment?.id ?? 'PAID',
           }),
         })

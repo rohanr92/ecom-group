@@ -4,7 +4,6 @@ import Link from 'next/link'
 
 const DEFAULTS = {
   url:      '/videos/promo.mp4',
-  poster:   'https://d3o8u8o2i2q94t.cloudfront.net/products/1782766468737-screenshot-2026-06-30-at-2.52.41-am.webp',
   title:    'Limited-Edition Tote Bag',
   subtitle: 'With any $500+ purchase',
   cta:      'Shop Now',
@@ -29,8 +28,6 @@ export default function PromoBanner() {
     <section style={{ position: 'relative', overflow: 'hidden', minHeight: 'clamp(400px, 55vw, 550px)', background: '#1a1a1a' }}>
       <video
         src={cms.url}
-        poster={cms.poster}
-        preload="metadata"
         autoPlay muted loop playsInline
         style={{
           position: 'absolute', inset: 0,

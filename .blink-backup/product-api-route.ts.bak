@@ -1,7 +1,6 @@
 // src/app/api/products/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { unstable_cache } from 'next/cache'
 
 export async function GET(
   req: NextRequest,
@@ -10,18 +9,16 @@ export async function GET(
   try {
     const { id } = await params
 
-    const getProduct = unstable_cache(
-      async (pid: string) => prisma.product.findFirst({
-        where: { OR: [{ slug: pid }, { id: pid }] },
-        include: {
-          variants: true,
-          reviews: { where: { approved: true }, orderBy: { createdAt: 'desc' } },
+    const product = await prisma.product.findFirst({
+      where: { OR: [{ slug: id }, { id }] },
+      include: {
+        variants: true,
+        reviews: {
+          where: { approved: true },
+          orderBy: { createdAt: 'desc' },
         },
-      }),
-      ['product-api', id],
-      { revalidate: 300, tags: ['slot-products'] }
-    )
-    const product = await getProduct(id)
+      },
+    })
 
     if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 

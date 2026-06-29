@@ -149,7 +149,7 @@ export async function PATCH(req: NextRequest) {
     }
 
    const data: any = {}
-const fields = ['name','description','price','comparePrice','category','images','badge','details','isActive','isGrouped','tags']
+const fields = ['name','description','price','comparePrice','category','images','badge','details','isActive','isGrouped','tags','sizeChart']
 fields.forEach(f => { if (body[f] !== undefined) data[f] = body[f] })
     if (body.name) data.slug = generateSlug(body.name)
     if (body.price)        data.price        = parseFloat(body.price)

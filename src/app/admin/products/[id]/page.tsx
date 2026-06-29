@@ -7,6 +7,7 @@ import {
   Copy, Package, AlertCircle, CheckCircle2, FileText, Image
 } from 'lucide-react'
 import ImageUpload from '@/components/ImageUpload'
+import SizeChartUpload from '@/components/SizeChartUpload'
 import BarcodeLabelModal from '@/components/admin/BarcodeLabelModal'
 
 function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
@@ -39,6 +40,7 @@ export default function ProductDetailPage() {
   const [category, setCategory] = useState('')
   const [badge, setBadge] = useState('')
   const [images, setImages] = useState<string[]>([])
+  const [sizeChart, setSizeChart] = useState<string>('')
   const [details, setDetails] = useState<string[]>([])
   const [isActive, setIsActive] = useState(true)
   const [variants, setVariants] = useState<any[]>([])
@@ -98,6 +100,7 @@ const [tagInput, setTagInput] = useState('')
           setCategory(p.category ?? '')
           setBadge(p.badge ?? '')
           setImages(Array.isArray(p.images) ? p.images : [])
+          setSizeChart(p.sizeChart || '')
           setDetails(Array.isArray(p.details) ? p.details : [])
           setIsActive(p.isActive ?? true)
           setVariants(p.variants ?? [])
@@ -115,7 +118,7 @@ setTags(p.tags ?? [])
       const res = await fetch('/api/admin/products', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ id, name, description, price, comparePrice, category, badge, images, details, isActive, isGrouped, tags }),
+body: JSON.stringify({ id, name, description, price, comparePrice, category, badge, images, details, isActive, isGrouped, tags, sizeChart }),
       })
       const d = await res.json()
       if (res.ok) { setProduct(d.product); showToast('Product saved', 'success') }
@@ -273,6 +276,12 @@ body: JSON.stringify({ id, name, description, price, comparePrice, category, bad
               ))}
             </div>
             <ImageUpload images={images} onChange={setImages} maxImages={50} />
+
+            <div className="mt-6">
+              <label className="block text-[12px] font-semibold text-gray-600 uppercase tracking-widest mb-2">Size Chart (image or PDF)</label>
+              <p className="text-[11px] text-gray-400 mb-3">Shown when a customer clicks Size Chart on the product page.</p>
+              <SizeChartUpload value={sizeChart} onChange={setSizeChart} />
+            </div>
           </div>
 
           {/* Color Image Assignment */}

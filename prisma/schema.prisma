@@ -105,6 +105,7 @@ model Product {
   category     String
   badge        String?
   images       String[]
+  sizeChart    String?  @map("size_chart")
   isActive     Boolean  @default(true) @map("is_active")
   isGrouped    Boolean  @default(true) @map("is_grouped")
   tags         String[] @default([])

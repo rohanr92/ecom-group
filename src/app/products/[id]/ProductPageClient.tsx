@@ -179,6 +179,7 @@ export default function ProductPage({ id }: { id: string }) {
   const [loading, setLoading]  = useState(true)
   const [selectedColor, setSelectedColor] = useState<any>(null)
   const [selectedSize,  setSelectedSize]  = useState<string | null>(null)
+  const [sizeChartOpen, setSizeChartOpen] = useState(false)
   const [quantity,      setQuantity]      = useState(1)
 
   // Reset quantity when size changes (so stale qty doesn't exceed new size's stock)
@@ -545,7 +546,11 @@ useEffect(() => {
                 <div className="mt-5">
                   <div className="flex items-center justify-between mb-2.5">
                     <p className="text-[11px] tracking-[0.15em] uppercase text-[#1a1a1a] font-semibold">Size</p>
-                    <Link href="/size-guide" className="text-[11px] text-gray-400 underline tracking-wide hover:text-[#1a1a1a]">Size Guide</Link>
+                    {product.sizeChart ? (
+                      <button type="button" onClick={() => setSizeChartOpen(true)} className="text-[11px] text-gray-400 underline tracking-wide hover:text-[#1a1a1a] bg-transparent border-none cursor-pointer p-0">Size Chart</button>
+                    ) : (
+                      <Link href="/size-guide" className="text-[11px] text-gray-400 underline tracking-wide hover:text-[#1a1a1a]">Size Guide</Link>
+                    )}
                   </div>
                 <div className="flex gap-2 flex-wrap">
   {product.sizes.map((s: string) => {
@@ -712,6 +717,31 @@ useEffect(() => {
         />
 
         <YouMayAlsoLikeGrid /> 
+      
+      {sizeChartOpen && product.sizeChart && (
+        <div
+          onClick={() => setSizeChartOpen(false)}
+          style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '8px', maxWidth: '900px', width: '100%', maxHeight: '90vh', overflow: 'auto', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #eee', position: 'sticky', top: 0, background: '#fff' }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1a1a1a' }}>Size Chart</p>
+              <button onClick={() => setSizeChartOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={18} /></button>
+            </div>
+            <div style={{ padding: '20px' }}>
+              {product.sizeChart.toLowerCase().endsWith('.pdf') ? (
+                <>
+                  <iframe src={product.sizeChart} style={{ width: '100%', height: '70vh', border: 'none' }} title="Size Chart" />
+                  <a href={product.sizeChart} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '12px', fontSize: '12px', color: '#1a1a1a', textDecoration: 'underline' }}>Open PDF in new tab</a>
+                </>
+              ) : (
+                <img src={product.sizeChart} alt="Size Chart" style={{ width: '100%', height: 'auto', display: 'block' }} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       </main>
 
       <Footer />

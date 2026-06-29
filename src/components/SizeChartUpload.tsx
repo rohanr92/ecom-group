@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef } from 'react'
 import { Upload, X, Loader2, FileText, Image as ImageIcon } from 'lucide-react'
+import imageCompression from 'browser-image-compression'
 
 interface Props {
   value: string
@@ -20,15 +21,31 @@ export default function SizeChartUpload({ value, onChange }: Props) {
     try {
       setError('')
       setUploading(true)
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'bin'
+      let uploadFile = file
+      let uploadType = file.type
+      let ext = file.name.split('.').pop()?.toLowerCase() || 'bin'
+
+      // Compress images (skip PDFs) so charts load fast on the storefront
+      if (file.type.startsWith('image/')) {
+        uploadFile = await imageCompression(file, {
+          maxSizeMB: 0.6,
+          maxWidthOrHeight: 1600,
+          useWebWorker: true,
+          fileType: 'image/webp',
+          initialQuality: 0.85,
+        })
+        uploadType = 'image/webp'
+        ext = 'webp'
+      }
+
       const metaRes = await fetch('/api/admin/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: `size-chart-${Date.now()}.${ext}`, contentType: file.type }),
+        body: JSON.stringify({ filename: `size-chart-${Date.now()}.${ext}`, contentType: uploadType }),
       })
       if (!metaRes.ok) throw new Error('Failed to get upload URL')
       const { signedUrl, publicUrl } = await metaRes.json()
-      const up = await fetch(signedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+      const up = await fetch(signedUrl, { method: 'PUT', body: uploadFile, headers: { 'Content-Type': uploadType } })
       if (!up.ok) throw new Error('Upload to S3 failed')
       onChange(publicUrl)
     } catch (e: any) {

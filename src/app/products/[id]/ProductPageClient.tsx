@@ -181,6 +181,7 @@ export default function ProductPage({ id }: { id: string }) {
   const [selectedSize,  setSelectedSize]  = useState<string | null>(null)
   const [sizeChartOpen, setSizeChartOpen] = useState(false)
   const [sizeChartLoading, setSizeChartLoading] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState(false)
   const [quantity,      setQuantity]      = useState(1)
 
   // Reset quantity when size changes (so stale qty doesn't exceed new size's stock)
@@ -297,16 +298,8 @@ useEffect(() => {
 
   const handleSizeChartClick = () => {
     if (!product?.sizeChart) return
-    setSizeChartLoading(true)
-    const url = product.sizeChart
-    if (url.toLowerCase().endsWith('.pdf')) {
-      setTimeout(() => { setSizeChartLoading(false); setSizeChartOpen(true) }, 500)
-    } else {
-      const img = new window.Image()
-      img.onload  = () => { setSizeChartLoading(false); setSizeChartOpen(true) }
-      img.onerror = () => { setSizeChartLoading(false); setSizeChartOpen(true) }
-      img.src = url
-    }
+    setImgLoaded(false)
+    setSizeChartOpen(true)
   }
 
  const handleAddToCart = () => {
@@ -562,7 +555,7 @@ useEffect(() => {
                   <div className="flex items-center justify-between mb-2.5">
                     <p className="text-[11px] tracking-[0.15em] uppercase text-[#1a1a1a] font-semibold">Size</p>
                     {product.sizeChart ? (
-                      <button type="button" onClick={handleSizeChartClick} disabled={sizeChartLoading} className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a] underline underline-offset-2 tracking-wide hover:opacity-70 bg-transparent border-none cursor-pointer p-0 disabled:opacity-60"><Ruler size={15} strokeWidth={1.5} />Size guides{sizeChartLoading && <Loader2 size={13} className="animate-spin text-gray-400" />}</button>
+                      <button type="button" onClick={handleSizeChartClick} disabled={sizeChartLoading} className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a] underline underline-offset-2 tracking-wide hover:opacity-70 bg-transparent border-none cursor-pointer p-0 disabled:opacity-60"><Ruler size={15} strokeWidth={1.5} />Size guides</button>
                     ) : (
                       <Link href="/size-guide" className="text-[11px] text-gray-400 underline tracking-wide hover:text-[#1a1a1a]">Size Guide</Link>
                     )}
@@ -750,7 +743,14 @@ useEffect(() => {
                   <a href={product.sizeChart} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '12px', fontSize: '12px', color: '#1a1a1a', textDecoration: 'underline' }}>Open PDF in new tab</a>
                 </>
               ) : (
-                <img src={product.sizeChart} alt="Size Chart" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                <div style={{ position: 'relative', minHeight: imgLoaded ? 'auto' : '300px' }}>
+                  {!imgLoaded && (
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Loader2 size={28} className="animate-spin" style={{ color: '#c8a882' }} />
+                    </div>
+                  )}
+                  <img src={product.sizeChart} alt="Size Chart" onLoad={() => setImgLoaded(true)} style={{ width: '100%', height: 'auto', display: 'block', opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.2s' }} />
+                </div>
               )}
             </div>
           </div>

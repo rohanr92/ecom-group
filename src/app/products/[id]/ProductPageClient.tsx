@@ -180,7 +180,6 @@ export default function ProductPage({ id }: { id: string }) {
   const [selectedColor, setSelectedColor] = useState<any>(null)
   const [selectedSize,  setSelectedSize]  = useState<string | null>(null)
   const [sizeChartOpen, setSizeChartOpen] = useState(false)
-  const [sizeChartLoading, setSizeChartLoading] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
   const [quantity,      setQuantity]      = useState(1)
 
@@ -555,7 +554,7 @@ useEffect(() => {
                   <div className="flex items-center justify-between mb-2.5">
                     <p className="text-[11px] tracking-[0.15em] uppercase text-[#1a1a1a] font-semibold">Size</p>
                     {product.sizeChart ? (
-                      <button type="button" onClick={handleSizeChartClick} disabled={sizeChartLoading} className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a] underline underline-offset-2 tracking-wide hover:opacity-70 bg-transparent border-none cursor-pointer p-0 disabled:opacity-60"><Ruler size={15} strokeWidth={1.5} />Size guides</button>
+                      <button type="button" onClick={handleSizeChartClick} className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a] underline underline-offset-2 tracking-wide hover:opacity-70 bg-transparent border-none cursor-pointer p-0"><Ruler size={15} strokeWidth={1.5} />Size guides</button>
                     ) : (
                       <Link href="/size-guide" className="text-[11px] text-gray-400 underline tracking-wide hover:text-[#1a1a1a]">Size Guide</Link>
                     )}

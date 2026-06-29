@@ -30,12 +30,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
-  reactCompiler: true,
+  reactCompiler: false,
   compress: true,
   poweredByHeader: false,
   output: 'standalone',
   experimental: {
-    optimizeCss: true,
+    // optimizeCss: true,  // disabled: caused scroll repaint flicker
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   async headers() {

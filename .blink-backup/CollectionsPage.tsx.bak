@@ -37,7 +37,6 @@ result.push({
   slug: p.slug,
   image: displayImage,
   colors: v.colorHex ? [{ hex: v.colorHex, name: v.color, images: colorImages }] : [],
-  soldOut: Array.isArray(p.variants) && p.variants.filter((vv: any) => vv.color === v.color).every((vv: any) => (vv.inventory ?? 0) <= 0),
   _colorLabel: v.color,
   _colorHex: v.colorHex,
   _expandedKey: `${p.id}-${v.color}`,
@@ -182,11 +181,7 @@ function ProductCard({ product }: { product: typeof allProducts[0] & { id: strin
     transform: hovered ? 'scale(1.04)' : 'scale(1)',
   }}
 />
-          {(product as any).soldOut ? (
-            <span className="absolute top-2.5 left-2.5 bg-[#6b6b6b] text-white text-[9px] font-semibold tracking-widest uppercase px-2 py-1">
-              Sold Out
-            </span>
-          ) : product.badge && (
+          {product.badge && (
             <span className={`absolute top-2.5 left-2.5 ${BadgeColor(product.badge)} text-white text-[9px] font-semibold tracking-widest uppercase px-2 py-1`}>
               {product.badge}
             </span>
@@ -322,7 +317,6 @@ export default function CollectionsPage({ slug }: { slug?: string }) {
   colors: p.variants
     ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color, images: v.images ?? [] }])).values()]
     : [],
-  soldOut: Array.isArray(p.variants) && p.variants.length > 0 && p.variants.every((v: any) => (v.inventory ?? 0) <= 0),
   reviews: p.reviewCount ?? 0,
 rating: p.avgRating ?? 0,
 })))
@@ -342,7 +336,6 @@ rating: p.avgRating ?? 0,
               ...p,
               image: p.images?.[0] ?? 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=80',
               originalPrice: p.comparePrice ? Number(p.comparePrice) : null,
-              soldOut: Array.isArray(p.variants) && p.variants.length > 0 && p.variants.every((v: any) => (v.inventory ?? 0) <= 0),
               colors: p.variants
                 ? [...new Map(p.variants.filter((v: any) => v.colorHex).map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color, images: v.images ?? [] }])).values()]
                 : [],

@@ -1,5 +1,6 @@
 // Save as: src/app/api/admin/products/route.ts (REPLACE)
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
@@ -115,6 +116,7 @@ export async function POST(req: NextRequest) {
       include: { variants: true },
     })
     await syncSaleCollection(product.id, comparePrice ? parseFloat(comparePrice) : null)
+    revalidateTag('slot-products')
     return NextResponse.json({ success: true, product })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -137,6 +139,7 @@ export async function PATCH(req: NextRequest) {
         where: { id },
         data:  { isActive: false },
       })
+      revalidateTag('slot-products')
       return NextResponse.json({ success: true, product })
     }
     if (body.action === 'publish') {
@@ -144,6 +147,8 @@ export async function PATCH(req: NextRequest) {
         where: { id },
         data:  { isActive: true },
       })
+
+      revalidateTag('slot-products')
 
       return NextResponse.json({ success: true, product })
     }
@@ -165,6 +170,7 @@ fields.forEach(f => { if (body[f] !== undefined) data[f] = body[f] })
       include: { variants: true },
     })
     await syncSaleCollection(product.id, data.comparePrice ?? null)
+    revalidateTag('slot-products')
     return NextResponse.json({ success: true, product })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })

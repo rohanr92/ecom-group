@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react'
 
 import ProductPageSkeleton from '@/components/ProductPageSkeleton'
 import Link from 'next/link'
-import { Heart, Share2, ChevronDown, ChevronUp, Star, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, ShieldCheck, Copy, X, Plus, Minus } from 'lucide-react'
+import { Heart, Share2, ChevronDown, ChevronUp, Star, ChevronLeft, ChevronRight, Check, Truck, RefreshCw, ShieldCheck, Copy, X, Plus, Minus, Ruler, Loader2 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useCart } from '@/components/CartContext'
@@ -180,6 +180,7 @@ export default function ProductPage({ id }: { id: string }) {
   const [selectedColor, setSelectedColor] = useState<any>(null)
   const [selectedSize,  setSelectedSize]  = useState<string | null>(null)
   const [sizeChartOpen, setSizeChartOpen] = useState(false)
+  const [sizeChartLoading, setSizeChartLoading] = useState(false)
   const [quantity,      setQuantity]      = useState(1)
 
   // Reset quantity when size changes (so stale qty doesn't exceed new size's stock)
@@ -293,6 +294,20 @@ useEffect(() => {
   window.addEventListener('keydown', handler)
   return () => window.removeEventListener('keydown', handler)
 }, [lightboxOpen, product])
+
+  const handleSizeChartClick = () => {
+    if (!product?.sizeChart) return
+    setSizeChartLoading(true)
+    const url = product.sizeChart
+    if (url.toLowerCase().endsWith('.pdf')) {
+      setTimeout(() => { setSizeChartLoading(false); setSizeChartOpen(true) }, 500)
+    } else {
+      const img = new window.Image()
+      img.onload  = () => { setSizeChartLoading(false); setSizeChartOpen(true) }
+      img.onerror = () => { setSizeChartLoading(false); setSizeChartOpen(true) }
+      img.src = url
+    }
+  }
 
  const handleAddToCart = () => {
   if (!selectedSize && product?.sizes?.length) { setSizeError(true); return }
@@ -547,7 +562,7 @@ useEffect(() => {
                   <div className="flex items-center justify-between mb-2.5">
                     <p className="text-[11px] tracking-[0.15em] uppercase text-[#1a1a1a] font-semibold">Size</p>
                     {product.sizeChart ? (
-                      <button type="button" onClick={() => setSizeChartOpen(true)} className="text-[11px] text-gray-400 underline tracking-wide hover:text-[#1a1a1a] bg-transparent border-none cursor-pointer p-0">Size Chart</button>
+                      <button type="button" onClick={handleSizeChartClick} disabled={sizeChartLoading} className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a] underline underline-offset-2 tracking-wide hover:opacity-70 bg-transparent border-none cursor-pointer p-0 disabled:opacity-60"><Ruler size={15} strokeWidth={1.5} />Size guides{sizeChartLoading && <Loader2 size={13} className="animate-spin text-gray-400" />}</button>
                     ) : (
                       <Link href="/size-guide" className="text-[11px] text-gray-400 underline tracking-wide hover:text-[#1a1a1a]">Size Guide</Link>
                     )}

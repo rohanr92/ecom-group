@@ -324,7 +324,7 @@ const openMenu = (item: string) => {
         <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#fff', overflowY: 'auto' }}>
           <div style={{ padding: '20px 24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <img src="https://d3o8u8o2i2q94t.cloudfront.net/products/1776112843934-logo-01.png" alt="Solomon & Sage" style={{ height: '32px', width: 'auto' }} />
+              <img src="https://d3o8u8o2i2q94t.cloudfront.net/products/1775557455099-logo-01.png" alt="Solomon & Sage" style={{ height: '32px', width: 'auto' }} />
               <button onClick={() => setMobileOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={22} strokeWidth={1.5} /></button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '2px', padding: '8px 12px', marginBottom: '16px', gap: '8px', background: '#fafafa' }}>
@@ -335,7 +335,7 @@ const openMenu = (item: string) => {
                 style={{ flex: 1, border: 'none', background: 'transparent', fontFamily: 'var(--font-body)', fontSize: '13px', color: '#555', outline: 'none' }} />
             </div>
             <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '14px' }}>
-              {(['women'] as const).map(t => (
+              {(['women', 'men'] as const).map(t => (
                 <button key={t} onClick={() => setActiveTab(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: activeTab === t ? 600 : 400, borderBottom: activeTab === t ? '2px solid #1a1a1a' : '2px solid transparent', paddingBottom: '6px' }}>
                   {t === 'women' ? 'Women' : 'Men'}
                 </button>

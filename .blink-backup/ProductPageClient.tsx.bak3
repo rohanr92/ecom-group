@@ -345,10 +345,6 @@ useEffect(() => {
 
   
 
-  const productSoldOut = product?.sizeInventory
-    && Object.keys(product.sizeInventory).length > 0
-    && Object.values(product.sizeInventory).every((n) => (Number(n) || 0) <= 0)
-
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
@@ -474,11 +470,6 @@ useEffect(() => {
                   <h1 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl font-light italic text-[#1a1a1a] leading-tight">
                     {product.name}
                   </h1>
-                  {productSoldOut && (
-                    <span className="inline-block mt-2 text-[10px] font-semibold tracking-[0.15em] uppercase text-white bg-[#6b6b6b] px-2 py-1">
-                      Sold Out
-                    </span>
-                  )}
                 </div>
                 <div className="flex gap-2 shrink-0 mt-1">
                   {/* Wishlist — connected to DB */}
@@ -669,12 +660,10 @@ useEffect(() => {
 
               {/* Add to Cart */}
               <div className="flex gap-2.5 mt-6">
-                <button onClick={handleAddToCart} disabled={productSoldOut}
-                  className={`flex-1 h-12 text-[12px] font-semibold tracking-[0.2em] uppercase transition-all border flex items-center justify-center gap-2
-                    ${productSoldOut ? 'bg-gray-200 border-gray-200 text-gray-500 cursor-not-allowed'
-                      : added ? 'bg-[#4a6741] border-[#4a6741] text-white cursor-pointer'
-                      : 'bg-[#1a1a1a] border-[#1a1a1a] text-white hover:bg-transparent hover:text-[#1a1a1a] cursor-pointer'}`}>
-                  {productSoldOut ? 'Sold Out' : added ? <><Check size={14} strokeWidth={2} /> Added</> : 'Add to Cart'}
+                <button onClick={handleAddToCart}
+                  className={`flex-1 h-12 text-[12px] font-semibold tracking-[0.2em] uppercase transition-all cursor-pointer border flex items-center justify-center gap-2
+                    ${added ? 'bg-[#4a6741] border-[#4a6741] text-white' : 'bg-[#1a1a1a] border-[#1a1a1a] text-white hover:bg-transparent hover:text-[#1a1a1a]'}`}>
+                  {added ? <><Check size={14} strokeWidth={2} /> Added</> : 'Add to Cart'}
                 </button>
                 <WishlistButton productId={product.id} size={16} showLabel
                   className="h-12 px-5 border border-gray-300 hover:border-[#1a1a1a] transition-colors" />

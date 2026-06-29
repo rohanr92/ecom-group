@@ -174,12 +174,7 @@ a[style*="border"] {
   animation: marquee 20s linear infinite;
   white-space: nowrap;
   display: flex;
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  contain: layout paint;
 }
-.marquee-track > * { contain: paint; }
 .marquee-track:hover {
   animation-play-state: paused;
 }

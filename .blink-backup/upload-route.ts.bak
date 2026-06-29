@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
       Bucket:      process.env.AWS_S3_BUCKET!,
       Key:         key,
       ContentType: contentType,
-      CacheControl: 'public, max-age=31536000, immutable',
     })
 
     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 300 })

@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   output: 'standalone',
   experimental: {
-    // optimizeCss: true,  // disabled: caused scroll repaint flicker
+    optimizeCss: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   async headers() {

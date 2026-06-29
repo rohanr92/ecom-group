@@ -39,7 +39,7 @@ export async function PUT(req: NextRequest) {
       create: { key, value },
     })
 
-    revalidateTag('cms-settings')
+    revalidateTag('cms-settings', 'max')
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })

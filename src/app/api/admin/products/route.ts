@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
       include: { variants: true },
     })
     await syncSaleCollection(product.id, comparePrice ? parseFloat(comparePrice) : null)
-    revalidateTag('slot-products')
+    revalidateTag('slot-products', 'max')
     return NextResponse.json({ success: true, product })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -139,7 +139,7 @@ export async function PATCH(req: NextRequest) {
         where: { id },
         data:  { isActive: false },
       })
-      revalidateTag('slot-products')
+      revalidateTag('slot-products', 'max')
       return NextResponse.json({ success: true, product })
     }
     if (body.action === 'publish') {
@@ -148,7 +148,7 @@ export async function PATCH(req: NextRequest) {
         data:  { isActive: true },
       })
 
-      revalidateTag('slot-products')
+      revalidateTag('slot-products', 'max')
 
       return NextResponse.json({ success: true, product })
     }
@@ -170,7 +170,7 @@ fields.forEach(f => { if (body[f] !== undefined) data[f] = body[f] })
       include: { variants: true },
     })
     await syncSaleCollection(product.id, data.comparePrice ?? null)
-    revalidateTag('slot-products')
+    revalidateTag('slot-products', 'max')
     return NextResponse.json({ success: true, product })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })

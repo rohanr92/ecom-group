@@ -105,7 +105,7 @@ if (Array.isArray(v.images) && v.images.length > 0) {
   image: img,
   badge: p.badge ?? undefined,
   href:  `/products/${p.slug ?? p.id}`,
-  colors: [{ hex: v.colorHex, name: color, images: (Array.isArray(v.images) && v.images.length > 0) ? v.images : [img] }],
+  colors: [{ hex: v.colorHex, name: color }],
   soldOut: Array.isArray(p.variants) && p.variants.filter((vv: any) => vv.color === color).every((vv: any) => (vv.inventory ?? 0) <= 0),
   comparePrice: p.comparePrice ? Number(p.comparePrice) : undefined,
       })
@@ -119,7 +119,7 @@ if (Array.isArray(v.images) && v.images.length > 0) {
   badge: p.badge ?? undefined,
   href:  `/products/${p.slug ?? p.id}`,
   colors: p.variants
-    ? [...new Map(p.variants.map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color, images: (Array.isArray(v.images) && v.images.length > 0) ? v.images : (p.images ?? []) }])).values()]
+    ? [...new Map(p.variants.map((v: any) => [v.colorHex, { hex: v.colorHex, name: v.color }])).values()]
     : [],
   soldOut: Array.isArray(p.variants) && p.variants.length > 0 && p.variants.every((v: any) => (v.inventory ?? 0) <= 0),
   comparePrice: p.comparePrice ? Number(p.comparePrice) : undefined,

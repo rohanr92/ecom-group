@@ -34,7 +34,7 @@ function ProductCard({ product }: { product: Product }) {
   const onSale = comparePrice && comparePrice > product.price
   const { convert } = useCurrency()
 
-  const displayImage = activeColor?.images?.[0] || product.image || (product as any).colors?.[0]?.images?.[0] || ""
+  const displayImage = activeColor?.images?.[0] ?? product.image
 
   return (
 <div

@@ -29,8 +29,18 @@ function SkeletonProductGrid({ title, subtitle }: { title: string; subtitle?: st
           </div>
         </div>
 
+        <style>{`
+          @media (max-width: 767px) {
+            .slot-skeleton-grid {
+              grid-auto-columns: calc((100% - 6px) / 2) !important;
+            }
+            .slot-skeleton-card:nth-child(n+3) {
+              display: none !important;
+            }
+          }
+        `}</style>
         {/* Skeleton cards */}
-        <div style={{
+        <div className="slot-skeleton-grid" style={{
           display: 'grid',
           gridAutoFlow: 'column',
           gridAutoColumns: 'calc((100% - 4 * 6px) / 5)',
@@ -38,7 +48,7 @@ function SkeletonProductGrid({ title, subtitle }: { title: string; subtitle?: st
           overflow: 'hidden',
         }}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i}>
+            <div key={i} className="slot-skeleton-card">
               <div style={{
                 aspectRatio: '3/4',
                 background: 'linear-gradient(90deg, #f0ece6 25%, #e8e4de 50%, #f0ece6 75%)',

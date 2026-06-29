@@ -1,26 +1,23 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import ProductPageClient from './ProductPageClient'
-import { unstable_cache } from 'next/cache'
-
-// Cached product lookup — shared by metadata + page, avoids repeat Seoul DB trips
-const getCachedProduct = unstable_cache(
-  async (id: string) => {
-    return prisma.product.findFirst({
-      where: { OR: [{ slug: id }, { id }] },
-      select: { name: true, description: true, price: true, category: true, images: true, slug: true, id: true },
-    })
-  },
-  ['product-page'],
-  { revalidate: 300, tags: ['products'] }
-)
 
 type Props = { params: Promise<{ id: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
 
-  const product = await getCachedProduct(id)
+  const product = await prisma.product.findFirst({
+    where: { OR: [{ slug: id }, { id }] },
+    select: {
+      name: true,
+      description: true,
+      price: true,
+      category: true,
+      images: true,
+      slug: true,
+    },
+  })
 
   if (!product) return { title: 'Product Not Found' }
 
@@ -54,7 +51,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductPage({ params }: Props) {
   const { id } = await params
 
-  const product = await getCachedProduct(id)
+  const product = await prisma.product.findFirst({
+    where: { OR: [{ slug: id }, { id }] },
+    select: { name: true, description: true, price: true, images: true, slug: true },
+  })
 
   const jsonLd = product ? {
     '@context': 'https://schema.org',

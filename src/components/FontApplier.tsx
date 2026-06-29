@@ -25,12 +25,18 @@ useEffect(() => {
       if (f.bodyFont)        root.style.setProperty('--font-body', f.bodyFont)
       if (f.bodySizeBase) {
   root.style.setProperty('--font-body-size', `${f.bodySizeBase}px`)
+  root.style.fontSize = `${(Number(f.bodySizeBase) / 14) * 100}%`
 }
       if (f.bodyWeight)      root.style.setProperty('--font-body-weight', f.bodyWeight)
       if (f.bodyTracking)    root.style.setProperty('--font-body-tracking', `${f.bodyTracking}em`)
       if (f.navFont)         root.style.setProperty('--font-nav', f.navFont || f.bodyFont)
       if (f.navSize)         root.style.setProperty('--font-nav-size', `${f.navSize}px`)
       if (f.navTracking)     root.style.setProperty('--font-nav-tracking', `${f.navTracking}em`)
+      // Also apply body styles directly for immediate effect
+      document.body.style.fontFamily = f.bodyFont || ''
+      document.body.style.fontSize = f.bodySizeBase ? `${f.bodySizeBase}px` : ''
+      document.body.style.fontWeight = f.bodyWeight || ''
+      document.body.style.letterSpacing = f.bodyTracking ? `${f.bodyTracking}em` : ''
     })
     .catch(() => {})
 }, [])

@@ -12,7 +12,6 @@ interface Product {
   price: number
   image: string
   badge?: string
-  soldOut?: boolean
   href: string
   colors?: { hex: string; name: string }[]
   comparePrice?: number
@@ -64,17 +63,7 @@ function ProductCard({ product }: { product: Product }) {
               transform: hovered ? 'scale(1.04)' : 'scale(1)',
             }}
           />
-          {product.soldOut ? (
-            <div style={{
-              position: 'absolute', top: '10px', left: '10px',
-              background: '#6b6b6b',
-              color: '#fff', fontFamily: 'var(--font-body)', fontSize: '9px',
-              letterSpacing: '0.15em', fontWeight: 600,
-              textTransform: 'uppercase', padding: '4px 8px',
-            }}>
-              Sold Out
-            </div>
-          ) : product.badge && (
+          {product.badge && (
             <div style={{
               position: 'absolute', top: '10px', left: '10px',
               background: product.badge === 'Sale' ? '#c0392b' : product.badge === 'Best Seller' ? '#4a6741' : 'var(--color-charcoal)',

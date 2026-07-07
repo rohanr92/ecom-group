@@ -10,7 +10,7 @@ import {
 import ImageUpload from '@/components/ImageUpload'
 
 const CATEGORIES = ['Dresses','Tops','Pants','Jeans','Jackets','Sets','Accessories']
-const SIZES      = ['XXS','XS','S','M','L','XL','XXL','One Size','0','2','4','6','8','10','12','14','16','18','25','26','27','28','29','30','31','32','33','34','36','38','40']
+const SIZES      = ['XS','S','M','L','XL','XXL','One Size','25','26','27','28','29','30','31','32']
 const COLORS_PRE = [
   { name: 'Onyx',    hex: '#1a1a1a' },
   { name: 'Caramel', hex: '#c8a882' },

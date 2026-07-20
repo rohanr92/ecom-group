@@ -179,14 +179,6 @@ export default function ProductPage({ id }: { id: string }) {
   const [loading, setLoading]  = useState(true)
   const [selectedColor, setSelectedColor] = useState<any>(null)
   const [selectedSize,  setSelectedSize]  = useState<string | null>(null)
-  // Color-aware stock: stock for a size IN the currently selected color
-  const sizeStock = (sz: string) => {
-    if (!product) return 0
-    const cname = selectedColor?.name ?? ''
-    // prefer color-specific inventoryMap; fall back to color-blind only if no color selected
-    if (cname && product.inventoryMap) return product.inventoryMap[`${sz}-${cname}`] ?? 0
-    return product.sizeInventory?.[sz] ?? 0
-  }
   const [sizeChartOpen, setSizeChartOpen] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
   const [quantity,      setQuantity]      = useState(1)
@@ -320,7 +312,7 @@ useEffect(() => {
 
  const handleAddToCart = () => {
   if (!selectedSize && product?.sizes?.length) { setSizeError(true); return }
-  const stock = selectedSize ? sizeStock(selectedSize) : 999
+  const stock = product?.sizeInventory?.[selectedSize ?? ''] ?? 999
   if (stock === 0) { setSizeError(false); return }
     setSizeError(false)
     const item: CartItem = {
@@ -587,7 +579,7 @@ useEffect(() => {
                   </div>
                 <div className="flex gap-2 flex-wrap">
   {product.sizes.map((s: string) => {
-    const stock = sizeStock(s)
+    const stock = product.sizeInventory?.[s] ?? 999
     const outOfStock = stock === 0
     const lowStock = stock > 0 && stock <= 3
     const isSelected = selectedSize === s
@@ -627,9 +619,9 @@ useEffect(() => {
   })}
 </div>
 {/* Low stock warning */}
-{selectedSize && sizeStock(selectedSize) > 0 && sizeStock(selectedSize) <= 3 && (
+{selectedSize && product.sizeInventory?.[selectedSize] > 0 && product.sizeInventory?.[selectedSize] <= 3 && (
   <p className="text-[11px] text-amber-600 tracking-wide mt-2">
-    Only {sizeStock(selectedSize)} left in this size
+    Only {product.sizeInventory[selectedSize]} left in this size
   </p>
 )}
 {sizeError && <p className="text-red-500 text-[11px] tracking-wide mt-2">Please select a size to continue</p>}
@@ -639,7 +631,7 @@ useEffect(() => {
 
               {/* Quantity */}
               {selectedSize && (() => {
-                const maxStock = selectedSize ? sizeStock(selectedSize) : 0
+                const maxStock = product.sizeInventory[selectedSize] ?? 0
                 const atMax = quantity >= maxStock
                 return (
                   <div className="mt-5">

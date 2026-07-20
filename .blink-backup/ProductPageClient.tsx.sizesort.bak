@@ -213,17 +213,8 @@ p.colors = p.variants
   ? [...new Map(p.variants.filter((v:any) => v.color).map((v:any) => [v.color, { name: v.color, hex: v.colorHex || '#1a1a1a' }])).values()]
   : []
 
-const SIZE_ORDER = ['XXS','XS','S','M','L','XL','XXL','One Size']
-const sizeRank = (x:any) => {
-  const str = String(x)
-  const li = SIZE_ORDER.indexOf(str)
-  if (li !== -1) return li                    // letter sizes: fixed order
-  const n = parseFloat(str)
-  if (!isNaN(n)) return 1000 + n              // numeric sizes: ascending, after letters
-  return 9999                                 // anything else last
-}
 p.sizes = p.variants
-  ? [...new Set(p.variants.filter((v:any) => v.size).map((v:any) => v.size))].sort((a:any,b:any) => sizeRank(a) - sizeRank(b))
+  ? [...new Set(p.variants.filter((v:any) => v.size).map((v:any) => v.size))]
   : []
 
 // Build inventory map: { "S-Black": 3, "M-Black": 0, ... }

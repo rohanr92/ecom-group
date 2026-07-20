@@ -164,18 +164,22 @@ const openMenu = (item: string) => {
       </div>
 
       {/* BAR 1b: Promo marquee (mobile only) */}
-      {isMobile && (() => {
-        const unit = (promo.middle + '\u00A0\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0\u00A0').repeat(4)
-        return (
+      {isMobile && (
         <div style={{ background: '#111', overflow: 'hidden', padding: '9px 0', width: '100%' }}>
-          <div style={{ display: 'inline-flex', whiteSpace: 'nowrap', animation: 'promoScroll 12s linear infinite' }}>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', flexShrink: 0 }}>{unit}</span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', flexShrink: 0 }}>{unit}</span>
+          <div style={{ display: 'inline-flex', whiteSpace: 'nowrap', animation: 'promoScroll 18s linear infinite' }}>
+            {[0,1].map(g => (
+              <div key={g} style={{ display: 'inline-flex', flexShrink: 0 }}>
+                {[0,1,2,3,4,5].map(i => (
+                  <span key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', paddingRight: '48px' }}>
+                    {promo.middle}
+                  </span>
+                ))}
+              </div>
+            ))}
           </div>
           <style>{`@keyframes promoScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
         </div>
-        )
-      })()}
+      )}
 
       </>)}
       {/* BAR 2: Utility */}

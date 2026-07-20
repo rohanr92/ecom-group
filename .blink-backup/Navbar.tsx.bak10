@@ -39,7 +39,7 @@ export default function Navbar() {
   const [currency,       setCurrency]       = useState('USD')
   const [currencyOpen,   setCurrencyOpen]   = useState(false)
   const [navItems,       setNavItems]       = useState<any[]>([])
-  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth <= 768 : false))
+  const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768)
     check()
@@ -165,15 +165,18 @@ const openMenu = (item: string) => {
 
       {/* BAR 1b: Promo marquee (mobile only) */}
       {isMobile && (() => {
-        // Repeat the admin message as ONE plain string with a single consistent separator.
-        // No extra dots, no flex gaps -> every space is identical.
-        const one = promo.middle + '\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0'
-        const text = one.repeat(6)
+        // one "set" = [text • text • text •] with even flex gap; duplicate the set for seamless -50% loop
+        const items = []
+        for (let k = 0; k < 4; k++) { items.push('text'); items.push('dot') }
+        const full = [...items, ...items]
         return (
         <div style={{ background: '#111', overflow: 'hidden', padding: '9px 0', width: '100%' }}>
-          <div style={{ display: 'flex', whiteSpace: 'nowrap', width: 'max-content', animation: 'promoScroll 60s linear infinite' }}>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', flexShrink: 0 }}>{text}</span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', flexShrink: 0 }}>{text}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px', whiteSpace: 'nowrap', width: 'max-content', animation: 'promoScroll 14s linear infinite' }}>
+            {full.map((t, i) => (
+              <span key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: t === 'dot' ? '#888' : '#fff', textTransform: 'uppercase', flexShrink: 0 }}>
+                {t === 'dot' ? '•' : promo.middle}
+              </span>
+            ))}
           </div>
           <style>{`@keyframes promoScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
         </div>

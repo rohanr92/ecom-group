@@ -165,19 +165,12 @@ const openMenu = (item: string) => {
 
       {/* BAR 1b: Promo marquee (mobile only) */}
       {isMobile && (
-        <div style={{ background: '#111', overflow: 'hidden', padding: '9px 0', width: '100%' }}>
-          <div style={{ display: 'inline-flex', whiteSpace: 'nowrap', animation: 'promoScroll 18s linear infinite' }}>
-            {[0,1].map(g => (
-              <div key={g} style={{ display: 'inline-flex', flexShrink: 0 }}>
-                {[0,1,2,3,4,5].map(i => (
-                  <span key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', paddingRight: '48px' }}>
-                    {promo.middle}
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-          <style>{`@keyframes promoScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
+        <div style={{ background: '#111', padding: '8px 0' }}>
+          <Marquee speed={40} gradient={false} autoFill>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', paddingRight: '40px' }}>
+              {promo.middle}
+            </span>
+          </Marquee>
         </div>
       )}
 

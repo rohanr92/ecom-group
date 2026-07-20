@@ -131,7 +131,6 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
 function BadgeColor(badge: string | null) {
   if (badge === 'Sale') return 'bg-red-600'
   if (badge === 'Clearance') return 'bg-red-600'
-  if (badge === 'Clearance') return 'bg-red-600'
   if (badge === 'Best Seller') return 'bg-[#4a6741]'
   return 'bg-[#1a1a1a]'
 }

@@ -129,7 +129,6 @@ const [itemOffset, setItemOffset] = useState(0)
     if (label === 'Best Sellers') return '/collections/best-sellers'
     if (label === 'Sale') return '/collections/sale'
     if (label === 'Clearance') return '/collections/clearance'
-    if (label === 'Clearance') return '/collections/clearance'
     return `/collections?category=${label}`
   }
 

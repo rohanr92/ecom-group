@@ -94,7 +94,7 @@ export default function HomePage() {
         </div>
 
         <EditorialBanner
-          title="Summer Shirts"
+          title="Spring Shirts"
           subtitle="New season"
           ctaText="Shop Collection"
           ctaHref="/collections/shirts"

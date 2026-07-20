@@ -3,7 +3,7 @@ import Link from 'next/link'
 const womenCategories = [
   { label: "Women's New Arrivals", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100762104-1775598851179-wmns_opc02f_0126_d3-1b-008-050.jpeg', href: '/collections/womens-new-arrivals' },
   { label: "Men's New Arrivals",   image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100763028-1775598849682-mens_cont02f_0126_074.jpeg', href: '/collections/mens-new-arrivals' },
-  { label: "Women's Summer Essentials",      image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100761153-1775599025404-wmns_adc07f_0326_0165_altbgd_ext_1-1-1-.jpeg', href: '/collections/womens-spring-essentials' },
+  { label: "Women's Spring Essentials",      image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100761153-1775599025404-wmns_adc07f_0326_0165_altbgd_ext_1-1-1-.jpeg', href: '/collections/womens-spring-essentials' },
   { label: "Men's Denim",      image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100760148-1775599234635-mens_ymt03f_0326_0091_altbgd_ext_8-5.jpeg', href: '/collections/mens-denim' },
   { label: "Women's Denim",     image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100759161-1775599347953-wmns_trd04f_0126_063.jpeg', href: '/collections/womens-denim' },
   { label: "Women's Pants", image: 'https://d3o8u8o2i2q94t.cloudfront.net/products/1776100758226-1775599582552-32778185_fpx.webp', href: '/collections/womens-pants' },

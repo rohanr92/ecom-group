@@ -636,7 +636,7 @@ if (searchQuery.trim()) {
           <div style={{ position: 'relative', zIndex: 1 }}>
             <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-2">New Season</p>
             <h3 className="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-light italic text-white leading-snug mb-4">
-              Summer Styling,<br />Your Way
+              Spring Styling,<br />Your Way
             </h3>
             <Link href="/collections/new-arrivals" className="text-[11px] tracking-widest uppercase text-white border-b border-white/40 pb-0.5 no-underline hover:border-white transition-colors">
               Explore New Arrivals

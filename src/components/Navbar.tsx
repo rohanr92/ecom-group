@@ -319,7 +319,7 @@ const openMenu = (item: string) => {
                     style={{
                       fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 400,
                       letterSpacing: '0.04em', whiteSpace: 'nowrap', textDecoration: 'none',
-                      color: (navItems.find(i => i.label === link)?.isSale || link === 'Sale' || link === 'Clearance') ? '#c0392b' : 'var(--color-charcoal)',
+                      color: (link === 'Clearance') ? '#c0392b' : 'var(--color-charcoal)',
                       borderBottom: activeMenu === link ? '2px solid var(--color-charcoal)' : '2px solid transparent',
                       height: '44px', display: 'inline-flex', alignItems: 'center',
                     }}>
@@ -390,7 +390,7 @@ const openMenu = (item: string) => {
                   <div key={link} style={{ borderBottom: '1px solid #f0ece6' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0' }}>
                       <Link href={getNavHref(link)} onClick={() => setMobileOpen(false)}
-                        style={{ fontFamily: 'var(--font-body)', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none', color: (navItems.find(i => i.label === link)?.isSale || link === 'Sale' || link === 'Clearance') ? '#c0392b' : '#1a1a1a' }}>
+                        style={{ fontFamily: 'var(--font-body)', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none', color: (link === 'Clearance') ? '#c0392b' : '#1a1a1a' }}>
                         {link}
                       </Link>
                       {mega && (

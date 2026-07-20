@@ -39,14 +39,6 @@ export default function Navbar() {
   const [currency,       setCurrency]       = useState('USD')
   const [currencyOpen,   setCurrencyOpen]   = useState(false)
   const [navItems,       setNavItems]       = useState<any[]>([])
-  const [isMobile, setIsMobile] = useState(false)
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
-
   const [promo, setPromo] = useState({
     text: 'Summer is here!',
     middle: 'FREE SHIPPING ALL OVER THE USA \u2022 CLEARANCE SALE UP TO 70% OFF',
@@ -164,15 +156,13 @@ const openMenu = (item: string) => {
       </div>
 
       {/* BAR 1b: Promo marquee (mobile only) */}
-      {isMobile && (
-        <div style={{ background: '#111', padding: '8px 0' }}>
-          <Marquee speed={40} gradient={false} autoFill>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', paddingRight: '40px' }}>
-              {promo.middle}
-            </span>
-          </Marquee>
-        </div>
-      )}
+      <div className="promo-marquee" style={{ background: '#111', padding: '8px 0' }}>
+        <Marquee speed={40} gradient={false} autoFill>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', color: '#fff', textTransform: 'uppercase', paddingRight: '60px' }}>
+            {promo.middle}
+          </span>
+        </Marquee>
+      </div>
 
       </>)}
       {/* BAR 2: Utility */}

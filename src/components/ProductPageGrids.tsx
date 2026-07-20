@@ -44,7 +44,7 @@ function ProductMiniCard({ product }: { product: GridProduct }) {
               Sold Out
             </span>
           ) : product.badge && (
-            <span style={{ position: 'absolute', top: '10px', left: '10px', background: product.badge === 'Sale' ? '#c0392b' : product.badge === 'Best Seller' ? '#4a6741' : '#1a1a1a', color: '#fff', fontSize: '9px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', padding: '4px 8px' }}>
+            <span style={{ position: 'absolute', top: '10px', left: '10px', background: product.badge === 'Sale' ? '#c0392b' : product.badge === 'Clearance' ? '#c0392b' : product.badge === 'Best Seller' ? '#4a6741' : '#1a1a1a', color: '#fff', fontSize: '9px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', padding: '4px 8px' }}>
               {product.badge}
             </span>
           )}
@@ -78,6 +78,7 @@ function ProductMiniCard({ product }: { product: GridProduct }) {
 function StyleCard({ product }: { product: GridProduct }) {
   const href = `/products/${product.slug ?? product.id}`
   const img = Array.isArray(product.images) ? product.images[0] : ''
+  const onSale = product.comparePrice && Number(product.comparePrice) > Number(product.price)  // StyleCard onSale
 const [hovered, setHovered] = useState(false)
   const { convert } = useCurrency()
 
